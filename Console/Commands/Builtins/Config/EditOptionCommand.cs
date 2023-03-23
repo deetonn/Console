@@ -53,6 +53,12 @@ public class EditOptionCommand : BaseBuiltinCommand
 
     private int DisplayUsage(IUserInterface terminal)
     {
+        terminal.DisplayLinePure($"{Name} -- USAGE\n");
+
+        terminal.DisplayLinePure($"{Name} <option-name> <value> [--create]");
+        terminal.DisplayLinePure("\nOption Name: The name of the option to edit or create.");
+        terminal.DisplayLinePure("Value: The value to assign to said setting.");
+        terminal.DisplayLinePure("--create: If present, this will create a new key.");
 
         return -1;
     }
