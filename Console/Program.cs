@@ -4,12 +4,12 @@ using Console;
 using Console.UserInterface.UiTypes;
 using Console.Utilitys;
 
-Singleton<ILogger>.InitTo(new ConsoleLogger());
+Singleton<ILogger>.InitTo(instance: new ConsoleLogger());
 
-var wantsUi = args.Contains("--gui");
+var wantsUi = args.Contains(value: "--gui");
 
 var terminal = new Terminal(
-    wantsUi ? UiType.ImGui : UiType.Console
+    type: wantsUi ? UiType.ImGui : UiType.Console
 );
 
 terminal.MainLoop();

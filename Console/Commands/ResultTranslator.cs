@@ -1,6 +1,6 @@
 ﻿namespace Console.Commands;
 
-public static class ResultTranslator
+public static class Result
 {
     public static string Translate(int result)
     {

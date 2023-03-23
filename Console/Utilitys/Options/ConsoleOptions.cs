@@ -52,20 +52,40 @@ public class ConsoleOptions : ISettings
         }
     }
 
+    public const string Setting_UserNameColor = "ui.color.username";
+    public const string Setting_MachineNameColor = "ui.color.machinename";
+    public const string Setting_WatermarkColor = "ui.color.watermark";
+    public const string Setting_TextColor = "ui.color.text";
+
+
     private void LoadDefaultOptions()
     {
-        SetOption("colors.username", (thing) =>
+        SetOption(Setting_UserNameColor, (thing) =>
         {
             thing.VisualName = "The color of the username section";
             thing.Value = Color.Red.ToHexString();
             return thing;
         });
 
-        SetOption("colors.machinename", (thing) =>
+        SetOption(Setting_MachineNameColor, (thing) =>
         {
             thing.VisualName = "The color of the machine name section";
             thing.Value = Color.Yellow.ToHexString();
             return thing;
+        });
+
+        SetOption(Setting_WatermarkColor, (opt) =>
+        {
+            opt.Value = Color.Gray.ToHexString();
+            opt.VisualName = "Terminals Watermark color.";
+            return opt;
+        });
+
+        SetOption(Setting_TextColor, (opt) =>
+        {
+            opt.Value = Color.White.ToHexString();
+            opt.VisualName = "The default color of text in Terminal";
+            return opt;
         });
     }
 
@@ -74,10 +94,22 @@ public class ConsoleOptions : ISettings
         if (!OptionExists(TechnicalName))
             return default;
 
-        return (T?)Options
+        var value = Options
             .Where(x => x.TechnicalName == TechnicalName)
             .FirstOrDefault()
             ?.Value;
+
+        if (typeof(T) == typeof(Color))
+        {
+            if (value is string hexString)
+            {
+                // assume its a hex string if they want it
+                // as a color.
+                return (T?)(object?)Terminal.MakeColorFromHexString(hexString);
+            }
+        }
+
+        return (T?)value;
     }
 
     public string? GetOptionVisualName(string TechnicalName)
@@ -123,7 +155,7 @@ public class ConsoleOptions : ISettings
     {
         // keep sync for safety, no way to safely
         // save between threads currently.
-        var serialized = JsonConvert.SerializeObject(Options);
+        var serialized = JsonConvert.SerializeObject(Options, Formatting.Indented);
         File.WriteAllText(SavePath, serialized);
     }
 }

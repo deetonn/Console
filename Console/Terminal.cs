@@ -26,7 +26,7 @@ public class Terminal
 
     public Terminal(UiType type)
     {
-        Ui = UserInterface.Ui.Create(type);
+        Ui = UserInterface.Ui.Create(type, this);
         Commands = new BaseCommandCentre();
 
         if (!Directory.Exists("saved"))
@@ -39,10 +39,8 @@ public class Terminal
     {
         var sb = new StringBuilder();
 
-        var userNameColor = MakeColorFromHexString(
-            Settings.GetOptionValue<string>("colors.username")!);
-        var machineNameColor = MakeColorFromHexString(
-            Settings.GetOptionValue<string>("colors.machinename")!);
+        var userNameColor = Settings.GetOptionValue<Color>(ConsoleOptions.Setting_UserNameColor);
+        var machineNameColor = Settings.GetOptionValue<Color>(ConsoleOptions.Setting_MachineNameColor);
 
         sb.Append($"{User.Pastel(userNameColor)}");
         sb.Append('@');
@@ -90,7 +88,7 @@ public class Terminal
                 }
             }
             
-            var translation = ResultTranslator.Translate(lastResult);
+            var translation = Result.Translate(lastResult);
             if (!string.IsNullOrEmpty(translation))
                 Ui.DisplayLine($"{translation}");
         }
@@ -102,7 +100,7 @@ public class Terminal
         return Ui.GetLine().Split(' ');
     }
 
-    private void DisplayBlock()
+    public void DisplayBlock()
     {
         const char space = ' ';
         System.Console.BackgroundColor = ConsoleColor.Magenta;

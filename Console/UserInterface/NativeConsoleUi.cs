@@ -1,28 +1,38 @@
 ﻿using System.Drawing;
 using Pastel;
 using Console.UserInterface.UiTypes;
+using Console.Utilitys.Options;
 
 namespace Console.UserInterface;
 
 public class NativeConsoleUi : IUserInterface
 {
-    public NativeConsoleUi()
+    private readonly Terminal parent;
+
+    public NativeConsoleUi(Terminal parent)
     {
         Tray = new ConsoleMessageTray();
         System.Console.Clear();
+
+        this.parent = parent;
     }
     
     public void DisplayLine(string message, Severity type = Severity.None)
     {
         var toStr = type.ToString();
+
+        var watermarkColor =
+            parent.Settings.GetOptionValue<Color>(ConsoleOptions.Setting_WatermarkColor);
+        var textColor =
+            parent.Settings.GetOptionValue<Color>(ConsoleOptions.Setting_TextColor);
         
         var msg = type switch
         {
-            Severity.None =>$"[{"cmd".Pastel(Color.Gray)}] {message}",
-            Severity.Information => $"({toStr.Pastel(Color.Aqua)}) {message}",
-            Severity.Error => $"({toStr.Pastel(Color.Red)}) {message}",
-            Severity.Critical => $"({toStr.Pastel(Color.OrangeRed)}) {message}",
-            _ => $"({toStr.Pastel(Color.Aqua)}) {message}"
+            Severity.None =>$"[{"cmd".Pastel(watermarkColor)}] {message.Pastel(textColor)}",
+            Severity.Information => $"({toStr.Pastel(Color.Aqua)}) {message.Pastel(textColor)}",
+            Severity.Error => $"({toStr.Pastel(Color.Red)}) {message.Pastel(textColor)}",
+            Severity.Critical => $"({toStr.Pastel(Color.OrangeRed)}) {message.Pastel(textColor)}",
+            _ => $"({toStr.Pastel(Color.Aqua)}) {message.Pastel(textColor)}"
         };
         
         System.Console.WriteLine(msg);
@@ -30,10 +40,13 @@ public class NativeConsoleUi : IUserInterface
 
     public void Display(string message, Severity type = Severity.None)
     {
+        var textColor =
+            parent.Settings.GetOptionValue<Color>(ConsoleOptions.Setting_TextColor);
+
         var msg = type switch
         {
-            Severity.None =>message,
-            _ => $"({type}) {message}"
+            Severity.None => message.Pastel(textColor),
+            _ => $"({type}) {message.Pastel(textColor)}"
         };
         
         System.Console.Write(msg);
@@ -41,12 +54,16 @@ public class NativeConsoleUi : IUserInterface
 
     public void DisplayLinePure(string message)
     {
-        System.Console.WriteLine(message);
+        var textColor =
+            parent.Settings.GetOptionValue<Color>(ConsoleOptions.Setting_TextColor);
+        System.Console.WriteLine(message.Pastel(textColor));
     }
 
     public void DisplayPure(string message)
     {
-        System.Console.Write(message);
+        var textColor =
+            parent.Settings.GetOptionValue<Color>(ConsoleOptions.Setting_TextColor);
+        System.Console.Write(message.Pastel(textColor));
     }
 
     public void SetTitle(string message)
