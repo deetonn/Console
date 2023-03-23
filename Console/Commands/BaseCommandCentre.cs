@@ -91,6 +91,11 @@ public class BaseCommandCentre : ICommandCentre
                 logger.Err(this, $"failed to load path `{directory}` [{ex.Message}]");
                 continue;
             }
+            catch (ArgumentException ex)
+            {
+                logger.Err(this, $"Invalid path entry `{directory}` [{ex.Message}]");
+                continue;
+            }
             
             var commands = files
                 .Select(x => new FileInfo(x));

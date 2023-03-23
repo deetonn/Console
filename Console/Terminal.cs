@@ -2,6 +2,10 @@
 using Console.UserInterface;
 using Console.UserInterface.UiTypes;
 using Console.Utilitys;
+using Console.Utilitys.Options;
+using Pastel;
+using System.Drawing;
+using System.Text;
 
 namespace Console;
 
@@ -14,15 +18,38 @@ public class Terminal
     
     public static string UserMachineName => Environment.MachineName;
     public static string User => Environment.UserName;
-    public string WdUmDisplay => $"{User}@{UserMachineName}~{UnixStyleWorkingDirectory}$";
+    public string WdUmDisplay => BuildPromptPointer();
     
     public IUserInterface Ui { get; }
     public ICommandCentre Commands { get; }
+    public ISettings Settings { get; }
 
     public Terminal(UiType type)
     {
         Ui = UserInterface.Ui.Create(type);
         Commands = new BaseCommandCentre();
+
+        if (!Directory.Exists("saved"))
+            Directory.CreateDirectory("saved");
+
+        Settings = new ConsoleOptions("saved/options.json");
+    }
+
+    public string BuildPromptPointer()
+    {
+        var sb = new StringBuilder();
+
+        var userNameColor = MakeColorFromHexString(
+            Settings.GetOptionValue<string>("colors.username")!);
+        var machineNameColor = MakeColorFromHexString(
+            Settings.GetOptionValue<string>("colors.machinename")!);
+
+        sb.Append($"{User.Pastel(userNameColor)}");
+        sb.Append('@');
+        sb.Append($"{UserMachineName.Pastel(machineNameColor)}");
+        sb.Append($"~{UnixStyleWorkingDirectory}$");
+
+        return sb.ToString();
     }
     
     // wrappers for IUserInterface
@@ -81,5 +108,10 @@ public class Terminal
         System.Console.BackgroundColor = ConsoleColor.Magenta;
         Ui.DisplayLine(new string(space, System.Console.BufferWidth));
         System.Console.ResetColor();
+    }
+
+    public static Color MakeColorFromHexString(string hexString)
+    {
+        return ColorTranslator.FromHtml(hexString);
     }
 }
