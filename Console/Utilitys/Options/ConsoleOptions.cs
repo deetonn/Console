@@ -53,9 +53,13 @@ public class ConsoleOptions : ISettings
     }
 
     public const string Setting_UserNameColor = "ui.color.username";
+    public Color UsernameColor => GetOptionValue<Color>(Setting_UserNameColor);
     public const string Setting_MachineNameColor = "ui.color.machinename";
+    public Color MachineNameColor => GetOptionValue<Color>(Setting_MachineNameColor);
     public const string Setting_WatermarkColor = "ui.color.watermark";
+    public Color WatermarkColor => GetOptionValue<Color>(Setting_WatermarkColor);
     public const string Setting_TextColor = "ui.color.text";
+    public Color TextColor => GetOptionValue<Color>(Setting_TextColor);
 
 
     private void LoadDefaultOptions()

@@ -4,7 +4,7 @@ namespace Console.Utilitys;
 
 public class Callable
 {
-    private dynamic Invokable;
+    private readonly dynamic Invokable;
     
     public Callable(dynamic callable)
     {
