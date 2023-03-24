@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.IO;
+using System.Reflection;
 using System.Reflection.Metadata.Ecma335;
 using Console.Utilitys;
 
@@ -44,7 +45,8 @@ public class BaseCommandCentre : ICommandCentre
             if (!type.IsAssignableTo(@base)
                 || type == @base
                 || type == typeof(BaseBuiltinCommand)
-                || type == typeof(PathFileCommand))
+                || type == typeof(PathFileCommand)
+                || type == typeof(AsyncCommand))
                 continue;
             var instance = Activator.CreateInstance(type);
             if (instance is null)
@@ -67,45 +69,47 @@ public class BaseCommandCentre : ICommandCentre
 
         var results = new List<ICommand>();
         var dirs = path.Split(';');
-        
-        foreach (var directory in dirs)
+
+        Task.Run(() =>
         {
-            // get the files in that directory,
-            // construct a PathFileCommand with the FileInfo
+            foreach (var directory in dirs)
+            {
+                // get the files in that directory,
+                // construct a PathFileCommand with the FileInfo
+                string[]? files;
 
-            string[]? files;
+                try
+                {
+                    files = Directory.GetFiles(directory, "*.exe");
+                }
+                catch (DirectoryNotFoundException ex)
+                {
+                    // The PATH directory does not exist.
+                    logger.Err(this, $"failed to load path `{directory}` [{ex.Message}]");
+                    continue;
+                }
+                catch (IOException ex)
+                {
+                    // The PATH directory points to a file
+                    logger.Err(this, $"failed to load path `{directory}` [{ex.Message}]");
+                    continue;
+                }
+                catch (ArgumentException ex)
+                {
+                    logger.Err(this, $"Invalid path entry `{directory}` [{ex.Message}]");
+                    continue;
+                }
 
-            try
-            {
-                files = Directory.GetFiles(directory, "*.exe");
-            }
-            catch (DirectoryNotFoundException ex)
-            {
-                // The PATH directory does not exist.
-                logger.Err(this, $"failed to load path `{directory}` [{ex.Message}]");
-                continue;
-            }
-            catch (IOException ex)
-            {
-                // The PATH directory points to a file
-                logger.Err(this, $"failed to load path `{directory}` [{ex.Message}]");
-                continue;
-            }
-            catch (ArgumentException ex)
-            {
-                logger.Err(this, $"Invalid path entry `{directory}` [{ex.Message}]");
-                continue;
-            }
-            
-            var commands = files
-                .Select(x => new FileInfo(x));
+                var commands = files
+                    .Select(x => new FileInfo(x));
 
-            results.AddRange(
-                commands
-                    .Select(fileInfo => new PathFileCommand(fileInfo)
-                    )
-                );
-        }
+                results.AddRange(
+                    commands
+                        .Select(fileInfo => new PathFileCommand(fileInfo)
+                        )
+                    );
+            }
+        });
 
         return results;
     }
@@ -121,7 +125,9 @@ public class BaseCommandCentre : ICommandCentre
 
         if (instance is not PathFileCommand command)
         {
-            return CommandReturnValues.CQueueBadType;
+            var wrapper = new AsyncCommand(instance);
+            PausedCommands.Add(wrapper);
+            return 0;
         }
         
         var started = command.StartThenPause(args);
@@ -130,15 +136,14 @@ public class BaseCommandCentre : ICommandCentre
         return started ? 0 : CommandReturnValues.FailedToStartProcess;
     }
 
-    public PathFileCommand? FinishQueuedCommand(string command)
+    public ICommand? FinishQueuedCommand(string command)
     {
         if (PausedCommands.Count == 1)
         {
-            return PausedCommands[0] as PathFileCommand;
+            return PausedCommands[0];
         }
 
         return PausedCommands
-                .FirstOrDefault(x => x.Name == command)
-            as PathFileCommand;
+                .FirstOrDefault(x => x.Name == command);
     }
 }

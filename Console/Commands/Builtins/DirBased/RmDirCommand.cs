@@ -17,6 +17,9 @@ public class RmDirCommand : BaseBuiltinCommand
             return DisplayUsage(parent.Ui);
         }
 
+        if (args.Contains("--help"))
+            return DisplayUsage(parent.Ui);
+
         var path = args[0];
 
         if (!Directory.Exists(path))

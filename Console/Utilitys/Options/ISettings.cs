@@ -32,6 +32,8 @@ public interface ISettings
     public T? GetOptionValue<T>(string TechnicalName);
     public string? GetOptionVisualName(string TechnicalName);
 
+    public bool RemoveOption(string TechnicalName);
+
     public bool OptionExists(string TechnicalName);
 
     public void Save();

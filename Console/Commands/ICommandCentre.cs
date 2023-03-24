@@ -34,7 +34,7 @@ public interface ICommandCentre
     /// <returns>All, if any, instances </returns>
     public List<ICommand> LoadPathExecutables();
 
-    public PathFileCommand? FinishQueuedCommand(string command);
+    public ICommand? FinishQueuedCommand(string command);
 
     public int AttemptToQueueCommand(string name, List<string> args, Terminal owner);
 }

@@ -26,14 +26,14 @@ public class DirCommand : BaseBuiltinCommand
         WriteLine($"Parent: {parentFolder}\n");
         foreach (var folder in childrenFolders)
         {
-            var fmt = String.Format("{0,7} {1,7} {2,7} {3,7}", 
+            var fmt = string.Format("{0,7} {1,7} {2,7} {3,7}", 
                 folder.LastAccessTimeUtc, "<DIR>", "", folder.Name);
             WriteLine(fmt);
         }
 
         foreach (var file in childrenFiles)
         {
-            var fmt = String.Format("{0,7} {1,7} {2,7} {3,7}", 
+            var fmt = string.Format("{0,7} {1,7} {2,7} {3,7}", 
                 file.LastAccessTimeUtc, "", $"{file.Length}", file.Name);
             WriteLine(fmt);
         }

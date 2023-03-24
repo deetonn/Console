@@ -65,6 +65,11 @@ public class QueueCommand : BaseBuiltinCommand
             return CommandReturnValues.CQueueNotFound;
         }
         
-        return thing.ResumeExecution(args, parent);
+        if (thing is PathFileCommand pfc)
+        {
+            return pfc.ResumeExecution(args, parent);
+        }
+
+        return thing.Run(args, parent);
     }
 }

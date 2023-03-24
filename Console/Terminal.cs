@@ -1,7 +1,7 @@
 ﻿using Console.Commands;
+using Console.Extensions;
 using Console.UserInterface;
 using Console.UserInterface.UiTypes;
-using Console.Utilitys;
 using Console.Utilitys.Options;
 using Pastel;
 using System.Drawing;
@@ -59,6 +59,11 @@ public class Terminal
 
     internal void MainLoop()
     {
+#if DEBUG
+        System.Console.WriteLine("[DEBUG]: Waiting for input and displaying errors..");
+        System.Console.ReadKey();
+#endif
+
         System.Console.Clear();
         var lastResult = 0;
 
@@ -69,7 +74,7 @@ public class Terminal
             switch (input.Length)
             {
                 case 0:
-                    Ui.DisplayLine("\n");
+                    WriteLine("\n");
                     continue;
                 case 1:
                     lastResult =
@@ -87,7 +92,10 @@ public class Terminal
                     break;
                 }
             }
-            
+
+            if (string.IsNullOrEmpty(input[0]))
+                lastResult = CommandReturnValues.DontShowText;
+
             var translation = Result.Translate(lastResult);
             if (!string.IsNullOrEmpty(translation))
                 Ui.DisplayLine($"{translation}");
@@ -96,16 +104,31 @@ public class Terminal
 
     public string[] GetInput()
     {
+        DisplayBlock();
         Ui.Display($"{WdUmDisplay} ");
         return Ui.GetLine().Split(' ');
     }
 
     public void DisplayBlock()
     {
-        const char space = ' ';
-        System.Console.BackgroundColor = ConsoleColor.Magenta;
-        Ui.DisplayLine(new string(space, System.Console.BufferWidth));
-        System.Console.ResetColor();
+        string? shouldShowOption
+            = Settings.GetOptionValue<string>(ConsoleOptions.Setting_ShowBlock);
+
+        if (!bool.TryParse(shouldShowOption, out bool shouldShow))
+        {
+            shouldShow = true;
+        }
+
+        if (shouldShow)
+        {
+            var blockColor
+                = Settings.GetOptionValue<Color>(ConsoleOptions.Setting_BlockColor);
+
+            const char space = ' ';
+            System.Console.BackgroundColor = blockColor.ClosestConsoleColor();
+            Ui.DisplayLinePure(new string(space, System.Console.BufferWidth));
+            System.Console.ResetColor();
+        }
     }
 
     public static Color MakeColorFromHexString(string hexString)

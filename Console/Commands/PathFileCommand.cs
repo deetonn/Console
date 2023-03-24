@@ -84,8 +84,7 @@ public class PathFileCommand : ICommand
         };
         
         Process? process;
-        string? readData = null;
-        
+        string? readData;
         try
         {
             process = PausedInstance ?? Process.Start(startInfo);

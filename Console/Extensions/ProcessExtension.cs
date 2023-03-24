@@ -44,7 +44,7 @@ public static class ProcessExtension
             {
                 break;
             }
-            SuspendThread(pOpenThread);
+            _ = SuspendThread(pOpenThread);
         }
     }
     public static void Resume(this Process process)
@@ -56,7 +56,7 @@ public static class ProcessExtension
             {
                 break;
             }
-            ResumeThread(pOpenThread);
+            _ = ResumeThread(pOpenThread);
         }
     }
 }

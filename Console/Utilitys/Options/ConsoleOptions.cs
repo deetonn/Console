@@ -62,6 +62,9 @@ public class ConsoleOptions : ISettings
     public Color TextColor => GetOptionValue<Color>(Setting_TextColor);
 
 
+    public const string Setting_ShowBlock = "ui.options.block";
+    public const string Setting_BlockColor = "ui.color.block";
+
     private void LoadDefaultOptions()
     {
         SetOption(Setting_UserNameColor, (thing) =>
@@ -89,6 +92,20 @@ public class ConsoleOptions : ISettings
         {
             opt.Value = Color.White.ToHexString();
             opt.VisualName = "The default color of text in Terminal";
+            return opt;
+        });
+
+        SetOption(Setting_ShowBlock, (opt) =>
+        {
+            opt.VisualName = "Show a block of color after each command to seperate outputs.";
+            opt.Value = "true";
+            return opt;
+        });
+
+        SetOption(Setting_BlockColor, (opt) =>
+        {
+            opt.VisualName = $"The color of the seperator block, only relevant if '{Setting_ShowBlock}' is enabled.";
+            opt.Value = "#FD8CFF";
             return opt;
         });
     }
@@ -161,5 +178,14 @@ public class ConsoleOptions : ISettings
         // save between threads currently.
         var serialized = JsonConvert.SerializeObject(Options, Formatting.Indented);
         File.WriteAllText(SavePath, serialized);
+    }
+
+    public bool RemoveOption(string TechnicalName)
+    {
+        if (!OptionExists(TechnicalName))
+            return false;
+        var match = Options.Where(x => x.TechnicalName == TechnicalName).First();
+        Options.Remove(match);
+        return true;
     }
 }
