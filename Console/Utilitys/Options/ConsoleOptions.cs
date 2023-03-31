@@ -64,6 +64,7 @@ public class ConsoleOptions : ISettings
 
     public const string Setting_ShowBlock = "ui.options.block";
     public const string Setting_BlockColor = "ui.color.block";
+    public const string Setting_DisplayWatermark = "ui.options.watermark_enabled";
 
     private void LoadDefaultOptions()
     {
@@ -106,6 +107,13 @@ public class ConsoleOptions : ISettings
         {
             opt.VisualName = $"The color of the seperator block, only relevant if '{Setting_ShowBlock}' is enabled.";
             opt.Value = "#FD8CFF";
+            return opt;
+        });
+
+        SetOption(Setting_DisplayWatermark, (opt) =>
+        {
+            opt.VisualName = "Display a watermark with output";
+            opt.Value = "false";
             return opt;
         });
     }

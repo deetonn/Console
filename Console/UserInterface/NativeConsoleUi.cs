@@ -16,6 +16,16 @@ public class NativeConsoleUi : IUserInterface
 
         this.parent = parent;
     }
+
+    public bool ShouldDisplayWatermark()
+    {
+        var setting = parent.Settings.GetOptionValue<string>(
+            ConsoleOptions.Setting_DisplayWatermark);
+
+        if (!bool.TryParse(setting, out bool result))
+            return false;
+        return result;
+    }
     
     public void DisplayLine(string message, Severity type = Severity.None)
     {
@@ -26,16 +36,32 @@ public class NativeConsoleUi : IUserInterface
         var textColor =
             parent.Settings.GetOptionValue<Color>(ConsoleOptions.Setting_TextColor);
         
-        var msg = type switch
+        if (ShouldDisplayWatermark())
         {
-            Severity.None =>$"[{"cmd".Pastel(watermarkColor)}] {message.Pastel(textColor)}",
-            Severity.Information => $"({toStr.Pastel(Color.Aqua)}) {message.Pastel(textColor)}",
-            Severity.Error => $"({toStr.Pastel(Color.Red)}) {message.Pastel(textColor)}",
-            Severity.Critical => $"({toStr.Pastel(Color.OrangeRed)}) {message.Pastel(textColor)}",
-            _ => $"({toStr.Pastel(Color.Aqua)}) {message.Pastel(textColor)}"
-        };
-        
-        System.Console.WriteLine(msg);
+            var msg = type switch
+            {
+                Severity.None => $"[{"cmd".Pastel(watermarkColor)}] {message.Pastel(textColor)}",
+                Severity.Information => $"({toStr.Pastel(Color.Aqua)}) {message.Pastel(textColor)}",
+                Severity.Error => $"({toStr.Pastel(Color.Red)}) {message.Pastel(textColor)}",
+                Severity.Critical => $"({toStr.Pastel(Color.OrangeRed)}) {message.Pastel(textColor)}",
+                _ => $"({toStr.Pastel(Color.Aqua)}) {message.Pastel(textColor)}"
+            };
+
+            System.Console.WriteLine(msg);
+        }
+        else
+        {
+            var msg = type switch
+            {
+                Severity.None => $"{message.Pastel(textColor)}",
+                Severity.Information => $"({toStr.Pastel(Color.Aqua)}) {message.Pastel(textColor)}",
+                Severity.Error => $"({toStr.Pastel(Color.Red)}) {message.Pastel(textColor)}",
+                Severity.Critical => $"({toStr.Pastel(Color.OrangeRed)}) {message.Pastel(textColor)}",
+                _ => $"({toStr.Pastel(Color.Aqua)}) {message.Pastel(textColor)}"
+            };
+
+            System.Console.WriteLine(msg);
+        }
     }
 
     public void Display(string message, Severity type = Severity.None)

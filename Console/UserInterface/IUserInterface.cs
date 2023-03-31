@@ -25,7 +25,7 @@ public interface IUserInterface
     public void DisplayPure(string message);
     
     /// <summary>
-    /// Set the user interface's main title.
+    /// Set the user interface's main title
     /// </summary>
     /// <param name="message">The new title</param>
     public void SetTitle(string message);

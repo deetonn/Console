@@ -5,6 +5,7 @@ using Console.UserInterface.UiTypes;
 using Console.Utilitys.Options;
 using Pastel;
 using System.Drawing;
+using System.Security.Claims;
 using System.Text;
 
 namespace Console;
@@ -22,7 +23,9 @@ public class Terminal
     
     public IUserInterface Ui { get; }
     public ICommandCentre Commands { get; }
-    public ISettings Settings { get; }
+    public ISettings Settings { get; internal set; }
+
+    public const string SavePath = "saved/options.json";
 
     public Terminal(UiType type)
     {
@@ -32,7 +35,7 @@ public class Terminal
         if (!Directory.Exists("saved"))
             Directory.CreateDirectory("saved");
 
-        Settings = new ConsoleOptions("saved/options.json");
+        Settings = new ConsoleOptions(SavePath);
     }
 
     public string BuildPromptPointer()

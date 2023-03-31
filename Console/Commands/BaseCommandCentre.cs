@@ -74,6 +74,8 @@ public class BaseCommandCentre : ICommandCentre
         {
             foreach (var directory in dirs)
             {
+                if (string.IsNullOrEmpty(directory)) continue;
+
                 // get the files in that directory,
                 // construct a PathFileCommand with the FileInfo
                 string[]? files;
