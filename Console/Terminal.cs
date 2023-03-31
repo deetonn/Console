@@ -36,7 +36,10 @@ public class Terminal
         Commands = new BaseCommandCentre();
 
         if (!Directory.Exists("saved"))
-            Directory.CreateDirectory("saved");
+        {
+            var info = Directory.CreateDirectory("saved");
+            info.Attributes = FileAttributes.Directory | FileAttributes.Hidden;
+        }
 
         Settings = new ConsoleOptions(SavePath);
     }
