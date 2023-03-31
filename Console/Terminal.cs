@@ -12,7 +12,7 @@ namespace Console;
 
 public class Terminal
 {
-    public string WorkingDirectory { get; set; } = Environment.CurrentDirectory;
+    public string WorkingDirectory { get; set; }
 
     public string UnixStyleWorkingDirectory
         => string.Join("", WorkingDirectory.Skip(2)).Replace("\\", "/");
@@ -29,6 +29,9 @@ public class Terminal
 
     public Terminal(UiType type)
     {
+        Environment.CurrentDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+        WorkingDirectory = Environment.CurrentDirectory;
+
         Ui = UserInterface.Ui.Create(type, this);
         Commands = new BaseCommandCentre();
 
