@@ -1,8 +1,46 @@
 ﻿
+using Console.Commands.Builtins.Etc.Lexer;
 using Console.UserInterface;
+using Pastel;
+using System.Drawing;
 using System.IO;
+using System.Text;
 
 namespace Console.Commands.Builtins.Etc;
+
+public interface ISyntaxGenerator
+{
+    string Generate(string Source);
+}
+
+public class GenericSyntaxGenerator : ISyntaxGenerator
+{
+
+    public string Generate(string Source)
+    {
+        var lexer = new GenericLexer();
+        var tokens = lexer.Lex(Source);
+
+        var sb = new StringBuilder();
+
+        foreach (var tok in tokens)
+        {
+            var data = tok.Type switch
+            {
+                GenericTokenType.None => tok.Lexeme,
+                GenericTokenType.Keyword => tok.Lexeme.Pastel(Color.Pink),
+                GenericTokenType.String => $"\"{tok.Lexeme}\"".Pastel(Color.DarkGreen),
+                GenericTokenType.Number => tok.Lexeme.Pastel(Color.Lime),
+                GenericTokenType.Identifier => tok.Lexeme.Pastel(Color.LightBlue),
+                _ => tok.Lexeme
+            };
+
+            sb.Append(data);
+        }
+
+        return sb.ToString();
+    }
+}
 
 public class ViewFileCommand : BaseBuiltinCommand
 {
@@ -52,10 +90,11 @@ public class ViewFileCommand : BaseBuiltinCommand
     private int DisplayFileContents(string contents)
     {
         var lines = contents.Split('\n');
+        var syntaxHighlighter = new GenericSyntaxGenerator();
 
         for (int i = 0; i < lines.Length; ++i)
         {
-            var line = lines[i];
+            var line = syntaxHighlighter.Generate(lines[i]);
             var lno = i + 1;
             WriteLine($"{lno} | {line}");
         }
