@@ -10,6 +10,5 @@ public class ConsoleLogger : ILogger
     public void Err(object sender, string message)
     {
         System.Console.WriteLine($"({sender.GetType().Name}) [ERROR] {message}");
-
     }
 }

@@ -22,6 +22,9 @@ public class AsyncCommand : ICommand
 
     public int Run(List<string> args, Terminal parent)
     {
+#if DEBUG
+        parent.Ui.DisplayLine($"AsyncCommandWrapper: `{Name}` is being executed. ({args.Count} arguments) [parent={parent}]");
+#endif
         return _wrapper.Run(args, parent);
     }
 }

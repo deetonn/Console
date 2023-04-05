@@ -144,4 +144,9 @@ public class Terminal
     {
         return ColorTranslator.FromHtml(hexString);
     }
+
+    public override string ToString()
+    {
+        return $"Terminal(User={User},Cwd={UnixStyleWorkingDirectory}, CommandCount={Commands.Elements.Count})";
+    }
 }

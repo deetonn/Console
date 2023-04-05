@@ -70,48 +70,47 @@ public class BaseCommandCentre : ICommandCentre
         var results = new List<ICommand>();
         var dirs = path.Split(';');
 
-        Task.Run(() =>
+        foreach (var directory in dirs)
         {
-            foreach (var directory in dirs)
+            if (string.IsNullOrEmpty(directory)) continue;
+
+            // get the files in that directory,
+            // construct a PathFileCommand with the FileInfo
+            string[]? files;
+
+            try
             {
-                if (string.IsNullOrEmpty(directory)) continue;
-
-                // get the files in that directory,
-                // construct a PathFileCommand with the FileInfo
-                string[]? files;
-
-                try
-                {
-                    files = Directory.GetFiles(directory, "*.exe");
-                }
-                catch (DirectoryNotFoundException ex)
-                {
-                    // The PATH directory does not exist.
-                    logger.Err(this, $"failed to load path `{directory}` [{ex.Message}]");
-                    continue;
-                }
-                catch (IOException ex)
-                {
-                    // The PATH directory points to a file
-                    logger.Err(this, $"failed to load path `{directory}` [{ex.Message}]");
-                    continue;
-                }
-                catch (ArgumentException ex)
-                {
-                    logger.Err(this, $"Invalid path entry `{directory}` [{ex.Message}]");
-                    continue;
-                }
-
-                var commands = files
-                    .Select(x => new FileInfo(x));
-
-                results.AddRange(
-                    commands
-                        .Select(fileInfo => new PathFileCommand(fileInfo)
-                        )
-                    );
+                files = Directory.GetFiles(directory, "*.exe");
             }
-        });
+            catch (DirectoryNotFoundException ex)
+            {
+                // The PATH directory does not exist.
+                logger.Err(this, $"failed to load path `{directory}` [{ex.Message}]");
+                continue;
+            }
+            catch (IOException ex)
+            {
+                // The PATH directory points to a file
+                logger.Err(this, $"failed to load path `{directory}` [{ex.Message}]");
+                continue;
+            }
+            catch (ArgumentException ex)
+            {
+                // Not sure what this error is, it was added in .net7.0 (I think)
+                // It began occuring after I updated the project.
+                logger.Err(this, $"Invalid path entry `{directory}` [{ex.Message}]");
+                continue;
+            }
+
+            var commands = files
+                .Select(x => new FileInfo(x));
+
+            results.AddRange(
+                commands
+                    .Select(fileInfo => new PathFileCommand(fileInfo)
+                    )
+                );
+        }
 
         return results;
     }

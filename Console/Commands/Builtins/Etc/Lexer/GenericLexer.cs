@@ -7,35 +7,60 @@ public enum GenericTokenType
     String,
     Number,
     Keyword,
-    Identifier
+    Identifier,
+    FunctionCall
 } 
 
 public record class GenericToken(
     string Lexeme,
     GenericTokenType Type
-    );
+    )
+{
+    public override string ToString()
+    {
+        return $"{Type}(Lexeme: '{Lexeme}')";
+    }
+}
 
 public class GenericLexer
 {
-    private List<GenericToken> tokens;
-    private List<string> genericKeywords = new()
+    private readonly List<GenericToken> tokens;
+    private readonly List<string> genericKeywords = new()
     {
         "if", "else",
         "function", "fn", "func",
         "void", "int", "long", "unsigned", "string", "char",
         "class", "struct", "record",
         "public", "private", "protected", "internal",
-        "new", "delete",
-        "while", "for", "let"
+        "new", "delete", "from", "import",
+        "while", "for", "let", "const", "volatile", "def", "elif",
+        "return",
+        // C++ specific shit
+        "template", "typename", "noexcept", "auto",
+        "constexpr", "throw"
+    };
+    private readonly List<string> codeFileTypes = new()
+    {
+        ".cpp", ".c", ".cc", ".hpp", ".h", 
+        ".cs", 
+        ".rs", 
+        ".js", ".py", ".ts", 
+        ".dl"
     };
 
-    public GenericLexer()
+    private bool _isCodeFile;
+
+    public GenericLexer(string ext)
     {
+        _isCodeFile = codeFileTypes.Contains(ext);
         tokens = new List<GenericToken>();
     }
 
     public List<GenericToken> Lex(string src)
     {
+        if (!_isCodeFile)
+            return new List<GenericToken> { new GenericToken(src, GenericTokenType.None) };
+
         if (src.Length == 0)
             return tokens;
 
@@ -57,7 +82,7 @@ public class GenericLexer
             {
                 current = src[++i];
                 // parse string
-                                  /*"*/              /**/
+                                  /*"*/              /*'*/
                 while (current != 0x22 && current != 0x27)
                 {
                     lexeme += current;
@@ -86,14 +111,24 @@ public class GenericLexer
                 while (true)
                 {
                     lexeme += current;
-                    if (!char.IsLetter(current))
-                        break;
                     current = src[++i];
+
+                    if (current != '_' && !char.IsLetter(current))
+                    {
+                        --i;
+                        break;
+                    }
                 }
 
-                if (genericKeywords.Contains(lexeme.Trim().ToLower()))
+                if (genericKeywords.Contains(lexeme.Trim()))
                 {
                     tokens.Add(new GenericToken(lexeme, GenericTokenType.Keyword));
+                    continue;
+                }
+
+                if (Peek(src, i) == '(')
+                {
+                    tokens.Add(new GenericToken(lexeme, GenericTokenType.FunctionCall));
                     continue;
                 }
 
@@ -105,5 +140,13 @@ public class GenericLexer
         }
 
         return tokens;
+    }
+
+    public char Peek(string s, int i)
+    {
+        var res = i + 1;
+        if (res > s.Length)
+            return '\0';
+        return s[res];
     }
 }
