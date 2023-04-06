@@ -34,8 +34,11 @@ public class ConsoleOptions : ISettings
     public List<ConsoleOption> Options { get; set; }
     public string SavePath { get; }
 
-    public ConsoleOptions(string savePath)
+    public Terminal Parent { get; }
+
+    public ConsoleOptions(string savePath, Terminal parent)
     {
+        Parent = parent;
         Options = new List<ConsoleOption>();
         SavePath = savePath;
 
@@ -177,15 +180,15 @@ public class ConsoleOptions : ISettings
             Options[index] = (ConsoleOption)editor(option);
         }
 
-        Save();
+        Save(Parent);
     }
 
-    public void Save()
+    public void Save(Terminal parent)
     {
         // keep sync for safety, no way to safely
         // save between threads currently.
         var serialized = JsonConvert.SerializeObject(Options, Formatting.Indented);
-        File.WriteAllText(SavePath, serialized);
+        File.WriteAllText(Path.Combine(parent.WorkingDirectory, SavePath), serialized);
     }
 
     public bool RemoveOption(string TechnicalName)

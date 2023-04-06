@@ -48,7 +48,7 @@ public class ReloadConfigCommand : BaseBuiltinCommand
 
         // delete the configuration file.
         File.Delete(Terminal.SavePath);
-        parent.Settings = new ConsoleOptions(Terminal.SavePath);
+        parent.Settings = new ConsoleOptions(Terminal.SavePath, parent);
 
         WriteLine("Reset your configuration!");
 

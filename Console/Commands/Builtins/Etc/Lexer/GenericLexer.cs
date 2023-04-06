@@ -8,13 +8,15 @@ public enum GenericTokenType
     Number,
     Keyword,
     Identifier,
-    FunctionCall
+    FunctionCall,
+    Comment,
+    Type
 } 
 
 public record class GenericToken(
     string Lexeme,
     GenericTokenType Type
-    )
+)
 {
     public override string ToString()
     {
@@ -34,10 +36,12 @@ public class GenericLexer
         "public", "private", "protected", "internal",
         "new", "delete", "from", "import",
         "while", "for", "let", "const", "volatile", "def", "elif",
-        "return",
+        "return", "async", "self", "var", "using", "namespace", "readonly",
+        "foreach", "bool", "static", "object", "inline", "__forceinline",
+        "default",
         // C++ specific shit
         "template", "typename", "noexcept", "auto",
-        "constexpr", "throw"
+        "constexpr", "throw", "null"
     };
     private readonly List<string> codeFileTypes = new()
     {
@@ -47,8 +51,14 @@ public class GenericLexer
         ".js", ".py", ".ts", 
         ".dl"
     };
+    private readonly List<char> commentDelimeters = new()
+    {
+        // due to this being generic, ignore /**/ comments as its
+        // too much hastle.
+        '#', '/'
+    };
 
-    private bool _isCodeFile;
+    private readonly bool _isCodeFile;
 
     public GenericLexer(string ext)
     {
@@ -94,10 +104,9 @@ public class GenericLexer
                 tokens.Add(new GenericToken(lexeme, GenericTokenType.String));
                 continue;
             }
-
             if (char.IsNumber(current))
             {
-                while (!char.IsNumber(current))
+                while (char.IsNumber(current))
                 {
                     lexeme += current;
                     current = src[++i];
@@ -105,8 +114,7 @@ public class GenericLexer
 
                 tokens.Add(new GenericToken(lexeme, GenericTokenType.Number));
             }
-
-            if (char.IsLetter(current))
+            if (char.IsLetter(current) || current == '_')
             {
                 while (true)
                 {
@@ -132,8 +140,28 @@ public class GenericLexer
                     continue;
                 }
 
+                if (char.IsUpper(lexeme.First()))
+                {
+                    tokens.Add(new GenericToken(lexeme, GenericTokenType.Type));
+                    continue;
+                }
+
                 tokens.Add(new GenericToken(lexeme, GenericTokenType.Identifier));
                 continue;
+            }
+            if (commentDelimeters.Contains(current))
+            {
+                lexeme += current;
+                // assume the rest is a comment
+                while (current != '\0' && current != '\n')
+                {
+                    if (++i >= src.Length)
+                        break;
+                    lexeme += src[i];
+                }
+
+                tokens.Add(new GenericToken(lexeme, GenericTokenType.Comment));
+                break;
             }
 
             tokens.Add(new GenericToken(current.ToString(), GenericTokenType.None));

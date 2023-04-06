@@ -34,6 +34,8 @@ public class GenericSyntaxGenerator : ISyntaxGenerator
                 GenericTokenType.Number => tok.Lexeme.Pastel(Color.Lime),
                 GenericTokenType.Identifier => tok.Lexeme.Pastel(Color.LightBlue),
                 GenericTokenType.FunctionCall => tok.Lexeme.Pastel(Color.LightYellow),
+                GenericTokenType.Comment => tok.Lexeme.Pastel(Color.LightGreen),
+                GenericTokenType.Type => tok.Lexeme.Pastel(Color.Cyan),
                 _ => tok.Lexeme
             }; ;
 
@@ -58,36 +60,45 @@ public class ViewFileCommand : BaseBuiltinCommand
     {
         base.Run(args, parent);
 
-        if (args.Count < 1)
+        try
         {
-            return DisplayUsage();
-        }
-
-        var showTokens = args.Contains("--show-tokens");
-
-        if (Path.IsPathRooted(args[0]))
-        {
-            var path0 = Path.GetFullPath(args[0]);
-            if (!File.Exists(path0))
+            if (args.Count < 1)
             {
-                WriteLine($"No such file '{path0}'");
+                return DisplayUsage();
+            }
+
+            var showTokens = args.Contains("--show-tokens");
+
+            if (Path.IsPathRooted(args[0]))
+            {
+                var path0 = Path.GetFullPath(args[0]);
+                if (!File.Exists(path0))
+                {
+                    WriteLine($"No such file '{path0}'");
+                    return -1;
+                }
+                var contents0 = File.ReadAllText(path0);
+                var info0 = new FileInfo(path0);
+                return DisplayFileContents(contents0, info0.Extension, showTokens);
+            }
+
+            var path = Path.Combine(parent.WorkingDirectory, args[0]);
+            if (!File.Exists(path))
+            {
+                WriteLine($"No such file '{path}'");
                 return -1;
             }
-            var contents0 = File.ReadAllText(path0);
-            var info0 = new FileInfo(path0);
-            return DisplayFileContents(contents0, info0.Extension, showTokens);
-        }
 
-        var path = Path.Combine(parent.WorkingDirectory, args[0]);
-        if (!File.Exists(path))
+            var contents = File.ReadAllText(path);
+            var info = new FileInfo(path);
+            return DisplayFileContents(contents, info.Extension, showTokens);
+        }
+        catch (Exception ex)
         {
-            WriteLine($"No such file '{path}'");
-            return -1;
+            WriteLine($"Failed to read the file [{ex.Message}]");
         }
 
-        var contents = File.ReadAllText(path);
-        var info = new FileInfo(path);
-        return DisplayFileContents(contents, info.Extension, showTokens);
+        return -1;
     }
 
     private int DisplayUsage()

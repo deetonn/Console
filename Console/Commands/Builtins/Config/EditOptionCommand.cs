@@ -17,6 +17,9 @@ public class EditOptionCommand : BaseBuiltinCommand
             return DisplayUsage(parent.Ui);
         }
 
+        // We save on the desktop.
+        parent.WorkingDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+
         var option = args[0];
         var value = args[1];
         var create = args.Contains("--create");

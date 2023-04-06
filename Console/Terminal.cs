@@ -41,7 +41,7 @@ public class Terminal
             info.Attributes = FileAttributes.Directory | FileAttributes.Hidden;
         }
 
-        Settings = new ConsoleOptions(SavePath);
+        Settings = new ConsoleOptions(SavePath, this);
     }
 
     public string BuildPromptPointer()

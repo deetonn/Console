@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using PInvoke;
 using Console.Extensions;
 
 namespace Console.Commands;
@@ -17,7 +18,8 @@ public class PathFileCommand : ICommand
         _versionInfo = FileVersionInfo.GetVersionInfo(_file.FullName);
     }
     
-    public string Name => _file.Name;
+    //                                ignored `.exe`
+    public string Name => _file.Name[..^4];
     
     public string Description => _versionInfo.FileDescription ?? "no description";
     
@@ -64,6 +66,31 @@ public class PathFileCommand : ICommand
 
     private Terminal? _terminal = null;
 
+    private Thread LaunchQuitKeyThread(Terminal parent, Process process)
+    {
+        const int VK_CONTROL = 0x11;
+
+        var t = new Thread(() =>
+        {
+            while (!process.HasExited)
+            {
+                parent.Ui.DisplayLine("Thread is spinning!"); 
+
+                bool is_ctrl = (User32.GetAsyncKeyState(VK_CONTROL) & 0x8000) == 0;
+                bool is_x = (User32.GetAsyncKeyState(0x58) & 0x8000) == 0;
+
+                if (is_ctrl && is_x)
+                {
+                    process.Kill();
+                }
+
+                Thread.Sleep(1);
+            }
+        });
+        t.Start();
+        return t;
+    }
+
     public int Run(List<string> args, Terminal parent)
     {
         _terminal = parent;
@@ -93,9 +120,11 @@ public class PathFileCommand : ICommand
                 return FailedToStartProcess;
             
             process.Resume();
-            parent.Ui.DisplayLine($"Process `{process.ProcessName}` has began!");
+            parent.Ui.DisplayLine($"Process `{process.ProcessName}` has began! Press Ctrl+X to stop it.");
             readData = process.StandardOutput.ReadToEnd();
+            var thread = LaunchQuitKeyThread(parent, process);
             process.WaitForExit();
+            thread.Join();
         }
         catch
         {
