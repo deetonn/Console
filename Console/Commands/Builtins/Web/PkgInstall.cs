@@ -1,5 +1,10 @@
 ﻿using Console.Extensions;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
+using System.Net.Http.Handlers;
+using static PInvoke.Kernel32;
+
+using Zip = global::System.IO.Compression.ZipFile;
 
 namespace Console.Commands.Builtins.Web;
 
@@ -21,7 +26,6 @@ public class PackageData
 {
     public string DownloadLink { get; set; }
     public string Description { get; set; }
-
     public InstallerType Type { get; set; }
 
     public PackageData(string downloadLink, string description, InstallerType type)
@@ -69,7 +73,7 @@ public class PkgInstall : BaseBuiltinCommand
     {
         base.Run(args, parent);
 
-        if (args.Count < 1)
+        if (args.Count < 1 || args.Contains("--help"))
         {
             WriteLine($"USAGE: {Name} <package-name>");
             return -1;
@@ -84,32 +88,139 @@ public class PkgInstall : BaseBuiltinCommand
         }
 
         var package = PackageDirectory[packageString];
-        var fileName = $@"C:/Users/{Environment.UserName}/Downloads/_Temp_{packageString}.exe";
 
-        using (var client = new HttpClientDownloadWithProgress(package.DownloadLink, fileName))
+        switch (package.Type)
         {
-            parent.Ui.Clear();
-
-            var download = Task.Run(async () =>
-            {
-                client.ProgressChanged += (fileSize, bytesDownloaded, percentage) =>
+            case InstallerType.WindowsExe:
+                InstallWindowsExe(packageString, package, parent);
+                break;
+            case InstallerType.Zip:
+                InstallZipPackage(packageString, package, parent);
+                break;
+            default:
                 {
-                    WriteLine($"Downloading [{bytesDownloaded}/{fileSize} ({percentage}%)]");
-                    Thread.Sleep(500);
-                    parent.Ui.Clear();
-                };
-
-                await client.StartDownload();
-            });
-            download.Wait();
-
-            var installerInstance = Process.Start(fileName);
-            WriteLine($"Waiting for [{installerInstance.ProcessName}] to finish.");
-            installerInstance.WaitForExit();
-
-            File.Delete(fileName);
+                    Debug.Assert(false, $"Unhandled InstallerType ({package.Type})");
+                    break;
+                }
         }
 
         return 0;
+    }
+
+    public void InstallZipPackage(string packageName, PackageData package, Terminal parent)
+    {
+        string? path = null;
+        do
+        {
+            parent.Ui.Display($"Where would you like to install `{packageName}`? ");
+            var recv = parent.Ui.GetLine();
+            if (!Directory.Exists(recv))
+            {
+                parent.Ui.DisplayLine("\nNo such directory. Please make sure the directory exists.\n");
+            }
+            else
+            {
+                path = recv;
+            }
+        } while (path is null);
+
+        var fullPath = Path.Combine(path, Random.Shared.Next().ToString() + ".zip");
+        var handler = new HttpClientHandler() { AllowAutoRedirect = true };
+        var ph = new ProgressMessageHandler(handler);
+
+        ph.HttpReceiveProgress += async (_, args) =>
+        {
+            parent.Ui.Clear();
+            var total = args.TotalBytes;
+            var received = args.BytesTransferred;
+            WriteLine($"{args.ProgressPercentage}% Done | {ToMB(received)}Mb / {ToMB(total!.Value)}Mb");
+            await Task.Delay(5);
+        };
+
+        using var client = new HttpClient(ph);
+        parent.Ui.Clear();
+
+        var download = Task.Run(async () =>
+        {
+            await client.DownloadFileTaskAsync(new Uri(package.DownloadLink), fullPath);
+        });
+        download.Wait();
+
+        WriteLine($"Downloaded to temporary file `{path}`.\n Extracting contents...");
+
+        try
+        {
+            Zip.ExtractToDirectory(fullPath, path, true);
+            File.Delete(fullPath);
+        }
+        catch (Exception exception)
+        {
+            WriteLine($"FAILURE: {exception.Message}");
+            try
+            {
+                File.Delete(fullPath);
+            } catch { }
+            return;
+        }
+
+        Write("\nWould you like to add this application to the `PATH` variable? (Y/n) ");
+        var pathAnswer = parent.Ui.GetLine();
+        var wantsPath = pathAnswer.ToLower().Contains('y');
+
+        if (!wantsPath)
+        {
+            WriteLine("\nDone.");
+            return;
+        }
+
+        try
+        {
+            Environment.SetEnvironmentVariable("PATH",
+        Environment.GetEnvironmentVariable("PATH" + $";{path}"),
+        EnvironmentVariableTarget.Machine);
+
+            WriteLine("\nAdded to `PATH` environment variable.\nDone!");
+        }
+        catch (Exception ex)
+        {
+            Write($"\nFailed to add to path. ({ex.Message})");
+        }
+    }
+
+    public static long ToMB(long bytes)
+    {
+        return bytes / 1024 / 1024;
+    }
+
+    public void InstallWindowsExe(string packageName, PackageData package, Terminal parent)
+    {
+        var fileName = $@"C:/Users/{Environment.UserName}/Downloads/_Temp_{packageName}.exe";
+
+        var handler = new HttpClientHandler() { AllowAutoRedirect = true };
+        var ph = new ProgressMessageHandler(handler);
+
+        ph.HttpReceiveProgress += async (_, args) =>
+        {
+            parent.Ui.Clear();
+            var total = args.TotalBytes;
+            var received = args.BytesTransferred;
+            WriteLine($"{args.ProgressPercentage}% Done | {ToMB(received)}Mb / {ToMB(total!.Value)}Mb");
+            await Task.Delay(5);
+        };
+
+        using var client = new HttpClient(ph);
+        parent.Ui.Clear();
+
+        var download = Task.Run(async () =>
+        {
+            await client.DownloadFileTaskAsync(new Uri(package.DownloadLink), fileName);
+        });
+        download.Wait();
+
+        var installerInstance = Process.Start(fileName);
+        WriteLine($"Waiting for [{installerInstance.ProcessName}] to finish.");
+        installerInstance.WaitForExit();
+
+        File.Delete(fileName);
     }
 }
