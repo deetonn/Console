@@ -38,10 +38,12 @@ public class GenericLexer
         "while", "for", "let", "const", "volatile", "def", "elif",
         "return", "async", "self", "var", "using", "namespace", "readonly",
         "foreach", "bool", "static", "object", "inline", "__forceinline",
-        "default",
+        "default", "true", "false",
         // C++ specific shit
         "template", "typename", "noexcept", "auto",
-        "constexpr", "throw", "null"
+        "constexpr", "throw", "null",
+        "reinterpret_cast", "static_cast", "dynamic_cast",
+        "const_cast", "decltype", "typeid"
     };
     private readonly List<string> codeFileTypes = new()
     {

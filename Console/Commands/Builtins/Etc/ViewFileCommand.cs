@@ -114,7 +114,18 @@ public class ViewFileCommand : BaseBuiltinCommand
     private int DisplayFileContents(string contents, string ext, bool showTokens = false)
     {
         var lines = contents.Split('\n');
-        var syntaxHighlighter = new GenericSyntaxGenerator();
+        ISyntaxGenerator syntaxHighlighter;
+
+        if (ext == ".DL(WORKINPROGRESS)")
+        {
+            syntaxHighlighter = new DeeLHighlighter();
+        }
+        else
+        {
+            syntaxHighlighter = new GenericSyntaxGenerator();
+        }
+
+        int tokenCount = 0;
 
         for (int i = 0; i < lines.Length; ++i)
         {
@@ -132,7 +143,14 @@ public class ViewFileCommand : BaseBuiltinCommand
                 {
                     WriteLine(token.ToString());
                 }
+
+                tokenCount += tokens.Count;
             }
+        }
+
+        if (showTokens)
+        {
+            WriteLine($"\n{tokenCount} tokens in total.");
         }
 
         return 0;

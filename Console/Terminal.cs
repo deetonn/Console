@@ -5,7 +5,6 @@ using Console.UserInterface.UiTypes;
 using Console.Utilitys.Options;
 using Pastel;
 using System.Drawing;
-using System.Security.Claims;
 using System.Text;
 
 namespace Console;
@@ -29,6 +28,7 @@ public class Terminal
 
     public Terminal(UiType type)
     {
+        var prevDirectory = Environment.CurrentDirectory;
         Environment.CurrentDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
         WorkingDirectory = Environment.CurrentDirectory;
 
@@ -42,6 +42,9 @@ public class Terminal
         }
 
         Settings = new ConsoleOptions(SavePath, this);
+
+        Environment.CurrentDirectory = prevDirectory;
+        WorkingDirectory = Environment.CurrentDirectory;
     }
 
     public string BuildPromptPointer()
@@ -147,6 +150,6 @@ public class Terminal
 
     public override string ToString()
     {
-        return $"Terminal(User={User},Cwd={UnixStyleWorkingDirectory}, CommandCount={Commands.Elements.Count})";
+        return $"Terminal(User={User})";
     }
 }

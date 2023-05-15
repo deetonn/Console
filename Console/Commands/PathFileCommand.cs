@@ -66,7 +66,7 @@ public class PathFileCommand : ICommand
 
     private Terminal? _terminal = null;
 
-    private Thread LaunchQuitKeyThread(Terminal parent, Process process)
+    private static Thread LaunchQuitKeyThread(Terminal parent, Process process)
     {
         const int VK_CONTROL = 0x11;
 

@@ -2,7 +2,7 @@
 
 public class AddTrayCommand : BaseBuiltinCommand
 {
-    public override string Name => "AddTray";
+    public override string Name => "addtray";
     public override string Description => "Add a queued message";
     public override DateTime? LastRunTime { get; set; } = null;
     public override int Run(List<string> args, Terminal parent)

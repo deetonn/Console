@@ -2,7 +2,7 @@
 
 public class HelpCommand : BaseBuiltinCommand
 {
-    public override string Name => "Help";
+    public override string Name => "help";
     public override string Description => "List all active commands.";
     public override DateTime? LastRunTime { get; set; } = null;
     public override int Run(List<string> args, Terminal parent)

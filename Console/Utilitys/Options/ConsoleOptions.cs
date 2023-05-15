@@ -137,8 +137,14 @@ public class ConsoleOptions : ISettings
             {
                 // assume its a hex string if they want it
                 // as a color.
-                return (T?)(object?)Terminal.MakeColorFromHexString(hexString);
+                try
+                {
+                    return (T?)(object?)Terminal.MakeColorFromHexString(hexString);
+                }
+                catch { }
             }
+
+            return default;
         }
 
         return (T?)value;

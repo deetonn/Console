@@ -23,6 +23,26 @@ public class LineCountCommand : BaseBuiltinCommand
         if (arguments is null)
             return -1;
 
+        if (arguments.FileName is not null)
+        {
+            var path = arguments.FileName;
+
+            if (!File.Exists(arguments.FileName))
+            {
+                path = Path.Combine(parent.WorkingDirectory, arguments.FileName);
+                if (!File.Exists(path))
+                {
+                    WriteLine($"No such file exists.");
+                    return -1;
+                }
+            }
+
+            var contents = File.ReadAllLines(path);
+            var count = contents.Length;
+            WriteLine($"Line count: {count}");
+            return count;
+        }
+
         var directory = arguments.Path;
         if (!Directory.Exists(directory))
         {
@@ -87,11 +107,6 @@ public class LineCountCommand : BaseBuiltinCommand
         WriteLine($"Total: {lineCount} lines in total. ({recursed}, {files.Length - filesSkipped})");
         WriteLine($"Skipped {filesSkipped} files because of filters.");
 
-        return CommandReturnValues.DontShowText;
-    }
-
-    ulong ReadFileTotal(string fileContents)
-    {
-        return (ulong)fileContents.Split('\n').Length;
+        return (int)lineCount;
     }
 }

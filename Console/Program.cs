@@ -8,6 +8,11 @@ Singleton<ILogger>.InitTo(instance: new ConsoleLogger());
 
 var wantsUi = args.Contains(value: "--gui");
 
+foreach (var arg in args)
+{
+    System.Console.WriteLine($"{arg}");
+}
+
 var terminal = new Terminal(
     type: wantsUi ? UiType.ImGui : UiType.Console
 );

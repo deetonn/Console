@@ -4,7 +4,7 @@ namespace Console.Commands.Builtins;
 
 public class ChangeDirectoryCommand : BaseBuiltinCommand
 {
-    public override string Name => "Cd";
+    public override string Name => "cd";
     public override string Description => "Change the active directory";
     public override DateTime? LastRunTime { get; set; } = null;
     public override int Run(List<string> args, Terminal parent)
@@ -17,6 +17,12 @@ public class ChangeDirectoryCommand : BaseBuiltinCommand
         }
 
         var path = args.First();
+
+        if (path.Contains('~'))
+        {
+            path = path.Replace("~", Environment.GetFolderPath(
+                Environment.SpecialFolder.UserProfile));
+        }
 
         if (string.IsNullOrEmpty(path))
         {

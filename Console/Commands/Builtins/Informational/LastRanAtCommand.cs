@@ -2,7 +2,7 @@
 
 public class LastRanAtCommand : BaseBuiltinCommand
 {
-    public override string Name => "LastRanAt";
+    public override string Name => "lastranat";
     public override string Description => "Check the last time a command was ran.";
     public override DateTime? LastRunTime { get; set; } = null;
     public override int Run(List<string> args, Terminal parent)

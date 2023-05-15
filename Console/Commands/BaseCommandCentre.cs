@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Reflection;
 using System.Reflection.Metadata.Ecma335;
 using Console.Utilitys;
@@ -30,6 +31,19 @@ public class BaseCommandCentre : ICommandCentre
     public bool CommandExists(string name)
     {
         return Elements.Any(x => x.Name == name);
+    }
+
+    public bool CommandExists(string name, [NotNullWhen(true)] out ICommand? command)
+    {
+        command = Elements.FirstOrDefault(x =>
+        {
+            if (x.Name == name)
+            {
+                return true;
+            }
+            return false;
+        });
+        return command != null;
     }
 
     public List<ICommand> LoadBuiltinCommands()
@@ -146,5 +160,15 @@ public class BaseCommandCentre : ICommandCentre
 
         return PausedCommands
                 .FirstOrDefault(x => x.Name == command);
+    }
+
+    public int ExecuteFrom(Terminal parent, string name, params string[] args)
+    {
+        if (!CommandExists(name, out var command))
+        {
+            return CommandReturnValues.NoSuchCommand;
+        }
+
+        return command.Run(args.ToList(), parent);
     }
 }

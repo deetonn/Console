@@ -18,6 +18,7 @@ public class EditOptionCommand : BaseBuiltinCommand
         }
 
         // We save on the desktop.
+        var prev = parent.WorkingDirectory;
         parent.WorkingDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
 
         var option = args[0];
@@ -50,6 +51,8 @@ public class EditOptionCommand : BaseBuiltinCommand
         });
 
         parent.Ui.DisplayLine($"Edited option `{option}`, new value is `{value}`");
+
+        parent.WorkingDirectory = prev;
 
         return 0;
     }

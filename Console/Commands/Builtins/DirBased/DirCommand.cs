@@ -2,7 +2,7 @@
 
 public class DirCommand : BaseBuiltinCommand
 {
-    public override string Name => "Dir";
+    public override string Name => "dir";
     public override string Description => "Query the active directory";
     public override DateTime? LastRunTime { get; set; } = null;
     public override int Run(List<string> args, Terminal parent)

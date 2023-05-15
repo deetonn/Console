@@ -1,4 +1,6 @@
 ﻿
+using Pastel;
+using System.Drawing;
 using System.Security;
 
 namespace Console.Commands.Builtins.Config;
@@ -14,8 +16,12 @@ public class ViewOptionsCommand : BaseBuiltinCommand
 
         foreach (var option in parent.Settings.Options)
         {
-            parent.Ui.DisplayLine($"[{option.TechnicalName}]: {option.VisualName} (Value: {option.Value})");
+            WriteLine($"[{option.TechnicalName}]: {option.VisualName} (Value: {option.Value})");
         }
+
+        var savePath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+
+        WriteLine($"All options are saved inside the path `{savePath}\\saved`");
 
         return 0;
     }

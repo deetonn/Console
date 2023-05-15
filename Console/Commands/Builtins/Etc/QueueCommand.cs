@@ -5,7 +5,7 @@ namespace Console.Commands.Builtins;
 
 public class QueueCommand : BaseBuiltinCommand
 {
-    public override string Name => "Queue";
+    public override string Name => "queue";
     public override string Description => "Queue a command to run when asked to.";
     public override DateTime? LastRunTime { get; set; } = null;
     public override int Run(List<string> args, Terminal parent)

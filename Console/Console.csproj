@@ -14,4 +14,10 @@
       <PackageReference Include="PInvoke.User32" Version="0.7.124" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Reference Include="Runtime">
+        <HintPath>..\..\DeeL\runtime\bin\Release\net6.0\Runtime.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
 </Project>
