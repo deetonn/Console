@@ -121,5 +121,10 @@ public class NativeConsoleUi : IUserInterface
         return input ?? "Ctrl+Z";
     }
 
+    public ConsoleKeyInfo GetKey()
+    {
+        return System.Console.ReadKey();
+    }
+
     public IMessageTray Tray { get; }
 }

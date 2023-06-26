@@ -38,7 +38,7 @@ public class GenericLexer
         "while", "for", "let", "const", "volatile", "def", "elif",
         "return", "async", "self", "var", "using", "namespace", "readonly",
         "foreach", "bool", "static", "object", "inline", "__forceinline",
-        "default", "true", "false",
+        "default", "true", "false", "mut", "pub", "module",
         // C++ specific shit
         "template", "typename", "noexcept", "auto",
         "constexpr", "throw", "null",
@@ -51,7 +51,8 @@ public class GenericLexer
         ".cs", 
         ".rs", 
         ".js", ".py", ".ts", 
-        ".dl"
+        ".dl",
+        ".v"
     };
     private readonly List<char> commentDelimeters = new()
     {

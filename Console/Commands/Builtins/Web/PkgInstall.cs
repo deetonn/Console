@@ -1,10 +1,9 @@
 ﻿using Console.Extensions;
-using System.ComponentModel.DataAnnotations;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Net.Http.Handlers;
-using static PInvoke.Kernel32;
 
-using Zip = global::System.IO.Compression.ZipFile;
+using Zip = System.IO.Compression.ZipFile;
 
 namespace Console.Commands.Builtins.Web;
 
@@ -15,11 +14,11 @@ public enum InstallerType
     /// </summary>
     WindowsExe,
     /// <summary>
-    /// The download is a .zip file. It must be extracted and the user needs to
+    /// The download is a compressed file. It must be extracted and the user needs to
     /// be prompted on where to install the application. The user should also be
     /// asked if it should be added to the PATH variable.
     /// </summary>
-    Zip
+    Compressed
 }
 
 public class PackageData
@@ -63,7 +62,11 @@ public class PkgInstall : BaseBuiltinCommand
         ["firefox-mac"] = 
             new PackageData("https://download.mozilla.org/?product=firefox-stub&os=mac&lang=en-GB", "Mozilla Firefox, or simply Firefox, is a free and open-source web browser developed by the Mozilla Foundation and its subsidiary, the Mozilla Corporation.", InstallerType.WindowsExe),
         ["nano-win64"] = 
-            new PackageData("https://github.com/okibcn/nano-for-windows/releases/download/v7.2-22.1/nano-for-windows_win64_v7.2-22.1.zip", "Nano is a lightweight CLI editor. Ported from UNIX to windows.", InstallerType.Zip)
+            new PackageData("https://github.com/okibcn/nano-for-windows/releases/download/v7.2-22.1/nano-for-windows_win64_v7.2-22.1.zip", "Nano is a lightweight CLI editor. Ported from UNIX to windows.", InstallerType.Compressed),
+        ["winrar"] = 
+            new PackageData("https://www.win-rar.com/fileadmin/winrar-versions/winrar/winrar-x64-621.exe", "WinRAR is a trialware file archiver utility for Windows, developed by Eugene Roshal of win.rar GmbH. It can create and view archives in RAR or ZIP file formats, and unpack numerous archive file formats.", InstallerType.WindowsExe),
+        ["docker"] = 
+            new PackageData("https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe?utm_source=docker&utm_medium=webreferral&utm_campaign=dd-smartbutton&utm_location=module", "Docker is a set of platform as a service products that use OS-level virtualization to deliver software in packages called containers.", InstallerType.WindowsExe),
     };
 
     public override string Name => "pkg-install";
@@ -94,7 +97,7 @@ public class PkgInstall : BaseBuiltinCommand
             case InstallerType.WindowsExe:
                 InstallWindowsExe(packageString, package, parent);
                 break;
-            case InstallerType.Zip:
+            case InstallerType.Compressed:
                 InstallZipPackage(packageString, package, parent);
                 break;
             default:
@@ -211,15 +214,40 @@ public class PkgInstall : BaseBuiltinCommand
         using var client = new HttpClient(ph);
         parent.Ui.Clear();
 
+        if (File.Exists(fileName))
+            File.Delete(fileName);
+
         var download = Task.Run(async () =>
         {
             await client.DownloadFileTaskAsync(new Uri(package.DownloadLink), fileName);
         });
         download.Wait();
 
-        var installerInstance = Process.Start(fileName);
-        WriteLine($"Waiting for [{installerInstance.ProcessName}] to finish.");
-        installerInstance.WaitForExit();
+        Process? installerInstance;
+
+        try
+        {
+            var info = new ProcessStartInfo(fileName)
+            {
+                // Run the file as adminstrator, this is generally okay
+                // as most of them are installers and request it either way.
+                Verb = "runas",
+            };
+            installerInstance = Process.Start(info);
+        }
+        // catch relevant exceptions
+        catch (Win32Exception ex)
+        {
+            WriteLine($"failed to start process. {ex.Message} (run as admin/root)");
+            return;
+        }
+        catch (Exception ex)
+        {
+            WriteLine($"ERROR: {ex.Message}");
+            return;
+        }
+        WriteLine($"Waiting for [{installerInstance?.ProcessName}] to finish.");
+        installerInstance?.WaitForExit();
 
         File.Delete(fileName);
     }

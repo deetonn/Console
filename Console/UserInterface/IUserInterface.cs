@@ -40,6 +40,12 @@ public interface IUserInterface
     /// </summary>
     /// <returns>The line that has been read, after [Enter] has been pressed.</returns>
     public string GetLine();
+
+    /// <summary>
+    /// Read a key from the interfaces stdin.
+    /// </summary>
+    /// <returns>The key that was read</returns>
+    public ConsoleKeyInfo GetKey();
     
     /// <summary>
     /// The applications message tray. This should be used to display
