@@ -8,6 +8,45 @@ namespace Console.Commands.Builtins.DirBased;
 
 public class LineCountCommand : BaseBuiltinCommand
 {
+    public readonly Dictionary<string, LineCountCommandArguments> Presets = new()
+    {
+        ["cpp"] = new()
+        {
+            Path = ".",
+            ValidExtensions = new[] { ".cpp", ".hpp", ".h", ".c", ".cc", ".cxx", ".hxx" },
+            Recursive = true,
+            Verbose = true
+        },
+        ["c"] = new()
+        {
+            Path = ".",
+            ValidExtensions = new[] { ".c", ".h" },
+            Recursive = true,
+            Verbose = true
+        },
+        ["cs"] = new()
+        {
+            Path = ".",
+            ValidExtensions = new[] { ".cs" },
+            Recursive = true,
+            Verbose = true
+        },
+        ["py"] = new()
+        {
+            Path = ".",
+            ValidExtensions = new[] { ".py", ".pyw" },
+            Recursive = true,
+            Verbose = true
+        },
+        ["rs"] = new()
+        {
+            Path = ".",
+            ValidExtensions = new[] { ".rs" },
+            Recursive = true,
+            Verbose = true
+        }
+    };
+
     public override string Name => "linec";
     public override string Description => "View the total line count of all files within a directory.";
     public override DateTime? LastRunTime { get; set; } = null;
@@ -22,6 +61,19 @@ public class LineCountCommand : BaseBuiltinCommand
 
         if (arguments is null)
             return -1;
+
+        if (arguments.Preset is not null)
+        {
+            if (!Presets.ContainsKey(arguments.Preset))
+            {
+                WriteLine($"No such preset `{arguments.Preset}`");
+                var validPresets = Presets.Keys;
+                WriteLine($"Valid presets: {string.Join(", ", validPresets)}");
+                return -1;
+            }
+
+            arguments = Presets[arguments.Preset];
+        }
 
         if (arguments.FileName is not null)
         {
@@ -83,7 +135,7 @@ public class LineCountCommand : BaseBuiltinCommand
                 filesCounted++;
 
                 var info = new FileInfo(file);
-                if (arguments.IgnoredExtensions?.Contains(info.Extension) ?? false
+                if (!arguments.ValidExtensions?.Contains(info.Extension) ?? false
                     || info.Extension == "")
                 {
                     filesSkipped++;
@@ -103,7 +155,7 @@ public class LineCountCommand : BaseBuiltinCommand
             }
         }
 
-        var recursed = (arguments.Recursive) ? "Recursive" : "Not Recursive";
+        var recursed = arguments.Recursive ? "Recursive" : "Not Recursive";
         WriteLine($"Total: {lineCount} lines in total. ({recursed}, {files.Length - filesSkipped})");
         WriteLine($"Skipped {filesSkipped} files because of filters.");
 

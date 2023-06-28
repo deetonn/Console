@@ -120,7 +120,7 @@ public class PathFileCommand : ICommand
                 return FailedToStartProcess;
             
             process.Resume();
-            parent.Ui.DisplayLine($"Process `{process.ProcessName}` has began! Press Ctrl+X to stop it.");
+            parent.Ui.DisplayLine($"Process `{process.ProcessName}` has begun! Press Ctrl+X to stop it.");
             readData = process.StandardOutput.ReadToEnd();
             var thread = LaunchQuitKeyThread(parent, process);
             process.WaitForExit();

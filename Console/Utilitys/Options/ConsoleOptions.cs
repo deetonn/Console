@@ -42,6 +42,8 @@ public class ConsoleOptions : ISettings
         Options = new List<ConsoleOption>();
         SavePath = savePath;
 
+        Logger().LogInfo(this, $"Initialized the options manager. [{this}, path={savePath}]");
+
         // load options or load defaults
 
         if (!File.Exists(savePath))
@@ -168,13 +170,20 @@ public class ConsoleOptions : ISettings
 
     public void SetOption(string TechnicalName, Func<IOption, IOption> editor)
     {
+        var editor_cb = (IOption option) =>
+        {
+            editor(option);
+            Logger().LogInfo(this, $"Set option `{option.TechnicalName}` to `{option.Value}`");
+            return option;
+        };
+
         if (!OptionExists(TechnicalName))
         {
             var option = new ConsoleOption
             {
                 TechnicalName = TechnicalName
             };
-            var final = editor(option);
+            var final = editor_cb(option);
             Options.Add((ConsoleOption)final);
         }
         else
@@ -183,7 +192,7 @@ public class ConsoleOptions : ISettings
                 .Where(x => x.TechnicalName == TechnicalName)
                 .First();
             var index = Options.IndexOf(option);
-            Options[index] = (ConsoleOption)editor(option);
+            Options[index] = (ConsoleOption)editor_cb(option);
         }
 
         Save(Parent);
@@ -194,6 +203,7 @@ public class ConsoleOptions : ISettings
         // keep sync for safety, no way to safely
         // save between threads currently.
         var serialized = JsonConvert.SerializeObject(Options, Formatting.Indented);
+        Logger().LogInfo(this, $"Saved console options with json byte count of `{serialized.Length}`");
         File.WriteAllText(Path.Combine(parent.WorkingDirectory, SavePath), serialized);
     }
 
@@ -203,6 +213,12 @@ public class ConsoleOptions : ISettings
             return false;
         var match = Options.Where(x => x.TechnicalName == TechnicalName).First();
         Options.Remove(match);
+        Logger().LogInfo(this, $"Remove option `{TechnicalName}`");
         return true;
+    }
+
+    override public string ToString()
+    {
+        return $"ConsoleOptions(Count={Options.Count})";
     }
 }

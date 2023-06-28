@@ -68,6 +68,7 @@ public class BaseCommandCentre : ICommandCentre
             instances.Add((ICommand)instance);
         }
 
+        Logger().LogInfo(this, $"Loading {instances.Count} builtin commands");
         return instances;
     }
 
@@ -117,7 +118,13 @@ public class BaseCommandCentre : ICommandCentre
             }
 
             var commands = files
-                .Select(x => new FileInfo(x));
+                .Select(x =>
+                {
+                    var info = new FileInfo(x);
+                    logger.Info(this, $"[prelude] Loaded {info.Name}");
+                    System.Console.Clear();
+                    return info;
+                });
 
             results.AddRange(
                 commands
@@ -125,6 +132,8 @@ public class BaseCommandCentre : ICommandCentre
                     )
                 );
         }
+
+        Logger().LogInfo(this, $"Loaded {results.Count} from the PATH variable.");
 
         return results;
     }

@@ -15,6 +15,9 @@ public class NativeConsoleUi : IUserInterface
         System.Console.Clear();
 
         this.parent = parent;
+
+        Logger().LogInfo(this, "Native console interface is being used.");
+        Logger().LogInfo(this, $"Parent terminal service is `{parent}`");
     }
 
     public bool ShouldDisplayWatermark()

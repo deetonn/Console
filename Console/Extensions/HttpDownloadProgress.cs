@@ -74,6 +74,7 @@ public class HttpClientDownloadWithProgress : IDisposable
         if (totalDownloadSize.HasValue)
             progressPercentage = Math.Round((double)totalBytesRead / totalDownloadSize.Value * 100, 2);
 
+        Logger().LogInfo(this, $"Download progress [{progressPercentage}%]");
         ProgressChanged(totalDownloadSize, totalBytesRead, progressPercentage);
     }
 

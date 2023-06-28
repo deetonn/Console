@@ -4,8 +4,8 @@ namespace Console.Commands.Builtins.Arguments;
 
 public class LineCountCommandArguments
 {
-    [Option('i', "ignored-exts", HelpText = "File extensions to ignore")]
-    public IEnumerable<string>? IgnoredExtensions { get; set; }
+    [Option('V', "valid-exts", HelpText = "File extensions to ignore")]
+    public IEnumerable<string>? ValidExtensions { get; set; }
 
     [Option('d', "directory", HelpText = "The directory to count the lines of.")]
     public string Path { get; set; } = null!;
@@ -18,4 +18,7 @@ public class LineCountCommandArguments
 
     [Option('f', "file-name", HelpText = "The singular file you want to count the lines of.")]
     public string? FileName { get; set; }
+
+    [Option('P', "preset", HelpText = "Choose a language preset. This matches the languages natural extension. For example, C++ would be `cpp`. CSharp would be `cs` etc...")]
+    public string? Preset { get; set; } = null;
 } 

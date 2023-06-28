@@ -1,4 +1,5 @@
 ﻿using Console.Commands;
+using Console.Commands.Builtins.Web.WebServer;
 using Console.Extensions;
 using Console.UserInterface;
 using Console.UserInterface.UiTypes;
@@ -23,6 +24,7 @@ public class Terminal
     public IUserInterface Ui { get; }
     public ICommandCentre Commands { get; }
     public ISettings Settings { get; internal set; }
+    public IServer? Server { get; set; }
 
     public const string SavePath = "saved/options.json";
 
@@ -31,6 +33,8 @@ public class Terminal
         var prevDirectory = Environment.CurrentDirectory;
         Environment.CurrentDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
         WorkingDirectory = Environment.CurrentDirectory;
+
+        Logger().LogInfo(this, $"Initialized the working directory to `{WorkingDirectory}`");
 
         Ui = UserInterface.Ui.Create(type, this);
         Commands = new BaseCommandCentre();
@@ -45,6 +49,8 @@ public class Terminal
 
         Environment.CurrentDirectory = prevDirectory;
         WorkingDirectory = Environment.CurrentDirectory;
+
+        Logger().LogInfo(this, $"Main terminal instance ready. [{this}]");
     }
 
     public string BuildPromptPointer()

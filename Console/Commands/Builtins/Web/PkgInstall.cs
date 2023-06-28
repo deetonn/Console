@@ -112,6 +112,9 @@ public class PkgInstall : BaseBuiltinCommand
 
     public void InstallZipPackage(string packageName, PackageData package, Terminal parent)
     {
+        Logger().LogInfo(this, $"Installing Zip package `{packageName}`.");
+        Logger().LogInfo(this, $"^^^ Package Url is `{package.DownloadLink}` ^^^");
+
         string? path = null;
         do
         {
