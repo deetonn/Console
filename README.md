@@ -60,3 +60,5 @@ Example #3: All commands accept `.` as a directory (meaning the current director
 alt="Image of the syntax highlighting"  
 style="float: left; margin-right: 10px;" />
 
+# And alot more (I just cant be arsed writing a readme)
+Feel free to help add commands! Or update the readme...
