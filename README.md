@@ -56,3 +56,7 @@ Example #3: All commands accept `.` as a directory (meaning the current director
 `-a`, `--arguments` - The arguments to pass to the command. This is an array of arguments, so it's infinite. The command being queued will handle them so they must be correct.
 
 **vwf** (*ViewFileCommand.cs*) - This will display the contents of a file. If the file contains a programming extension it will be automatically lexed and displayed with syntax highlighting.
+<img src="https://github.com/deetonn/Console/blob/master/Console/Images/ViewFileCommand_Example_ss.png"  
+alt="Image of the syntax highlighting"  
+style="float: left; margin-right: 10px;" />
+
