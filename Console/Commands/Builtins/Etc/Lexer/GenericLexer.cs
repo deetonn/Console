@@ -39,6 +39,7 @@ public class GenericLexer
         "return", "async", "self", "var", "using", "namespace", "readonly",
         "foreach", "bool", "static", "object", "inline", "__forceinline",
         "default", "true", "false", "mut", "pub", "module",
+        "match", "extern", "impl", "trait", "enum", "union", "goto", "break",
         // C++ specific shit
         "template", "typename", "noexcept", "auto",
         "constexpr", "throw", "null",

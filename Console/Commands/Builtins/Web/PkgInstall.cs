@@ -195,6 +195,7 @@ public class PkgInstall : BaseBuiltinCommand
 
     public static long ToMB(long bytes)
     {
+        //     bytes    kb     mb    gb   tb
         return bytes / 1024 / 1024;
     }
 

@@ -8,24 +8,37 @@ public class HelpCommand : BaseBuiltinCommand
     public override int Run(List<string> args, Terminal parent)
     {
         base.Run(args, parent);
-        var wantsBuiltin = args.Contains("--builtin");
+        var wantsAll = args.Contains("--all");
+        var wantsHelp = args.Contains("--help");
 
-        if (wantsBuiltin)
+        if (wantsHelp)
+            return DisplayUsage();
+
+        if (wantsAll)
+        {
+            foreach (var command in parent.Commands.Elements)
+            {
+                parent.Ui.DisplayLine($"{command.Name}: {command.Description}");
+            }
+        }
+        else
         {
             var builtins = parent.Commands.Elements.Where(x => x is BaseBuiltinCommand);
             foreach (var command in builtins)
             {
                 parent.Ui.DisplayLine($"{command.Name}: {command.Description}");
             }
-            
+
             return 2;
         }
-        
-        foreach (var command in parent.Commands.Elements)
-        {
-            parent.Ui.DisplayLine($"{command.Name}: {command.Description}");
-        }
 
+        return 0;
+    }
+
+    int DisplayUsage()
+    {
+        WriteLine($"{Name} - usage");
+        WriteLine("  --all: display all commands, including ones loaded from PATH.");
         return 0;
     }
 }
