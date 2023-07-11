@@ -1,5 +1,5 @@
 # Console
-A fun project that is a stand-in for the default windows command processor.
+A fun project & now my main command processor for windows Terminal that is a stand-in for the default windows command processor.
 The basic windows command processor is garbage. This application steps in and adds *ALOT* more
 functionality including the same functionality. 
 # Commands
