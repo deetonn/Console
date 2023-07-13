@@ -1,6 +1,6 @@
 bin/
-.vs/
-.idea/
+.vs
+.idea
 obj/
 /packages/
 riderModule.iml
