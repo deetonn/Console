@@ -39,6 +39,7 @@ public class StartServer : BaseBuiltinCommand
         if (config.Stop)
         {
             parent.Server?.Stop();
+            parent.Server = null;
             WriteLine("Server has been stopped.");
             return 0;
         }
