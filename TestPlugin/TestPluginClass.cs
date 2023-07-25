@@ -1,9 +1,24 @@
 ﻿using System;
-using Console;
+using System.Transactions;
 using Console.Commands;
 using Console.Utilitys.Options;
 
-namespace TestPlugin;
+namespace Console;
+
+public class TestCommand : BaseBuiltinCommand
+{
+    public override string Name => "test";
+    public override string Description => "This command exists for testing purposes";
+
+    public override int Run(List<string> args, Terminal parent)
+    {
+        base.Run(args, parent);
+
+        WriteLine("This is from the externally loaded test command!");
+
+        return 0;
+    }
+}
 
 public class TestPluginClass : Console.Plugins.IConsolePlugin
 {
@@ -22,12 +37,17 @@ public class TestPluginClass : Console.Plugins.IConsolePlugin
 
     public void OnLoaded(Terminal terminal)
     {
-        terminal.WriteLine("[test] Loaded!");
+        terminal.Commands.LoadCustomCommand(new TestCommand());
     }
 
-    public void OnSettingChange(ISettings settings, string settingName, object newValue)
+    public void OnSettingChange(Terminal terminal, ISettings settings, string settingName, object newValue)
     {
-        // nothing here for now
+        if (settingName.StartsWith("test."))
+        {
+            terminal.WriteLine($"You edited the test option `{settingName}`");
+        }
+
+        return;
     }
 
     public void OnUnloaded(Terminal terminal)
@@ -37,6 +57,13 @@ public class TestPluginClass : Console.Plugins.IConsolePlugin
 
     public bool OnUserInput(Terminal terminal, string input)
     {
+        if (input == "test")
+        {
+            terminal.Ui.Clear();
+            terminal.WriteLine("You cannot say that! [test]");
+            return false;
+        }
+
         return true;
     }
 }
