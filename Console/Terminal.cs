@@ -9,174 +9,181 @@ using Pastel;
 using System.Drawing;
 using System.Text;
 
-namespace Console;
-
-public class Terminal
+namespace Console
 {
-    public string WorkingDirectory { get; set; }
-
-    public string UnixStyleWorkingDirectory
-        => string.Join("", WorkingDirectory.Skip(2)).Replace("\\", "/");
-    
-    public static string UserMachineName => Environment.MachineName;
-    public static string User => Environment.UserName;
-    public string WdUmDisplay => BuildPromptPointer();
-    
-    public IUserInterface Ui { get; }
-    public ICommandCentre Commands { get; }
-    public ISettings Settings { get; internal set; }
-    public IPluginManager PluginManager { get; internal set; }
-    public IServer? Server { get; set; }
-
-    public const string SavePath = "saved/options.json";
-
-    public Terminal(UiType type)
+    public class Terminal
     {
-        var prevDirectory = Environment.CurrentDirectory;
-        Environment.CurrentDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-        WorkingDirectory = Environment.CurrentDirectory;
+        public string WorkingDirectory { get; set; }
+        public string UnixStyleWorkingDirectory => WorkingDirectory[2..].Replace("\\", "/");
 
-        Logger().LogInfo(this, $"Initialized the working directory to `{WorkingDirectory}`");
+        public static string UserMachineName => Environment.MachineName;
+        public static string User => Environment.UserName;
+        public string WdUmDisplay => BuildPromptPointer();
+        public readonly string ConfigurationPath;
 
-        Ui = UserInterface.Ui.Create(type, this);
-        Commands = new BaseCommandCentre();
+        public IUserInterface Ui { get; }
+        public ICommandCentre Commands { get; }
+        public ISettings Settings { get; internal set; }
+        public IPluginManager PluginManager { get; internal set; }
+        public IServer? Server { get; set; }
 
-        if (!Directory.Exists("saved"))
+        public readonly string SavePath;
+
+        public Terminal(UiType type)
         {
-            var info = Directory.CreateDirectory("saved");
-            info.Attributes = FileAttributes.Directory | FileAttributes.Hidden;
+            ConfigurationPath = SortConfigPath();
+            SavePath = Path.Combine(ConfigurationPath, "options.json");
+
+            var prevDirectory = Environment.CurrentDirectory;
+            Environment.CurrentDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            WorkingDirectory = Environment.CurrentDirectory;
+
+            Logger().LogInfo(this, $"Initialized the working directory to `{WorkingDirectory}`");
+
+            Ui = UserInterface.Ui.Create(type, this);
+            Commands = new BaseCommandCentre();
+
+            EnsurePluginsDirectory();
+
+            Settings = new ConsoleOptions(SavePath, this);
+
+            Environment.CurrentDirectory = prevDirectory;
+            WorkingDirectory = Environment.CurrentDirectory;
+
+            PluginManager = new PluginManager();
+            PluginManager.LoadPlugins(this);
+
+            Logger().LogInfo(this, $"Main terminal instance ready. [{this}]");
         }
 
-        Settings = new ConsoleOptions(SavePath, this);
+        private void EnsurePluginsDirectory()
+        {
+            var pluginsDirectory = Path.Combine(ConfigurationPath, "plugins");
+            if (!Directory.Exists(pluginsDirectory))
+            {
+                Directory.CreateDirectory(pluginsDirectory);
+            }
+        }
 
-        Environment.CurrentDirectory = prevDirectory;
-        WorkingDirectory = Environment.CurrentDirectory;
+        public string BuildPromptPointer()
+        {
+            var sb = new StringBuilder();
 
-        PluginManager = new PluginManager();
-        PluginManager.LoadPlugins(this);
+            var userNameColor = Settings.GetOptionValue<Color>(ConsoleOptions.Setting_UserNameColor);
+            var machineNameColor = Settings.GetOptionValue<Color>(ConsoleOptions.Setting_MachineNameColor);
 
-        Logger().LogInfo(this, $"Main terminal instance ready. [{this}]");
-    }
+            sb.Append($"{User.Pastel(userNameColor)}");
+            sb.Append('@');
+            sb.Append($"{UserMachineName.Pastel(machineNameColor)}");
+            sb.Append($"~{UnixStyleWorkingDirectory}$");
 
-    public string BuildPromptPointer()
-    {
-        var sb = new StringBuilder();
+            return sb.ToString();
+        }
 
-        var userNameColor = Settings.GetOptionValue<Color>(ConsoleOptions.Setting_UserNameColor);
-        var machineNameColor = Settings.GetOptionValue<Color>(ConsoleOptions.Setting_MachineNameColor);
+        // Wrappers for IUserInterface
+        public IMessageTray GetTray() => Ui.Tray;
 
-        sb.Append($"{User.Pastel(userNameColor)}");
-        sb.Append('@');
-        sb.Append($"{UserMachineName.Pastel(machineNameColor)}");
-        sb.Append($"~{UnixStyleWorkingDirectory}$");
+        public void WriteLine(string message = "", Severity severity = Severity.None)
+            => Ui.DisplayLine(message, severity);
 
-        return sb.ToString();
-    }
-    
-    // wrappers for IUserInterface
-
-    public IMessageTray GetTray() => Ui.Tray;
-
-    public void WriteLine(string message = "", Severity severity = Severity.None)
-        => Ui.DisplayLine(message, severity);
-
-    internal void MainLoop()
-    {
+        internal void MainLoop()
+        {
 #if DEBUG
-        System.Console.WriteLine("[DEBUG]: Waiting for input and displaying errors..");
-        System.Console.ReadKey();
+            System.Console.WriteLine("[DEBUG]: Waiting for input and displaying errors..");
+            System.Console.ReadKey();
 #endif
 
-        System.Console.Clear();
-        var lastResult = 0;
+            System.Console.Clear();
+            var lastResult = 0;
 
-        while (lastResult != CommandReturnValues.SafeExit)
-        {
-            var input = GetInput();
-
-            if (!HandleOnInputEvent(input))
-                // expect the plugin to output their reason.
-                continue;
-
-            switch (input.Length)
+            while (lastResult != CommandReturnValues.SafeExit)
             {
-                case 0:
-                    WriteLine("\n");
+                var input = GetInput();
+
+                if (!HandleOnInputEvent(input))
                     continue;
-                case 1:
-                    lastResult =
-                        Commands.Run(input[0], 
-                            Array.Empty<string>().ToList(), 
-                            this);
-                    break;
-                case > 1:
+
+                switch (input.Length)
                 {
-                    var args = input[1..].ToList();
-                    lastResult = Commands.Run(
-                        input[0],
-                        args,
-                        this);
-                    break;
+                    case 0:
+                        WriteLine("\n");
+                        continue;
+                    case 1:
+                        lastResult = Commands.Run(input[0], Array.Empty<string>().ToList(), this);
+                        break;
+                    default:
+                        var args = input[1..];
+                        lastResult = Commands.Run(input[0], args.ToList(), this);
+                        break;
                 }
+
+                if (string.IsNullOrEmpty(input[0]))
+                    lastResult = CommandReturnValues.DontShowText;
+
+                var translation = Result.Translate(lastResult);
+                if (!string.IsNullOrEmpty(translation))
+                    Ui.DisplayLine($"{translation}");
+            }
+        }
+
+        public string[] GetInput()
+        {
+            DisplayBlock();
+            Ui.Display($"{WdUmDisplay} ");
+            return Ui.GetLine().Split(' ');
+        }
+
+        public void DisplayBlock()
+        {
+            string? shouldShowOption = Settings.GetOptionValue<string>(ConsoleOptions.Setting_ShowBlock);
+
+            if (!bool.TryParse(shouldShowOption, out bool shouldShow))
+            {
+                shouldShow = true;
             }
 
-            if (string.IsNullOrEmpty(input[0]))
-                lastResult = CommandReturnValues.DontShowText;
+            if (shouldShow)
+            {
+                var blockColor = Settings.GetOptionValue<Color>(ConsoleOptions.Setting_BlockColor);
 
-            var translation = Result.Translate(lastResult);
-            if (!string.IsNullOrEmpty(translation))
-                Ui.DisplayLine($"{translation}");
+                const char space = ' ';
+                System.Console.BackgroundColor = blockColor.ClosestConsoleColor();
+                Ui.DisplayLinePure(new string(space, System.Console.BufferWidth));
+                System.Console.ResetColor();
+            }
         }
-    }
 
-    public string[] GetInput()
-    {
-        DisplayBlock();
-        Ui.Display($"{WdUmDisplay} ");
-        return Ui.GetLine().Split(' ');
-    }
-
-    public void DisplayBlock()
-    {
-        string? shouldShowOption
-            = Settings.GetOptionValue<string>(ConsoleOptions.Setting_ShowBlock);
-
-        if (!bool.TryParse(shouldShowOption, out bool shouldShow))
+        public static Color MakeColorFromHexString(string hexString)
         {
-            shouldShow = true;
+            return ColorTranslator.FromHtml(hexString);
         }
 
-        if (shouldShow)
+        public override string ToString()
         {
-            var blockColor
-                = Settings.GetOptionValue<Color>(ConsoleOptions.Setting_BlockColor);
-
-            const char space = ' ';
-            System.Console.BackgroundColor = blockColor.ClosestConsoleColor();
-            Ui.DisplayLinePure(new string(space, System.Console.BufferWidth));
-            System.Console.ResetColor();
+            return $"Terminal(User={User})";
         }
-    }
 
-    public static Color MakeColorFromHexString(string hexString)
-    {
-        return ColorTranslator.FromHtml(hexString);
-    }
-
-    public override string ToString()
-    {
-        return $"Terminal(User={User})";
-    }
-
-    private bool HandleOnInputEvent(string[]? data)
-    {
-        if (data == null)
+        private string SortConfigPath()
         {
-            // No input, will just add a newline.
-            return true;
+            var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            var configPath = Path.Combine(appData, "Console");
+            Directory.CreateDirectory(configPath);
+
+            var realPath = Path.Combine(configPath, "saved");
+            Directory.CreateDirectory(realPath);
+
+            return realPath;
         }
 
-        var as_string = string.Join(' ', data);
-        return PluginManager.OnUserInput(this, as_string).Result;
+        private bool HandleOnInputEvent(string[]? data)
+        {
+            if (data == null)
+            {
+                return true; // No input, add a newline.
+            }
+
+            var asString = string.Join(' ', data);
+            return PluginManager.OnUserInput(this, asString).Result;
+        }
     }
 }
