@@ -1,3 +1,5 @@
+[![.NET Core Desktop](https://github.com/deetonn/Console/actions/workflows/dotnet-desktop.yml/badge.svg)](https://github.com/deetonn/Console/actions/workflows/dotnet-desktop.yml)
+
 # Console
 A fun project & now my main command processor for windows Terminal that is a stand-in for the default windows command processor.
 The basic windows command processor is garbage. This application steps in and adds *ALOT* more
