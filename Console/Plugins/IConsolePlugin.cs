@@ -18,5 +18,5 @@ public interface IConsolePlugin
     public bool OnUserInput(Terminal terminal, string input);
     public void OnCommandExecuted(Terminal terminal, Commands.ICommand command);
 
-    public void OnSettingChange(ISettings settings, string settingName, object newValue);
+    public void OnSettingChange(Terminal terminal, ISettings settings, string settingName, object newValue);
 }
