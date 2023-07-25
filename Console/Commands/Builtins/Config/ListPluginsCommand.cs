@@ -15,10 +15,16 @@ public class ListPluginsCommand : BaseBuiltinCommand
 
     public override int Run(List<string> args, Terminal parent)
     {
-        if (parent.PluginManager.Plugins.Count == 0)
+        base.Run(args, parent);
+        var count = parent.PluginManager.Plugins.Count;
+
+        if (count == 0)
         {
             WriteLine("There are no loaded plugins!");
+            return 0;
         }
+
+        WriteLine($"There is {count} plugins loaded.\n");
 
         foreach (var (id, data) in parent.PluginManager.Plugins)
         {
