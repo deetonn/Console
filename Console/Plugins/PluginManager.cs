@@ -35,7 +35,7 @@ public interface IPluginLoader
 public class PluginData
 {
     public required IConsolePlugin Plugin { get; set; }
-    public bool Active { get; set; } = false;
+    public bool Active { get; set; } = true;
 }
 
 /// <summary>
@@ -123,7 +123,7 @@ public interface IPluginManager
     /// <param name="settings">The settings instance</param>
     /// <param name="settingName">The setting name.</param>
     /// <param name="newValue">The new value, or null if the value is being removed.</param>
-    public void OnSettingChange(ISettings settings, string settingName, object newValue);
+    public void OnSettingChange(Terminal terminal, ISettings settings, string settingName, object newValue);
 }
 
 public class PluginLoader : IPluginLoader
@@ -266,7 +266,9 @@ public class PluginManager : IPluginManager
             if (!data.Active)
                 continue;
 
-            if (!data.Plugin.OnUserInput(terminal, input))
+            var hookWantsExit = !data.Plugin.OnUserInput(terminal, input);
+
+            if (hookWantsExit)
                 return Task.FromResult(false);
         }
 
@@ -284,14 +286,14 @@ public class PluginManager : IPluginManager
         }
     }
 
-    public void OnSettingChange(ISettings settings, string settingName, object newValue)
+    public void OnSettingChange(Terminal terminal, ISettings settings, string settingName, object newValue)
     {
         foreach (var (_, data) in Plugins)
         {
             if (!data.Active)
                 continue;
 
-            data.Plugin.OnSettingChange(settings, settingName, newValue);
+            data.Plugin.OnSettingChange(terminal, settings, settingName, newValue);
         }
     }
 }
