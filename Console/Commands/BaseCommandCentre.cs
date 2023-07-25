@@ -166,6 +166,20 @@ public class BaseCommandCentre : ICommandCentre
             return CommandReturnValues.NoSuchCommand;
         }
 
-        return command.Run(args.ToList(), parent);
+        var result = command.Run(args.ToList(), parent);
+        parent.PluginManager.OnCommandExecuted(parent, command);
+        return result;
+    }
+
+    public void LoadCustomCommand(ICommand command)
+    {
+        Elements.Add(command);
+    }
+
+    public ICommand? GetCommand(string name)
+    {
+        return Elements
+            .Where(x => x.Name == name)
+            .FirstOrDefault();
     }
 }
