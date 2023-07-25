@@ -193,7 +193,7 @@ public class ConsoleOptions : ISettings
                 .First();
             var index = Options.IndexOf(option);
             Options[index] = (ConsoleOption)editor_cb(option);
-            Parent.PluginManager.OnSettingChange(this, TechnicalName, Options[index].Value);
+            Parent.PluginManager.OnSettingChange(Parent, this, TechnicalName, Options[index].Value);
         }
 
         Save(Parent);
@@ -214,7 +214,7 @@ public class ConsoleOptions : ISettings
             return false;
         var match = Options.Where(x => x.TechnicalName == TechnicalName).First();
         Options.Remove(match);
-        Parent.PluginManager.OnSettingChange(this, TechnicalName, null!);
+        Parent.PluginManager.OnSettingChange(Parent, this, TechnicalName, null!);
         Logger().LogInfo(this, $"Remove option `{TechnicalName}`");
         return true;
     }
