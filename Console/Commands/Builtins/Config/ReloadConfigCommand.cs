@@ -32,7 +32,7 @@ public class ReloadConfigCommand : BaseBuiltinCommand
         base.Run(args, parent);
 
         WriteLine("You are attempting to reset your configuration!");
-        WriteLine($"This operation will delete the saved config in '{Terminal.SavePath}'. Back this up!");
+        WriteLine($"This operation will delete the saved config in '{parent.SavePath}'. Back this up!");
         WriteLine("Please enter the random phrase shown below to confirm the reset.");
 
         var randomWord = RandomPhrases[Random.Shared.Next(0, RandomPhrases.Count)];
@@ -47,8 +47,8 @@ public class ReloadConfigCommand : BaseBuiltinCommand
         }
 
         // delete the configuration file.
-        File.Delete(Terminal.SavePath);
-        parent.Settings = new ConsoleOptions(Terminal.SavePath, parent);
+        File.Delete(parent.SavePath);
+        parent.Settings = new ConsoleOptions(parent.SavePath, parent);
 
         WriteLine("Reset your configuration!");
 
