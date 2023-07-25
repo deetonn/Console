@@ -211,7 +211,8 @@ public class PkgInstall : BaseBuiltinCommand
             parent.Ui.Clear();
             var total = args.TotalBytes;
             var received = args.BytesTransferred;
-            WriteLine($"{args.ProgressPercentage}% Done | {ToMB(received)}Mb / {ToMB(total!.Value)}Mb");
+            var total_str = ToMB(total ?? 0) == 0 ? $"Unknown" : $"{ToMB(total ?? 0)}";
+            WriteLine($"{args.ProgressPercentage}% Done | {ToMB(received)}Mb / {total_str}Mb");
             await Task.Delay(5);
         };
 

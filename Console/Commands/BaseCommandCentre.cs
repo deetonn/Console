@@ -22,10 +22,15 @@ public class BaseCommandCentre : ICommandCentre
 
     public int Run(string name, List<string> args, Terminal owner)
     {
-        return Elements
-                   .FirstOrDefault(x => x.Name.ToLower().Equals(name.ToLower()))?
-                   .Run(args, owner)
-               ?? int.MinValue;
+        var command = Elements
+                   .FirstOrDefault(x => x.Name.ToLower().Equals(name.ToLower()));
+
+        if (command == null)
+            return int.MinValue;
+
+        var result = command.Run(args, owner);
+        owner.PluginManager.OnCommandExecuted(owner, command);
+        return result;
     }
 
     public bool CommandExists(string name)
@@ -77,9 +82,9 @@ public class BaseCommandCentre : ICommandCentre
         var logger = Singleton<ILogger>.Instance();
 
         var path = Environment.GetEnvironmentVariable(PathVariableName);
-        if (path is null)
+        if (string.IsNullOrEmpty(path))
         {
-            return Array.Empty<ICommand>().ToList();
+            return new List<ICommand>();
         }
 
         var results = new List<ICommand>();
@@ -87,50 +92,33 @@ public class BaseCommandCentre : ICommandCentre
 
         foreach (var directory in dirs)
         {
-            if (string.IsNullOrEmpty(directory)) continue;
-
-            // get the files in that directory,
-            // construct a PathFileCommand with the FileInfo
-            string[]? files;
+            if (string.IsNullOrEmpty(directory))
+            {
+                continue;
+            }
 
             try
             {
-                files = Directory.GetFiles(directory, "*.exe");
+                var commands = Directory.EnumerateFiles(directory, "*.exe");
+                Parallel.ForEach(commands, fileInfo =>
+                {
+                    var info = new FileInfo(fileInfo);
+                    logger.Info(this, $"[prelude] Loaded {info.Name}");
+#if !DEBUG
+                    System.Console.Clear();
+#endif
+                    results.Add(new PathFileCommand(info));
+                });
+
             }
-            catch (DirectoryNotFoundException ex)
+            catch (Exception ex) when (ex is DirectoryNotFoundException || ex is IOException)
             {
-                // The PATH directory does not exist.
-                logger.Err(this, $"failed to load path `{directory}` [{ex.Message}]");
-                continue;
-            }
-            catch (IOException ex)
-            {
-                // The PATH directory points to a file
-                logger.Err(this, $"failed to load path `{directory}` [{ex.Message}]");
-                continue;
+                logger.Err(this, $"Failed to load path `{directory}` [{ex.Message}]");
             }
             catch (ArgumentException ex)
             {
-                // Not sure what this error is, it was added in .net7.0 (I think)
-                // It began occuring after I updated the project.
                 logger.Err(this, $"Invalid path entry `{directory}` [{ex.Message}]");
-                continue;
             }
-
-            var commands = files
-                .Select(x =>
-                {
-                    var info = new FileInfo(x);
-                    logger.Info(this, $"[prelude] Loaded {info.Name}");
-                    System.Console.Clear();
-                    return info;
-                });
-
-            results.AddRange(
-                commands
-                    .Select(fileInfo => new PathFileCommand(fileInfo)
-                    )
-                );
         }
 
         Logger().LogInfo(this, $"Loaded {results.Count} from the PATH variable.");

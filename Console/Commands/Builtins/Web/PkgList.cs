@@ -14,7 +14,7 @@ public class PkgList : BaseBuiltinCommand
 
         foreach (var (key, value) in PkgInstall.PackageDirectory)
         {
-            WriteLine($"{key.Pastel(Color.Cyan)} -- (from {value.DownloadLink})\n{value.Description}");
+            WriteLine($"{key.Pastel(Color.Cyan)} -- (from {value.DownloadLink.Pastel(Color.MediumBlue)})\n{value.Description}");
         }
 
         return CommandReturnValues.DontShowText;

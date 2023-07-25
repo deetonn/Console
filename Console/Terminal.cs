@@ -1,6 +1,7 @@
 ﻿using Console.Commands;
 using Console.Commands.Builtins.Web.WebServer;
 using Console.Extensions;
+using Console.Plugins;
 using Console.UserInterface;
 using Console.UserInterface.UiTypes;
 using Console.Utilitys.Options;
@@ -24,6 +25,7 @@ public class Terminal
     public IUserInterface Ui { get; }
     public ICommandCentre Commands { get; }
     public ISettings Settings { get; internal set; }
+    public IPluginManager PluginManager { get; internal set; }
     public IServer? Server { get; set; }
 
     public const string SavePath = "saved/options.json";
@@ -49,6 +51,9 @@ public class Terminal
 
         Environment.CurrentDirectory = prevDirectory;
         WorkingDirectory = Environment.CurrentDirectory;
+
+        PluginManager = new PluginManager();
+        PluginManager.LoadPlugins(this);
 
         Logger().LogInfo(this, $"Main terminal instance ready. [{this}]");
     }
@@ -88,6 +93,10 @@ public class Terminal
         while (lastResult != CommandReturnValues.SafeExit)
         {
             var input = GetInput();
+
+            if (!HandleOnInputEvent(input))
+                // expect the plugin to output their reason.
+                continue;
 
             switch (input.Length)
             {
@@ -157,5 +166,17 @@ public class Terminal
     public override string ToString()
     {
         return $"Terminal(User={User})";
+    }
+
+    private bool HandleOnInputEvent(string[]? data)
+    {
+        if (data == null)
+        {
+            // No input, will just add a newline.
+            return true;
+        }
+
+        var as_string = string.Join(' ', data);
+        return PluginManager.OnUserInput(this, as_string).Result;
     }
 }

@@ -20,7 +20,7 @@ public class BaseBuiltinCommand : ICommand
         var args_str = 
             args.Count == 0 ?
             "no arguments"
-            : "arguments [" + string.Join(", ", args) + "]";
+            : "[" + string.Join(", ", args) + "]";
         Logger().LogInfo(this, $"`{Name}` is executing with `{args_str}` under terminal `{parent}`");
         return 0;
     }
