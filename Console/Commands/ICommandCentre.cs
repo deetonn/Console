@@ -34,6 +34,10 @@ public interface ICommandCentre
     /// <returns>All, if any, instances </returns>
     public List<ICommand> LoadPathExecutables();
 
+    public ICommand? GetCommand(string name);
+
+    public void LoadCustomCommand(ICommand command);
+
     public int ExecuteFrom(Terminal parent, string name, params string[] args);
 
     public ICommand? FinishQueuedCommand(string command);
