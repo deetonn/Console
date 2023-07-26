@@ -187,7 +187,7 @@ public class PluginManager : IPluginManager
 
     public Task LoadPlugins(Terminal terminal)
     {
-        var plugins = Loader.LoadFromPath(Path.Combine(terminal.Settings.SavePath, "plugins")).Result;
+        var plugins = Loader.LoadFromPath(Path.Combine(terminal.ConfigurationPath, "plugins")).Result;
         foreach (var plugin in plugins)
         {
             // assign each a unique Guid.
