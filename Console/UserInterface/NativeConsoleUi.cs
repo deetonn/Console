@@ -126,7 +126,17 @@ public class NativeConsoleUi : IUserInterface
 
     public ConsoleKeyInfo GetKey()
     {
-        return System.Console.ReadKey();
+        return System.Console.ReadKey(true);
+    }
+
+    public void Erase(int count)
+    {
+        // go back from the current console position and clear count amount
+        // of characters
+        for (var i = 0; i < count; i++)
+        {
+            System.Console.Write("\b \b");
+        }
     }
 
     public IMessageTray Tray { get; }

@@ -46,6 +46,12 @@ public interface IUserInterface
     /// </summary>
     /// <returns>The key that was read</returns>
     public ConsoleKeyInfo GetKey();
+
+    /// <summary>
+    /// Backtrack by <paramref name="count"/> characters.
+    /// </summary>
+    /// <param name="count"></param>
+    public void Erase(int count);
     
     /// <summary>
     /// The applications message tray. This should be used to display

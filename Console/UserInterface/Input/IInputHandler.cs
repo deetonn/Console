@@ -25,7 +25,7 @@ public interface IInputHandler
     /// If the callback returns a string, the input will be replaced with the string.
     /// If the dictionary does not contain a key for that input, it is just added.
     /// </summary>
-    IDictionary<char, OnInputCallback> Callbacks { get; }
+    IDictionary<ConsoleKey, OnInputCallback> Callbacks { get; }
 
     /// <summary>
     /// This is the final product. The built string.
@@ -56,16 +56,24 @@ public interface IInputHandler
     /// </summary>
     /// <param name="on">The character to execute the callback on.</param>
     /// <param name="callback">The callback to execute.</param>
-    public void RegisterCallback(char on, OnInputCallback callback);
+    public void RegisterCallback(ConsoleKey on, OnInputCallback callback);
 }
 
 public class InputHandler : IInputHandler
 {
-    public IDictionary<char, OnInputCallback> Callbacks { get; } = new Dictionary<char,  OnInputCallback>();
+    public IDictionary<ConsoleKey, OnInputCallback> Callbacks { get; } = new Dictionary<ConsoleKey,  OnInputCallback>();
 
-    public StringBuilder Result { get; } = new();
+    public StringBuilder Result { get; private set; } = new();
 
     public InputCallbackCode LastCode { get; private set; } = InputCallbackCode.Continue;
+
+    public InputHandler()
+    {
+        RegisterCallback(ConsoleKey.Backspace, (_, e) =>
+        {
+            return "\b\b";
+        });
+    }
 
     public string ReadInputThenClear(Terminal parent)
     {
@@ -75,15 +83,37 @@ public class InputHandler : IInputHandler
         {
             keyInfo = parent.Ui.GetKey();
 
-            if (!Callbacks.ContainsKey(keyInfo.KeyChar))
+            if (!Callbacks.ContainsKey(keyInfo.Key))
             {
                 Result.Append(keyInfo.KeyChar);
             }
             else
             {
-                var callback = Callbacks[keyInfo.KeyChar];
+                var callback = Callbacks[keyInfo.Key];
                 Result.Append(callback(this, new InputEventArgs(keyInfo)));
             }
+
+            //if (keyInfo.Key == ConsoleKey.UpArrow)
+            //{
+            //    var last = parent.CommandHistory.HandleMoveUp();
+            //    if (last == null)
+            //        continue;
+            //    parent.Ui.Erase(Result.Length);
+            //    Result = new StringBuilder(last);
+            //    parent.Ui.DisplayPure(last);
+            //    continue;
+            //}
+
+            //if (keyInfo.Key == ConsoleKey.DownArrow)
+            //{
+            //    var last = parent.CommandHistory.HandleMoveDown();
+            //    if (last == null)
+            //        continue;
+            //    parent.Ui.Erase(Result.Length);
+            //    Result = new StringBuilder(last);
+            //    parent.Ui.DisplayPure(last);
+            //    continue;
+            //}
 
             if (keyInfo.Key == ConsoleKey.Enter)
             {
@@ -98,10 +128,11 @@ public class InputHandler : IInputHandler
         }
 
         var result = Result.ToString();
+        parent.CommandHistory.AddRecentCommand(parent, result);
         return result;
     }
 
-    public void RegisterCallback(char on, OnInputCallback callback)
+    public void RegisterCallback(ConsoleKey on, OnInputCallback callback)
     {
         Callbacks[on] = callback;
     }
