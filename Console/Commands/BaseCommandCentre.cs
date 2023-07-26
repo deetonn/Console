@@ -2,6 +2,7 @@
 using System.IO;
 using System.Reflection;
 using System.Reflection.Metadata.Ecma335;
+using Console.Commands.Builtins.Etc;
 using Console.Utilitys;
 
 namespace Console.Commands;
@@ -65,7 +66,8 @@ public class BaseCommandCentre : ICommandCentre
                 || type == @base
                 || type == typeof(BaseBuiltinCommand)
                 || type == typeof(PathFileCommand)
-                || type == typeof(AsyncCommand))
+                || type == typeof(AsyncCommand)
+                || type == typeof(AliasBuiltinCommand))
                 continue;
             var instance = Activator.CreateInstance(type);
             if (instance is null)
