@@ -73,7 +73,7 @@ public class InputHandler : IInputHandler
 
         while (LastCode == InputCallbackCode.Continue)
         {
-            keyInfo = NativeConsole.ReadKey(true);
+            keyInfo = parent.Ui.GetKey();
 
             if (!Callbacks.ContainsKey(keyInfo.KeyChar))
             {
