@@ -71,7 +71,6 @@ public class ExamplePlugin : Console.Plugins.IConsolePlugin
 - If you want to test it, copy the path to your plugin, then run the command `load_plugin <path>`.
 To print to the console, use the `terminal` arguments member `WriteLine`.
  
- (Explain how to use your terminal application, including examples of custom commands and plugins.) 
  ## Contributing 
  Contributions to this project are welcome! If you find any bugs or have suggestions for new features, feel free to open an issue or submit a pull request. 
  ## License 
