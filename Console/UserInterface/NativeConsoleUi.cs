@@ -126,7 +126,8 @@ public class NativeConsoleUi : IUserInterface
 
     public ConsoleKeyInfo GetKey()
     {
-        return System.Console.ReadKey();
+        // Must intercept.
+        return System.Console.ReadKey(true);
     }
 
     public IMessageTray Tray { get; }
