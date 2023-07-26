@@ -13,6 +13,8 @@ namespace Console
 {
     public class Terminal
     {
+        public const string GithubLink = "https://github.com/deetonn/Console";
+
         public string WorkingDirectory { get; set; }
         public string UnixStyleWorkingDirectory => WorkingDirectory[2..].Replace("\\", "/");
 
@@ -103,6 +105,9 @@ namespace Console
 
             System.Console.Clear();
             var lastResult = 0;
+
+            WriteLine($"Welcome to {"Console".Pastel(Color.Cyan)}. Type {"help".Pastel(Color.Red)} to get started with commands.");
+            WriteLine($"This application is open source, and can be found at {GithubLink.Pastel(Color.Blue)}\n\n");
 
             while (lastResult != CommandReturnValues.SafeExit)
             {
