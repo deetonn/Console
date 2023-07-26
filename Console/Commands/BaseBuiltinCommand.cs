@@ -46,4 +46,9 @@ public class BaseBuiltinCommand : ICommand
     {
         _terminal?.Ui.Display(message, severity);
     }
+
+    public virtual void OnInit(Terminal parent)
+    {
+        // called when the command is loaded.
+    }
 }
