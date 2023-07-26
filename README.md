@@ -9,12 +9,72 @@
  -  Customizable Themes: Users can customize the terminal's appearance with different font colors, background, and prompt style.  
  - Performance focus with extremely fast loading speeds and execution speeds.
  ## Installation 
- - (Provide instructions for how users can install and run your terminal application on different platforms.) 
+ - Download the latest release from the release tab to the right of the project files.
+ - Extract the Zip archive to your location of choice.
+ - Optionally, add the directory you chose into the PATH environment variable.
+ - If you have Windows Terminal, click on the small arrow that is pointing down next to your recently opened tabs.
+ - Select settings
+ - On the options on the left, scroll down to the very bottom and select `Add a new profile`. Then select `New empty profile`.
+ - Chose a name of your choice, then set the `command line` option to point to the `Console.exe` you just installed.
+ - Go back to start-up and set it as your default profile.
+ - Profit!
  ## Usage 
+ It works just the same as the normal command processor. So use it normally if you wish. 
+
+ You can also use any of the custom builtins of `Console`. Type `help` to view them. To view windows commands, use `help --all`.
+
+ ### Plugins
+ - If you want to get started with plugins, get started by creating a new C# project of type `Class Library`.
+ - Add a project reference, this needs to point to wherever you installed the `Console` application. The `.dll` file you want to include is `Console.dll`.
+ - Create a class and name it however you like, then implement the interface in `Console.Plugins.IConsolePlugin`.
+ - Below is an example of how you must implement the class.
+```cs
+public class ExamplePlugin : Console.Plugins.IConsolePlugin
+{
+    // Doesn't have to by `_` seperated.
+    public string Name => "my_plugin_name";
+
+    public string Description => "My description";
+
+    public string Author => "Your name";
+
+    public Guid Id { get; set; } = Guid.Empty; // This is set by the plugin manager.
+
+    public void OnCommandExecuted(Terminal terminal, ICommand command)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void OnLoaded(Terminal terminal)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void OnSettingChange(Terminal terminal, ISettings settings, string settingName, object newValue)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void OnUnloaded(Terminal terminal)
+    {
+        throw new NotImplementedException();
+    }
+
+    public bool OnUserInput(Terminal terminal, string input)
+    {
+        throw new NotImplementedException();
+    }
+}
+```
+- Build the application.
+- If you have finished your plugin (or installing someone elses) you can find the auto-loaded plugin path at C:\Users\<user-name>\AppData\Roaming\Console\saved\plugins.
+- If you want to test it, copy the path to your plugin, then run the command `load_plugin <path>`.
+To print to the console, use the `terminal` arguments member `WriteLine`.
+ 
  (Explain how to use your terminal application, including examples of custom commands and plugins.) 
  ## Contributing 
  Contributions to this project are welcome! If you find any bugs or have suggestions for new features, feel free to open an issue or submit a pull request. 
  ## License 
  This project is licensed under the [MIT License](https://github.com/deetonn/Console/blob/master/LICENSE).  
  ## Contact 
- For any questions or inquiries, you can reach me at myemail@example.com. --- Have fun exploring and customizing your terminal-like application! If you have any questions or need further assistance, feel free to reach out. Happy coding!
+ For any questions or inquiries, you can reach me in the issues section.
