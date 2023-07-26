@@ -3,6 +3,7 @@ using Console.Commands.Builtins.Web.WebServer;
 using Console.Extensions;
 using Console.Plugins;
 using Console.UserInterface;
+using Console.UserInterface.Input;
 using Console.UserInterface.UiTypes;
 using Console.Utilitys.Options;
 using Pastel;
@@ -31,6 +32,7 @@ namespace Console
         public ISettings Settings { get; internal set; }
         public IPluginManager PluginManager { get; internal set; }
         public IServer? Server { get; set; }
+        public IInputHandler InputHandler { get; internal set; }
 
         public readonly string SavePath;
 
@@ -47,6 +49,7 @@ namespace Console
 
             Ui = UserInterface.Ui.Create(type, this);
             Commands = new BaseCommandCentre();
+            InputHandler = new InputHandler();
 
             // Call the OnInit function for each BaseBuiltinCommand.
             Commands.Elements.Select(x => x as BaseBuiltinCommand)
@@ -111,7 +114,8 @@ namespace Console
 
             while (lastResult != CommandReturnValues.SafeExit)
             {
-                var input = GetInput();
+                Ui.DisplayPure(WdUmDisplay + " ");
+                var input = InputHandler.ReadInputThenClear(this).Split();
 
                 if (!HandleOnInputEvent(input))
                     continue;
