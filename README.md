@@ -15,7 +15,7 @@
  - If you have Windows Terminal, click on the small arrow that is pointing down next to your recently opened tabs.
  - Select settings
  - On the options on the left, scroll down to the very bottom and select `Add a new profile`. Then select `New empty profile`.
- - Chose a name of your choice, then set the `command line` option to point to the `Console.exe` you just installed.
+ - Choose a name of your choice, then set the `command line` option to point to the `Console.exe` you just installed.
  - Go back to start-up and set it as your default profile.
  - Profit!
  ## Usage 
@@ -67,7 +67,7 @@ public class ExamplePlugin : Console.Plugins.IConsolePlugin
 }
 ```
 - Build the application.
-- If you have finished your plugin (or installing someone elses) you can find the auto-loaded plugin path at C:\Users\<user-name>\AppData\Roaming\Console\saved\plugins.
+- If you have finished your plugin (or installing someone elses) you can find the auto-loaded plugin path at C:\Users\YourUserName\AppData\Roaming\Console\saved\plugins.
 - If you want to test it, copy the path to your plugin, then run the command `load_plugin <path>`.
 To print to the console, use the `terminal` arguments member `WriteLine`.
  
