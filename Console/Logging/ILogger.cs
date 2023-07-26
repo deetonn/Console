@@ -6,6 +6,7 @@ public interface ILogger
     void LogInfo(object self, string info);
     void LogError(object self, string err);
     void LogWarning(object self, string warn);
+    void LogDebug(object self, string dbg);
 }
 
 public class FileLogger : ILogger
@@ -14,7 +15,7 @@ public class FileLogger : ILogger
 
     public FileLogger()
     {
-        _logFile = $"{Environment.GetFolderPath(Environment.SpecialFolder.Desktop)}\\saved\\log.txt";
+        _logFile = $"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\\Console\\saved\\log.txt";
 
         if (!File.Exists(_logFile))
         {
@@ -25,6 +26,8 @@ public class FileLogger : ILogger
             File.Delete(_logFile);
             File.Create(_logFile).Dispose();
         }
+
+        LogInfo(this, "Logger initialized!");
     }
 
     public void LogError(object self, string err)
@@ -40,6 +43,13 @@ public class FileLogger : ILogger
     public void LogWarning(object self, string warn)
     {
         LogToFile(self, $"[warning]: {warn}");
+    }
+
+    public void LogDebug(object self, string dbg)
+    {
+#if DEBUG
+        LogToFile(self, "[debug] " + dbg);
+#endif
     }
 
     private void LogToFile(object self, string info)
