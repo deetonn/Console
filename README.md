@@ -8,6 +8,7 @@
  - Flexible Plugins: Externally loadable plugins have access to the entire code base, making them highly versatile. 
  -  Customizable Themes: Users can customize the terminal's appearance with different font colors, background, and prompt style.  
  - Performance focus with extremely fast loading speeds and execution speeds.
+ - Command aliasing is supported. The builtin `alias` command uses unix style syntax.
  ## Installation 
  - Download the latest release from the release tab to the right of the project files.
  - Extract the Zip archive to your location of choice.
