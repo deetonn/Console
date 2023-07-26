@@ -20,6 +20,43 @@ public class TestCommand : BaseBuiltinCommand
     }
 }
 
+public class ExamplePlugin : Plugins.IConsolePlugin
+{
+    // Doesn't have to by `_` seperated.
+    public string Name => "my_plugin_name";
+
+    public string Description => "My description";
+
+    public string Author => "Your name";
+
+    public Guid Id { get; set; } = Guid.Empty; // This is set by the plugin manager.
+
+    public void OnCommandExecuted(Terminal terminal, ICommand command)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void OnLoaded(Terminal terminal)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void OnSettingChange(Terminal terminal, ISettings settings, string settingName, object newValue)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void OnUnloaded(Terminal terminal)
+    {
+        throw new NotImplementedException();
+    }
+
+    public bool OnUserInput(Terminal terminal, string input)
+    {
+        throw new NotImplementedException();
+    }
+}
+
 public class TestPluginClass : Console.Plugins.IConsolePlugin
 {
     public string Name => "test plugin";
