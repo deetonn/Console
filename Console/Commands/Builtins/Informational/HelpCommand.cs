@@ -1,4 +1,7 @@
-﻿namespace Console.Commands.Builtins;
+﻿using Pastel;
+using System.Drawing;
+
+namespace Console.Commands.Builtins;
 
 public class HelpCommand : BaseBuiltinCommand
 {
@@ -18,7 +21,7 @@ public class HelpCommand : BaseBuiltinCommand
         {
             foreach (var command in parent.Commands.Elements)
             {
-                parent.Ui.DisplayLine($"{command.Name}: {command.Description}");
+                parent.Ui.DisplayLine($"{NameOutput(command.Name)}: {command.Description}");
             }
         }
         else
@@ -26,7 +29,7 @@ public class HelpCommand : BaseBuiltinCommand
             var builtins = parent.Commands.Elements.Where(x => x is BaseBuiltinCommand);
             foreach (var command in builtins)
             {
-                parent.Ui.DisplayLine($"{command.Name}: {command.Description}");
+                parent.Ui.DisplayLine($"{NameOutput(command.Name)}: {command.Description}");
             }
 
             return 2;
@@ -34,6 +37,8 @@ public class HelpCommand : BaseBuiltinCommand
 
         return 0;
     }
+
+    public static string NameOutput(string name) => name.Pastel(Color.SkyBlue);
 
     int DisplayUsage()
     {
