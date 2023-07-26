@@ -19,6 +19,9 @@ namespace Console
         public static string UserMachineName => Environment.MachineName;
         public static string User => Environment.UserName;
         public string WdUmDisplay => BuildPromptPointer();
+        /// <summary>
+        /// This points to the configuration folder.
+        /// </summary>
         public readonly string ConfigurationPath;
 
         public IUserInterface Ui { get; }
@@ -42,6 +45,11 @@ namespace Console
 
             Ui = UserInterface.Ui.Create(type, this);
             Commands = new BaseCommandCentre();
+
+            // Call the OnInit function for each BaseBuiltinCommand.
+            Commands.Elements.Select(x => x as BaseBuiltinCommand)
+                .ToList()
+                .ForEach(x => x?.OnInit(this));
 
             EnsurePluginsDirectory();
 
