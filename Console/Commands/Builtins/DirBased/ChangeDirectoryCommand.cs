@@ -55,4 +55,23 @@ public class ChangeDirectoryCommand : BaseBuiltinCommand
         
         return 1;
     }
+
+    public override string DocString => $@"
+This command will change the active directory. This current active directory can be
+seen in the prompt.
+
+This command accepts a relative path, which will be relative to the current active directory.
+It also accepts rooted paths, which will change the directory entirely.
+
+The ../.. syntax is supported, along with ./ syntax.
+You can use a `~` to navigate to the current users home directory.
+
+Example usage:
+  cd ..
+  cd ./Desktop
+  cd ~/Documents
+  cd C:/Windows
+
+This is a core command. It cannot be unloaded.
+";
 }
