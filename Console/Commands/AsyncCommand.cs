@@ -27,4 +27,10 @@ public class AsyncCommand : ICommand
 #endif
         return _wrapper.Run(args, parent);
     }
+
+    public string DocString => @"
+This is a wrapper command for the queue functionality.
+
+This type of command will allow you to queue commands to be executed.
+";
 }
