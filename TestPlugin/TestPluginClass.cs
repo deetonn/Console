@@ -33,27 +33,24 @@ public class ExamplePlugin : Plugins.IConsolePlugin
 
     public void OnCommandExecuted(Terminal terminal, ICommand command)
     {
-        throw new NotImplementedException();
+
     }
 
     public void OnLoaded(Terminal terminal)
     {
-        throw new NotImplementedException();
     }
 
     public void OnSettingChange(Terminal terminal, ISettings settings, string settingName, object newValue)
     {
-        throw new NotImplementedException();
     }
 
     public void OnUnloaded(Terminal terminal)
     {
-        throw new NotImplementedException();
     }
 
     public bool OnUserInput(Terminal terminal, string input)
     {
-        throw new NotImplementedException();
+        return true;
     }
 }
 
