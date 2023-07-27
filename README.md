@@ -10,6 +10,7 @@
  - Performance focus with extremely fast loading speeds and execution speeds.
  - Command aliasing is supported. The builtin `alias` command uses unix style syntax.
  - Full documentation support for commands. The `docs` command handles this.
+ - Inline environment variable support with `{}` syntax. See [this](https://github.com/deetonn/Console/issues/4) for more information.
  ## Installation 
  - Download the latest release from the release tab to the right of the project files.
  - Extract the Zip archive to your location of choice.
