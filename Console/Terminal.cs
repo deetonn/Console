@@ -115,7 +115,15 @@ namespace Console
             while (lastResult != CommandReturnValues.SafeExit)
             {
                 Ui.DisplayPure(WdUmDisplay + " ");
-                var input = InputHandler.ReadInputThenClear(this).Split();
+                var initialInput = Ui.GetLine().Split();
+                var input = HandleInlineEnvironmentVariables(initialInput);
+
+                if (input is null)
+                {
+                    Logger().LogError(this, "after inlining environment variables the result came back null?");
+                    WriteLine($"Sorry, an error occured. LastInput: {string.Join(" ", initialInput)}");
+                    continue;
+                }
 
                 if (!HandleOnInputEvent(input))
                     continue;
@@ -190,6 +198,98 @@ namespace Console
             Directory.CreateDirectory(realPath);
 
             return realPath;
+        }
+
+        private string[]? HandleInlineEnvironmentVariables(string[]? input)
+        {
+            // If the input is null, return it directly
+            if (input is null)
+                return input;
+
+            // Join the array into a single string with space as separator
+            var full = string.Join(' ', input);
+
+            // Initialize a StringBuilder to store the result
+            var result = new StringBuilder();
+
+            // Loop through the entire input string
+            for (int i = 0; i < full.Length; ++i)
+            {
+                char current = full[i];
+
+                // Check for the start of an environment variable (marked by '{')
+                if (current == '{')
+                {
+                    // Initialize a StringBuilder to store the environment variable name
+                    var currentVar = new StringBuilder();
+
+                    // Move to the next character and start reading the variable name
+                    while (true)
+                    {
+                        // Skip the first '{'
+                        if (current == '{')
+                        {
+                            current = full[++i];
+                            continue;
+                        }
+
+                        // Stop reading when we encounter the closing '}'
+                        if (current == '}')
+                        {
+                            // Skip the closing '}' and move to the next character
+                            if (i + 1 >= full.Length)
+                            {
+                                break;
+                            }
+                            current = full[++i];
+                            break;
+                        }
+
+                        // Append the current character to the variable name
+                        currentVar.Append(current);
+                        current = full[++i];
+                    }
+
+                    // Convert the StringBuilder to a string (the variable name)
+                    var varName = currentVar.ToString();
+                    var value = Environment.GetEnvironmentVariable(varName);
+
+                    // Check if the environment variable exists
+                    if (value is null)
+                    {
+                        // Get the "execution.strictmode" setting
+                        bool? isStrictCall = Settings.GetOptionValue<bool>("execution.strictmode");
+
+                        // Check if strict mode is enabled
+                        if (isStrictCall.HasValue && isStrictCall.Value)
+                        {
+                            // Print an error message and return the original input
+                            WriteLine($"ERROR: environment variable `{varName}` does not exist. Therefore it cannot be inserted inline.");
+                            return input;
+                        }
+                        else
+                        {
+                            // If not in strict mode, append the variable name as-is
+                            result.Append(varName);
+                        }
+                    }
+                    else
+                    {
+                        // If the environment variable exists, append its value
+                        result.Append(value);
+                    }
+
+                    // Continue to the next character in the input
+                    continue;
+                }
+
+                // Append the character to the result
+                result.Append(current);
+            }
+
+            // Split the final result string into an array of strings and return it
+            var res = result.ToString().Split();
+            return res;
         }
 
         private bool HandleOnInputEvent(string[]? data)
