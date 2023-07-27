@@ -66,6 +66,8 @@ public class ConsoleOptions : ISettings
     public const string Setting_TextColor = "ui.color.text";
     public Color TextColor => GetOptionValue<Color>(Setting_TextColor);
 
+    public const string Setting_StrictMode = "execution.strictmode";
+    public const bool StrictModeDefaultValue = true;
 
     public const string Setting_ShowBlock = "ui.options.block";
     public const string Setting_BlockColor = "ui.color.block";
@@ -121,6 +123,13 @@ public class ConsoleOptions : ISettings
             opt.Value = "false";
             return opt;
         });
+
+        SetOption(Setting_StrictMode, (opt) =>
+        {
+            opt.VisualName = "Strict mode enables errors when user-defined logic contains problems.";
+            opt.Value = StrictModeDefaultValue;
+            return opt;
+        });
     }
 
     public T? GetOptionValue<T>(string TechnicalName)
@@ -144,6 +153,28 @@ public class ConsoleOptions : ISettings
                     return (T?)(object?)Terminal.MakeColorFromHexString(hexString);
                 }
                 catch { }
+            }
+
+            return default;
+        }
+
+        // FIXME: may cause issues elsewhere for commands
+        // that use boolean values.
+        if (typeof(T) == typeof(bool))
+        {
+            if (value is bool b)
+            {
+                try
+                {
+                    return (T?)(object)b;
+                }
+                catch { }
+            }
+
+            if (value is string s)
+            {
+                if (bool.TryParse(s, out bool res))
+                    return (T?)(object)res;
             }
 
             return default;
