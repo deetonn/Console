@@ -14,4 +14,8 @@ public class ClearBufferCommand : BaseBuiltinCommand
 
         return 1;
     }
+
+    public override string DocString => $@"
+This command will clear the Terminal buffer.
+";
 }
