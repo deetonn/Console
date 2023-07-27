@@ -9,6 +9,7 @@
  -  Customizable Themes: Users can customize the terminal's appearance with different font colors, background, and prompt style.  
  - Performance focus with extremely fast loading speeds and execution speeds.
  - Command aliasing is supported. The builtin `alias` command uses unix style syntax.
+ - Full documentation support for commands. The `docs` command handles this.
  ## Installation 
  - Download the latest release from the release tab to the right of the project files.
  - Extract the Zip archive to your location of choice.
