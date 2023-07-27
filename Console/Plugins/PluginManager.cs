@@ -192,6 +192,25 @@ public class PluginManager : IPluginManager
         {
             // assign each a unique Guid.
             plugin.Id = Guid.NewGuid();
+            OnSinglePluginLoaded(plugin);
+
+            // check if this is a reload
+            bool didReload = false;
+
+            foreach (var (key, value) in Plugins.Where(x => x.Value.Plugin.GetType() == plugin.GetType()))
+            {
+                // simply reload the plugin instead of creating a new instance.
+                plugin.Id = key;
+                Plugins[key] = new PluginData { Plugin = plugin, Active = value.Active };
+
+                Logger().LogInfo(this, $"Reloaded plugin `{plugin.Name}` by {plugin.Author}");
+                plugin.OnLoaded(terminal);
+                didReload = true;
+            }
+
+            if (didReload)
+                continue;
+
             Plugins.Add(plugin.Id, new PluginData { Plugin = plugin });
             plugin.OnLoaded(terminal);
 
@@ -209,6 +228,25 @@ public class PluginManager : IPluginManager
             return Task.CompletedTask;
         }
         plugin.Id = Guid.NewGuid();
+        OnSinglePluginLoaded(plugin);
+
+        // check if this is a reload
+        bool didReload = false;
+
+        foreach (var (key, value) in Plugins.Where(x => x.Value.Plugin.GetType() == plugin.GetType()))
+        {
+            // simply reload the plugin instead of creating a new instance.
+            plugin.Id = key;
+            Plugins[key] = new PluginData { Plugin = plugin, Active = value.Active };
+
+            Logger().LogInfo(this, $"Reloaded plugin `{plugin.Name}` by {plugin.Author}");
+            plugin.OnLoaded(terminal);
+            didReload = true;
+        }
+
+        if (didReload)
+            return Task.CompletedTask;
+
         Plugins.Add(plugin.Id, new PluginData { Plugin = plugin });
         plugin.OnLoaded(terminal);
 
@@ -294,6 +332,18 @@ public class PluginManager : IPluginManager
                 continue;
 
             data.Plugin.OnSettingChange(terminal, settings, settingName, newValue);
+        }
+    }
+
+    private void OnSinglePluginLoaded(IConsolePlugin plugin)
+    {
+        var allPlugins = Plugins.Values.Select(p => p.Plugin).ToList();
+
+        foreach (var otherPlugin in allPlugins.Where(x => x.Name == plugin.Name))
+        {
+            Logger().LogWarning(this, $"Hello {plugin.Author}! Your plugin's name appears to conflict " +
+                $"with another plugin made by {otherPlugin.Author}. This is not a direct problem, but may be confusing for others " + 
+                "if they have the same plugin loaded.");
         }
     }
 }
