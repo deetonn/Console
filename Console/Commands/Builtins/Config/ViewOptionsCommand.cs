@@ -19,10 +19,23 @@ public class ViewOptionsCommand : BaseBuiltinCommand
             WriteLine($"[{option.TechnicalName}]: {option.VisualName} (Value: {option.Value})");
         }
 
-        var savePath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+        var savePath = parent.ConfigurationPath;
 
         WriteLine($"All options are saved inside the path `{savePath}\\saved`");
 
         return 0;
     }
+
+    public override string DocString => $@"
+This command will output all configuration options.
+
+It will also tell you where the options are saved.
+
+The options are displayed like this:
+    [option-name]: Visual name (Value: option-value)
+
+      option-name: The internal name, something like org.plugin.setting
+      visual-name: The name displayed to a user, something like Plugin Setting
+      option-value: The value of the option, something like true or #FF0000
+";
 }

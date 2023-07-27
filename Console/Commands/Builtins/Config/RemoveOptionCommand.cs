@@ -43,4 +43,16 @@ public class RemoveOptionCommand : BaseBuiltinCommand
 
         return -1;
     }
+
+    public override string DocString => $@"
+This command will remove a configuration option from the configuration.
+
+The syntax is as follows:
+    {Name} <option-name>
+
+If the option does not exist, the command will display a message notifying you of that
+and return a non-zero exit code.
+
+Otherwise, the option will be removed and the command will return a zero exit code.
+";
 }

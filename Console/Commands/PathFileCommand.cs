@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics;
 using PInvoke;
 using Console.Extensions;
+using Pastel;
+using System.Drawing;
 
 namespace Console.Commands;
 
@@ -144,4 +146,14 @@ public class PathFileCommand : ICommand
         
         _terminal?.Ui.DisplayLinePure(e.Data);
     }
+
+    public string DocString => $@"
+This command will execute the file at the path `{_file.FullName}`.
+This exists due to it being present in a directory included within the PATH environment variable.
+
+If this command appears to be a windows command, try this link:
+{$"https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/active/{Name}".Pastel(Color.SkyBlue)}
+
+If that link does not work, search the command on google. 
+";
 }

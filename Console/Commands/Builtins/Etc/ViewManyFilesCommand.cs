@@ -42,4 +42,12 @@ public class ViewManyFilesCommand : BaseBuiltinCommand
 
         return CommandReturnValues.DontShowText;
     }
+
+    public override string DocString => $@"
+This command will display each file in a directory, one by one.
+
+It uses the `vwf` command to display each file.
+
+The directory can be relative or absolute.
+";
 }

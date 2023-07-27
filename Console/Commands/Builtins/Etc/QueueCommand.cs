@@ -11,6 +11,7 @@ public class QueueCommand : BaseBuiltinCommand
     public override int Run(List<string> args, Terminal parent)
     {
         base.Run(args, parent);
+        return 0;
 
         var arguments =
             Parser.Default
@@ -72,4 +73,8 @@ public class QueueCommand : BaseBuiltinCommand
 
         return thing.Run(args, parent);
     }
+
+    public override string DocString => $@"
+This command is deprecated. The queue functionality has been removed.
+";
 }

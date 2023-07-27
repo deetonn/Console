@@ -61,4 +61,6 @@ public class StartServer : BaseBuiltinCommand
 
         return 0;
     }
+
+    public override string DocString => $@"This command is not finished, and is unsafe to use.";
 }

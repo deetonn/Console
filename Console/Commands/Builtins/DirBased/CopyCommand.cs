@@ -116,4 +116,19 @@ public class CopyCommand : BaseBuiltinCommand
         // return a success error code
         return 0;
     }
+
+    // Document the above code in this string
+    override public string DocString => $@"
+This command will copy a file or directory to another location.
+
+If the destination is a directory, the file will be copied into the directory.
+If the destination is a file, the file will be copied over the destination file.
+If the destination is a directory, and the source is a directory, the source directory will be copied into the destination directory.
+
+If the source does not exist, an error will be displayed.
+If the destination does not exist, it will be created.
+
+Usage:
+    copy <src> <dst> [options...]
+";
 }

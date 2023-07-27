@@ -22,4 +22,20 @@ public class AddTrayCommand : BaseBuiltinCommand
         
         return 0;
     }
+
+    public override string DocString => $@"
+This command will add a message into the builtin message tray.
+
+The syntax is as follows:
+    {Name} <message>
+
+If the message is empty, the command will display a message notifying you of that
+and return a non-zero exit code.
+
+The message does not have to adhere to any specific format, but it is recommended
+that you keep it short and sweet.
+
+All arguments will be joined together with a space, so you don't need to use quotes to
+specify a message with spaces in it.
+";
 }

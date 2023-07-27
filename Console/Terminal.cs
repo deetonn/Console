@@ -10,6 +10,8 @@ using Pastel;
 using System.Drawing;
 using System.Text;
 
+using SystemConsole = global::System.Console;
+
 namespace Console
 {
     public class Terminal
@@ -115,7 +117,7 @@ namespace Console
             while (lastResult != CommandReturnValues.SafeExit)
             {
                 Ui.DisplayPure(WdUmDisplay + " ");
-                var input = InputHandler.ReadInputThenClear(this).Split();
+                var input = Ui.GetLine().Split();
 
                 if (!HandleOnInputEvent(input))
                     continue;

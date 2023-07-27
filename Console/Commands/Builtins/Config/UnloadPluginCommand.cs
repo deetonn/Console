@@ -32,4 +32,15 @@ public class UnloadPluginCommand : BaseBuiltinCommand
         parent.PluginManager.UnloadSinglePlugin(parent, guid);
         return 0;
     }
+
+    public override string DocString => $@"
+This command will unload a plugin with a specified ID.
+
+The commands syntax is as follows:
+  {Name} <plugin_id>
+
+To find a plugin ID, you must use the `list_plugins` command. When a plugin is loaded,
+it is assigned an entirely random and unique identifier. This is used to identify the plugin
+when unloading it.
+";
 }
