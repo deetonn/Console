@@ -15,4 +15,8 @@ public class AboutCommand : BaseBuiltinCommand
 
         return CommandReturnValues.DontShowText;
     }
+
+    public override string DocString => $@"
+This command will display some basic information about this application.
+";
 }
