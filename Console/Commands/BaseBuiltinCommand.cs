@@ -13,7 +13,7 @@ public class BaseBuiltinCommand : ICommand
     
     public virtual DateTime? LastRunTime { get; set; } = default;
 
-    public string DocString { get; protected set; } = "No documentation provided";
+    public virtual string DocString { get; protected set; } = "No documentation provided";
 
     public virtual int Run(List<string> args, Terminal parent)
     {
