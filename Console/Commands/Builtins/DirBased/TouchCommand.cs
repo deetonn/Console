@@ -36,4 +36,14 @@ public class TouchCommand : BaseBuiltinCommand
         File.Create(path).Dispose();
         return CommandReturnValues.SafeExit;
     }
+
+    public override string DocString => $@"
+This command will create a file or update an existing files last read date.
+
+Example:
+    touch file.txt
+    touch new_file.c
+
+NOTE: This command will not create directories.
+";
 }

@@ -19,4 +19,16 @@ public class PkgList : BaseBuiltinCommand
 
         return CommandReturnValues.DontShowText;
     }
+
+    public override string DocString => $@"
+This command will list all available packages to install.
+
+It will also show the description of the package, and where it is downloaded from.
+
+The packages are displayed like this:
+  Name -- DownloadLink
+
+Use the pkg-install command to install a package from this list.
+Feel free to check the download links before installing a package.
+";
 }

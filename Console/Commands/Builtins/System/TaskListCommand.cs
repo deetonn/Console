@@ -28,4 +28,11 @@ public class TaskListCommand : BaseBuiltinCommand
 
         return CommandReturnValues.DontShowText;
     }
+
+    public override string DocString => $@"
+This command will display a list of all running processes on this machine and their
+process ID.
+
+This command does not take any arguments.
+";
 }

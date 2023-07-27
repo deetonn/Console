@@ -68,4 +68,21 @@ public class EditOptionCommand : BaseBuiltinCommand
 
         return -1;
     }
+
+    public override string DocString => $@"
+This command exists to enable to you to edit the Console configuration at runtime.
+
+You can also do this by accessing the config file.
+
+This commands syntax is as follows:
+  <option-name>: The name of the option to edit. (Required, if you cannot find the names, use the `optview` command.)
+  <value>: The value to assign to said setting. (Required)
+  Options:
+    --create: If present, this will create a new option. (Optional)
+
+Example usages:
+  {Name} ui.color.username #FF0000 (will set the username on the prompt to red)
+  {Name} ui.color.text #FF0000 --create (will create a new key for the default text color, and make it red)
+  {Name} ui.options.block false (will disable the block after input)
+";
 }

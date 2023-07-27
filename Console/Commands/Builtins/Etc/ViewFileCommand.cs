@@ -155,4 +155,21 @@ public class ViewFileCommand : BaseBuiltinCommand
 
         return 0;
     }
+
+    public override string DocString => $@"
+This command will display the contents of a file.
+If the file is a source code file, it will be syntax highlighted.
+
+USAGE: {Name} <file-name> [...options]
+
+Options:
+  --show-tokens: display the generated lexed tokens instead of text
+
+Example:
+  {Name} test.cpp
+  {Name} test.c --show-tokens
+
+If the file is not found, the command will fail.
+The argument can be relative to the current directory, or absolute.
+";
 }

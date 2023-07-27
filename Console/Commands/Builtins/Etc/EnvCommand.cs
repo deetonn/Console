@@ -65,4 +65,14 @@ public class EnvCommand : BaseBuiltinCommand
 
         return 0;
     }
+
+    public override string DocString => $@"
+This command will fetch an environment variable.
+The commands syntax is as follows:
+  {Name} <environment_variable_name> [...options]
+    --format: If you know the value will be a `;` seperated list, this option will
+              seperate them.
+
+This is useful for piping information into other commands.
+";
 }

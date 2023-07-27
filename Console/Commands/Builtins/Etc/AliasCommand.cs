@@ -149,4 +149,22 @@ public class AliasCommand : BaseBuiltinCommand
         var json = JsonConvert.SerializeObject(Aliases, Formatting.Indented);
         File.WriteAllText(path, json);
     }
+
+    public override string DocString => $@"
+This command will alias a string to a command.
+These aliases are saved between sessions, and are loaded on startup.
+
+The syntax for this command is as follows:
+  {Name} alias_name=""command1 arg1 & command2 arg2""
+
+  The string containing the command can contain `&` to split commands.
+  The above example would execute sequentially, and the result of the last command would be returned.
+
+  This alias: {Name} test=""help --all & echo hello""
+     Would execute the following commands:
+        help --all
+        echo hello
+
+This is unix terminal style syntax. The alias name is the first argument, and the command is the second.
+";
 }

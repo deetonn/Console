@@ -256,4 +256,17 @@ public class PkgInstall : BaseBuiltinCommand
 
         File.Delete(fileName);
     }
+
+    public override string DocString => $@"
+This command will attempt to install a known package.
+
+USAGE: {Name} <package-name>
+    <package-name> - The name of the package to install. Use pkg-list for a list of packages.
+
+NOTE: This command requires an internet connection to download the package. It also
+      does connect to a remote address to download the installer for specified applications.
+      If you plan on using this, but feel like it may be risky, all download links
+      are available in the source code of this application. They are also displayed
+      when you run the pkg-list command.
+";
 }

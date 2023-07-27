@@ -46,4 +46,14 @@ public class HelpCommand : BaseBuiltinCommand
         WriteLine("  --all: display all commands, including ones loaded from PATH.");
         return 0;
     }
+
+    public override string DocString => $@"
+This command will display a list of all active commands.
+
+Usage:
+    {Name} [--all]
+
+Options:
+  --all: If this flag is present, all commands will be displayed, including ones loaded from PATH.
+";
 }

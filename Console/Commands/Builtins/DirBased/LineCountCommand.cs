@@ -161,4 +161,27 @@ public class LineCountCommand : BaseBuiltinCommand
 
         return (int)lineCount;
     }
+
+    public override string DocString => $@"
+This command will iterate a directory, counting all applicable files and their lines.
+It can also apply to one file if requested.
+
+The purpose of this command is for programmers, counting the line count in their projects.
+
+Usage:
+  -V, --valid-exts: The valid extensions to count.
+  -d, --directory: The directory to count files in.
+  -r, --recursive: Whether to count files recursively, if present this will count any files within directorys
+                   of the current directory supplied by --directory.
+  -v, --verbose: Whether to show the current file being counted.
+  -f, --file: Whether to count a single file instead of a directory, this and
+              --directory cannot be supplied together.
+  -P, --preset: The file extension preset to use. (cpp, c, cs, py, rs)
+                This option will override all other options. It will set
+                the valid extensions to any extension related to that programming
+                language. It will also set the directory to the current working
+                directory. It will recurse & verbose is enabled.
+
+This command is very useful for programmers, counting the line count in their projects.
+";
 }

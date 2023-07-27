@@ -10,6 +10,8 @@ using Pastel;
 using System.Drawing;
 using System.Text;
 
+using SystemConsole = global::System.Console;
+
 namespace Console
 {
     public class Terminal

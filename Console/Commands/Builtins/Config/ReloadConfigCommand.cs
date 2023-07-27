@@ -54,4 +54,13 @@ public class ReloadConfigCommand : BaseBuiltinCommand
 
         return 0;
     }
+
+    public override string DocString => $@"
+This command will reset your configuration to its defaults.
+
+It requires you to enter a random phrase to confirm the reset. This is to protect
+you from plugins trying to automatically destroy your config file.
+
+This command will delete the configuration file and re-new it with its defaults.
+";
 }

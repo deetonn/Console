@@ -33,4 +33,10 @@ public class ListPluginsCommand : BaseBuiltinCommand
 
         return 0;
     }
+
+    public override string DocString => $@"
+This command will list all loaded plugins.
+
+If there are no plugins loaded, it will say so.
+";
 }

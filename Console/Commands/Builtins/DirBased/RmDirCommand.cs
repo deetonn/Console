@@ -70,4 +70,14 @@ public class RmDirCommand : BaseBuiltinCommand
 
         return -1;
     }
+
+    public override string DocString => $@"
+This command will attempt to remove a directory.
+
+If the argument supplied is relative, the directory removed will be relative to the CWD.
+
+The syntax is as follows:
+    {Name} <path> [...options]
+       --all: remove the directory without any warnings, will remove all files/directorys within it too.
+";
 }

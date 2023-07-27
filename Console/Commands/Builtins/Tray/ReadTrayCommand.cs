@@ -33,4 +33,14 @@ public class ReadTrayCommand : BaseBuiltinCommand
 
         return 0;
     }
+
+    public override string DocString => $@"
+This command will display messages that have been queued by the terminal.
+
+The syntax is as follows:
+    {Name} [...options]
+
+Options:
+  --skip-to-front: Skip to the last message in the queue and clear the queue.
+";
 }

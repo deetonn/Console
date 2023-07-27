@@ -77,4 +77,22 @@ public class GenerateCommand : BaseBuiltinCommand
 
         return 0;
     }
+
+    public override string DocString => $@"
+This command can generate random strings & numbers based on user input.
+
+The options are:
+  password: generate a password
+    [count: number] - The number of characters for the password to contain.
+  integer: generate a random number
+    [--long: flag] if present, the number generated will be 64-bit, instead of 32-bit.
+
+Example usages:
+  generate password 16
+    ^ will generate a string of length 16, containing entirely random characters.
+  generate integer --long
+    ^ will generate a 64-bit random integer.
+
+All results are outputted to the console.
+";
 }

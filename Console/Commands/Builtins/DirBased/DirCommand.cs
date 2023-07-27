@@ -40,4 +40,22 @@ public class DirCommand : BaseBuiltinCommand
         
         return 1;
     }
+
+    public override string DocString => $@"
+This command will output information about the files & directorys in the
+current directory. It also accepts an argument which if present will output
+information about that directory instead.
+
+If the supplied directory does not exist, an error will be displayed.
+
+Example usage:
+  dir
+  dir C:\Windows
+
+The information displayed is:
+  - Last access time
+  - File size (if applicable)
+  - Directory size (if applicable)
+  - Name
+";
 }
