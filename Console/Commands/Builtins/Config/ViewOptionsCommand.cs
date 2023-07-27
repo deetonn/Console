@@ -21,7 +21,7 @@ public class ViewOptionsCommand : BaseBuiltinCommand
 
         var savePath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
 
-        WriteLine($"All options are saved inside the path `{savePath}\\saved`");
+        WriteLine($"\nAll options are saved inside the path ` {savePath} `");
 
         return 0;
     }
