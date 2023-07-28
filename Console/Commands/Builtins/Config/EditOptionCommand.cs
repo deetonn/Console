@@ -44,13 +44,14 @@ public class EditOptionCommand : BaseBuiltinCommand
             return 0;
         }
 
-        parent.Settings.SetOption(option, (opt) =>
+        bool didChange = parent.Settings.SetOption(option, (opt) =>
         {
             opt.Value = value;
             return opt;
         });
 
-        parent.Ui.DisplayLine($"Edited option `{option}`, new value is `{value}`");
+        if (didChange)
+            parent.Ui.DisplayLine($"Edited option `{option}`, new value is `{value}`");
 
         parent.WorkingDirectory = prev;
 
