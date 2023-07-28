@@ -199,7 +199,7 @@ public class ConsoleOptions : ISettings
         return Options.Any(x => x.TechnicalName == TechnicalName);
     }
 
-    public void SetOption(string TechnicalName, Func<IOption, IOption> editor)
+    public bool SetOption(string TechnicalName, Func<IOption, IOption> editor)
     {
         var editor_cb = (IOption option) =>
         {
@@ -223,11 +223,21 @@ public class ConsoleOptions : ISettings
                 .Where(x => x.TechnicalName == TechnicalName)
                 .First();
             var index = Options.IndexOf(option);
-            Options[index] = (ConsoleOption)editor_cb(option);
-            Parent.PluginManager.OnSettingChange(Parent, this, TechnicalName, Options[index].Value);
+            var value = (ConsoleOption)editor_cb(option);
+            // Only set the new value if all plugins allow it.
+            if (Parent.PluginManager.OnSettingChange(Parent, this, TechnicalName, Options[index].Value))
+            {
+                Options[index] = value;
+                Save(Parent);
+                return true;
+            }
+
+            // Nothing changed, dont save.
+            return false;
         }
 
         Save(Parent);
+        return true;
     }
 
     public void Save(Terminal parent)
