@@ -5,7 +5,11 @@ VisualStudioVersion = 17.7.33711.374
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Console", "Console\Console.csproj", "{2AB0A89E-A6B2-4FEE-9F6A-8CDC18708479}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestPlugin", "TestPlugin\TestPlugin.csproj", "{2953D352-C15B-4124-91FA-B01FE6A41B89}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestPlugin", "TestPlugin\TestPlugin.csproj", "{2953D352-C15B-4124-91FA-B01FE6A41B89}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{8C9A7245-1BE2-42F2-B656-E10C544F4ECC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoConfig", "AutoConfig\AutoConfig.csproj", "{FB76F861-DD24-4125-8BB7-F8BA3689F12E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,8 +25,15 @@ Global
 		{2953D352-C15B-4124-91FA-B01FE6A41B89}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2953D352-C15B-4124-91FA-B01FE6A41B89}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2953D352-C15B-4124-91FA-B01FE6A41B89}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FB76F861-DD24-4125-8BB7-F8BA3689F12E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB76F861-DD24-4125-8BB7-F8BA3689F12E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB76F861-DD24-4125-8BB7-F8BA3689F12E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB76F861-DD24-4125-8BB7-F8BA3689F12E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{FB76F861-DD24-4125-8BB7-F8BA3689F12E} = {8C9A7245-1BE2-42F2-B656-E10C544F4ECC}
 	EndGlobalSection
 EndGlobal
