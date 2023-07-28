@@ -194,21 +194,7 @@ public class PluginManager : IPluginManager
             plugin.Id = Guid.NewGuid();
             OnSinglePluginLoaded(plugin);
 
-            // check if this is a reload
-            bool didReload = false;
-
-            foreach (var (key, value) in Plugins.Where(x => x.Value.Plugin.GetType() == plugin.GetType()))
-            {
-                // simply reload the plugin instead of creating a new instance.
-                plugin.Id = key;
-                Plugins[key] = new PluginData { Plugin = plugin, Active = value.Active };
-
-                Logger().LogInfo(this, $"Reloaded plugin `{plugin.Name}` by {plugin.Author}");
-                plugin.OnLoaded(terminal);
-                didReload = true;
-            }
-
-            if (didReload)
+            if (AttemptReload(terminal, plugin))
                 continue;
 
             Plugins.Add(plugin.Id, new PluginData { Plugin = plugin });
@@ -230,21 +216,7 @@ public class PluginManager : IPluginManager
         plugin.Id = Guid.NewGuid();
         OnSinglePluginLoaded(plugin);
 
-        // check if this is a reload
-        bool didReload = false;
-
-        foreach (var (key, value) in Plugins.Where(x => x.Value.Plugin.GetType() == plugin.GetType()))
-        {
-            // simply reload the plugin instead of creating a new instance.
-            plugin.Id = key;
-            Plugins[key] = new PluginData { Plugin = plugin, Active = value.Active };
-
-            Logger().LogInfo(this, $"Reloaded plugin `{plugin.Name}` by {plugin.Author}");
-            plugin.OnLoaded(terminal);
-            didReload = true;
-        }
-
-        if (didReload)
+        if (AttemptReload(terminal, plugin))
             return Task.CompletedTask;
 
         Plugins.Add(plugin.Id, new PluginData { Plugin = plugin });
@@ -333,6 +305,22 @@ public class PluginManager : IPluginManager
 
             data.Plugin.OnSettingChange(terminal, settings, settingName, newValue);
         }
+    }
+
+    private bool AttemptReload(Terminal terminal, IConsolePlugin plugin)
+    {
+        foreach (var (key, value) in Plugins.Where(x => x.Value.Plugin.GetType() == plugin.GetType()))
+        {
+            // simply reload the plugin instead of creating a new instance.
+            plugin.Id = key;
+            Plugins[key] = new PluginData { Plugin = plugin, Active = value.Active };
+
+            Logger().LogInfo(this, $"Reloaded plugin `{plugin.Name}` by {plugin.Author}");
+            plugin.OnLoaded(terminal);
+            return true;
+        }
+
+        return false;
     }
 
     private void OnSinglePluginLoaded(IConsolePlugin plugin)
