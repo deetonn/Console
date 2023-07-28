@@ -123,7 +123,9 @@ public interface IPluginManager
     /// <param name="settings">The settings instance</param>
     /// <param name="settingName">The setting name.</param>
     /// <param name="newValue">The new value, or null if the value is being removed.</param>
-    public void OnSettingChange(Terminal terminal, ISettings settings, string settingName, object newValue);
+    public bool OnSettingChange(Terminal terminal, ISettings settings, string settingName, object newValue);
+
+    public T? GetPlugin<T>() where T : IConsolePlugin;
 }
 
 public class PluginLoader : IPluginLoader
@@ -296,15 +298,22 @@ public class PluginManager : IPluginManager
         }
     }
 
-    public void OnSettingChange(Terminal terminal, ISettings settings, string settingName, object newValue)
+    public bool OnSettingChange(Terminal terminal, ISettings settings, string settingName, object newValue)
     {
         foreach (var (_, data) in Plugins)
         {
             if (!data.Active)
                 continue;
 
-            data.Plugin.OnSettingChange(terminal, settings, settingName, newValue);
+            if (!data.Plugin.OnSettingChange(terminal, settings, settingName, newValue))
+            {
+                // log so the user can locate the plugin if its a bad actor.
+                Logger().LogWarning(this, $"The plugin `{data.Plugin.Name}` is blocking settings from changing.");
+                return false;
+            }
         }
+
+        return true;
     }
 
     private bool AttemptReload(Terminal terminal, IConsolePlugin plugin)
@@ -333,5 +342,12 @@ public class PluginManager : IPluginManager
                 $"with another plugin made by {otherPlugin.Author}. This is not a direct problem, but may be confusing for others " + 
                 "if they have the same plugin loaded.");
         }
+    }
+
+    public T? GetPlugin<T>() where T : IConsolePlugin
+    {
+        return (T?)
+            Plugins.Select(x => x.Value.Plugin)
+                .FirstOrDefault(x => x is T);
     }
 }
