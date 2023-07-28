@@ -25,7 +25,7 @@ public interface ISettings
     public List<ConsoleOption> Options { get; set; }
     public string SavePath { get; }
 
-    public void SetOption(
+    public bool SetOption(
         string TechnicalName,
         Func<IOption, IOption> editor);
 
