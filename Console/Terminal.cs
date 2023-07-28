@@ -5,8 +5,10 @@ using Console.Plugins;
 using Console.UserInterface;
 using Console.UserInterface.Input;
 using Console.UserInterface.UiTypes;
+using Console.Utilitys.Configuration;
 using Console.Utilitys.Options;
 using Pastel;
+using Runtime;
 using System.Drawing;
 using System.Text;
 
@@ -35,6 +37,7 @@ namespace Console
         public IPluginManager PluginManager { get; internal set; }
         public IServer? Server { get; set; }
         public IInputHandler InputHandler { get; internal set; }
+        public IConfiguration Config { get; internal set; }
 
         public readonly string SavePath;
 
@@ -42,6 +45,8 @@ namespace Console
         {
             ConfigurationPath = SortConfigPath();
             SavePath = Path.Combine(ConfigurationPath, "options.json");
+
+            Config = new Utilitys.Configuration.Configuration();
 
             var prevDirectory = Environment.CurrentDirectory;
             Environment.CurrentDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
