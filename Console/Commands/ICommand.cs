@@ -30,5 +30,5 @@ public interface ICommand
     /// <param name="args">The arguments the user has passed into this command.</param>
     /// <param name="parent">The terminal executing this command.</param>
     /// <returns></returns>
-    public int Run(List<string> args, Terminal parent);
+    public int Run(List<string> args, IConsole parent);
 }

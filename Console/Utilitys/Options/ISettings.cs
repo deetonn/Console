@@ -36,5 +36,5 @@ public interface ISettings
 
     public bool OptionExists(string TechnicalName);
 
-    public void Save(Terminal parent);
+    public void Save(IConsole parent);
 }

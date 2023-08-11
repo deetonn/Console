@@ -7,7 +7,7 @@ public class ChangeDirectoryCommand : BaseBuiltinCommand
     public override string Name => "cd";
     public override string Description => "Change the active directory";
     public override DateTime? LastRunTime { get; set; } = null;
-    public override int Run(List<string> args, Terminal parent)
+    public override int Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
 

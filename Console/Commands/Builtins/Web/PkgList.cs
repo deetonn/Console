@@ -8,7 +8,7 @@ public class PkgList : BaseBuiltinCommand
     public override string Name => "pkg-list";
     public override string Description => "List all packages available to install";
     public override DateTime? LastRunTime { get; set; } = null;
-    public override int Run(List<string> args, Terminal parent)
+    public override int Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
 

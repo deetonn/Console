@@ -12,11 +12,11 @@ public interface IConsolePlugin
     public string Author { get; }
     public Guid Id { get; set; }
 
-    public void OnLoaded(Terminal terminal);
-    public void OnUnloaded(Terminal terminal);
+    public void OnLoaded(IConsole terminal);
+    public void OnUnloaded(IConsole terminal);
 
-    public bool OnUserInput(Terminal terminal, string input);
-    public void OnCommandExecuted(Terminal terminal, Commands.ICommand command);
+    public bool OnUserInput(IConsole terminal, string input);
+    public void OnCommandExecuted(IConsole terminal, Commands.ICommand command);
 
-    public bool OnSettingChange(Terminal terminal, ISettings settings, string settingName, object newValue);
+    public bool OnSettingChange(IConsole terminal, ISettings settings, string settingName, object newValue);
 }

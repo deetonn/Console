@@ -8,7 +8,7 @@ public class EditOptionCommand : BaseBuiltinCommand
     public override string Name => "optedit";
     public override string Description => "Edit the configuration";
     public override DateTime? LastRunTime { get; set; } = null;
-    public override int Run(List<string> args, Terminal parent)
+    public override int Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
 

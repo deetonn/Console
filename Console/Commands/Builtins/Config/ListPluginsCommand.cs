@@ -13,7 +13,7 @@ public class ListPluginsCommand : BaseBuiltinCommand
     public override string Name => "list_plugins";
     public override string Description => "List all loaded plugins";
 
-    public override int Run(List<string> args, Terminal parent)
+    public override int Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
         var count = parent.PluginManager.Plugins.Count;

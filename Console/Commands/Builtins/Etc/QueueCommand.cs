@@ -8,10 +8,19 @@ public class QueueCommand : BaseBuiltinCommand
     public override string Name => "queue";
     public override string Description => "Queue a command to run when asked to.";
     public override DateTime? LastRunTime { get; set; } = null;
-    public override int Run(List<string> args, Terminal parent)
+
+    public readonly bool Deprecated = true;
+
+    public override int Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
-        return 0;
+
+        if (Deprecated)
+        {
+            WriteLine("This command is deprecated.\n"
+                + "It may be re-enabled once more functionality is added.");
+            return -1;
+        }
 
         var arguments =
             Parser.Default
@@ -52,12 +61,12 @@ public class QueueCommand : BaseBuiltinCommand
         return 0;
     }
 
-    private int DoQueue(string name, List<string> args, Terminal parent)
+    private int DoQueue(string name, List<string> args, IConsole parent)
     {
         return parent.Commands.AttemptToQueueCommand(name, args, parent);
     }
 
-    private int DoDequeue(List<string> args, string name, Terminal parent)
+    private int DoDequeue(List<string> args, string name, IConsole parent)
     {
         var thing = parent.Commands.FinishQueuedCommand(name);
 

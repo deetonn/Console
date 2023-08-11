@@ -6,7 +6,7 @@ public class ViewDocCommand : BaseBuiltinCommand
     public override string Name => "docs";
     public override string Description => "View documentation for a command.";
 
-    public override int Run(List<string> args, Terminal parent)
+    public override int Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
 

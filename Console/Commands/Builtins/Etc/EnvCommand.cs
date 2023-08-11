@@ -12,7 +12,7 @@ public class EnvCommand : BaseBuiltinCommand
 
     public override string Description => "Fetch an environment variable.";
 
-    public override int Run(List<string> args, Terminal parent)
+    public override int Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
 
@@ -29,8 +29,8 @@ public class EnvCommand : BaseBuiltinCommand
 
         if (string.IsNullOrWhiteSpace(variable))
         {
-            parent.WriteLine("env: missing variable name");
-            parent.WriteLine($"Try '{Name} --help' for more information.");
+            WriteLine("env: missing variable name");
+            WriteLine($"Try '{Name} --help' for more information.");
             return CommandReturnValues.BadArguments;
         }
 

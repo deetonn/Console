@@ -23,6 +23,21 @@ public interface IUserInterface
 
     public void DisplayLinePure(string message);
     public void DisplayPure(string message);
+
+    /// <summary>
+    /// Uses <see cref="Spectre.Console"/> to render a markup string.
+    /// Inserts the rendered markup into the user interface.
+    /// </summary>
+    /// <param name="markup">The markup string.</param>
+    public void DisplayMarkup(string markup);
+
+    /// <summary>
+    /// Uses <see cref="Spectre.Console"/> to render a markup string.
+    /// Inserts the rendered markup into the user interface.
+    /// This function will automatically insert the systems newline.
+    /// </summary>
+    /// <param name="markup">The markup string.</param>
+    public void DisplayLineMarkup(string markup);
     
     /// <summary>
     /// Set the user interface's main title
@@ -39,7 +54,7 @@ public interface IUserInterface
     /// Read a line from the interfaces stdin.
     /// </summary>
     /// <returns>The line that has been read, after [Enter] has been pressed.</returns>
-    public string GetLine();
+    public string GetLine(string prompt);
 
     /// <summary>
     /// Read a key from the interfaces stdin.

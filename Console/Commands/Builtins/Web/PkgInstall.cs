@@ -72,7 +72,7 @@ public class PkgInstall : BaseBuiltinCommand
     public override string Name => "pkg-install";
     public override string Description => "Install an application locally.";
     public override DateTime? LastRunTime { get; set; } = null;
-    public override int Run(List<string> args, Terminal parent)
+    public override int Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
 
@@ -110,7 +110,7 @@ public class PkgInstall : BaseBuiltinCommand
         return 0;
     }
 
-    public void InstallZipPackage(string packageName, PackageData package, Terminal parent)
+    public void InstallZipPackage(string packageName, PackageData package, IConsole parent)
     {
         Logger().LogInfo(this, $"Installing Zip package `{packageName}`.");
         Logger().LogInfo(this, $"^^^ Package Url is `{package.DownloadLink}` ^^^");
@@ -118,8 +118,7 @@ public class PkgInstall : BaseBuiltinCommand
         string? path = null;
         do
         {
-            parent.Ui.Display($"Where would you like to install `{packageName}`? ");
-            var recv = parent.Ui.GetLine();
+            var recv = parent.Ui.GetLine($"Where would you like to install `{packageName}`? ");
             if (!Directory.Exists(recv))
             {
                 parent.Ui.DisplayLine("\nNo such directory. Please make sure the directory exists.\n");
@@ -169,8 +168,7 @@ public class PkgInstall : BaseBuiltinCommand
             return;
         }
 
-        Write("\nWould you like to add this application to the `PATH` variable? (Y/n) ");
-        var pathAnswer = parent.Ui.GetLine();
+        var pathAnswer = parent.Ui.GetLine("\nWould you like to add this application to the `PATH` variable? (Y/n) ");
         var wantsPath = pathAnswer.ToLower().Contains('y');
 
         if (!wantsPath)
@@ -199,7 +197,7 @@ public class PkgInstall : BaseBuiltinCommand
         return bytes / 1024 / 1024;
     }
 
-    public void InstallWindowsExe(string packageName, PackageData package, Terminal parent)
+    public void InstallWindowsExe(string packageName, PackageData package, IConsole parent)
     {
         var fileName = $@"C:/Users/{Environment.UserName}/Downloads/_Temp_{packageName}.exe";
 

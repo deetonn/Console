@@ -6,7 +6,7 @@ public class TouchCommand : BaseBuiltinCommand
     public override string Name => "touch";
     public override string Description => "Creates a file with the specified name.";
 
-    public override int Run(List<string> args, Terminal target)
+    public override int Run(List<string> args, IConsole target)
     {
         base.Run(args, target);
 
@@ -19,8 +19,8 @@ public class TouchCommand : BaseBuiltinCommand
 
         if (string.IsNullOrWhiteSpace(args[0]))
         {
-            target.WriteLine("touch: missing file operand");
-            target.WriteLine("Try 'touch --help' for more information.");
+            WriteLine("touch: missing file operand");
+            WriteLine("Try 'touch --help' for more information.");
             return CommandReturnValues.BadArguments;
         }
 

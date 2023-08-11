@@ -11,7 +11,7 @@ public class ViewManyFilesCommand : BaseBuiltinCommand
     public override string Name => "vwmf";
     public override string Description => "View each code file in a directory.";
     public override DateTime? LastRunTime { get; set; } = null;
-    public override int Run(List<string> args, Terminal parent)
+    public override int Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
 

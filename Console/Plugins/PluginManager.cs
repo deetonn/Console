@@ -57,20 +57,20 @@ public interface IPluginManager
     /// Load all plugins in the [config]/plugins folder.
     /// </summary>
     /// <param name="terminal">The parent terminal instance that is executing this action.</param>
-    public Task LoadPlugins(Terminal terminal);
+    public Task LoadPlugins(IConsole terminal);
 
     /// <summary>
     /// Load a single plugin from <paramref name="path"/>
     /// </summary>
     /// <param name="terminal">The terminal instance executing this action.</param>
     /// <param name="path">The path to the plugin to be loaded.</param>
-    public Task LoadSinglePlugin(Terminal terminal, string path);
+    public Task LoadSinglePlugin(IConsole terminal, string path);
 
     /// <summary>
     /// Unload all plugins, calling <see cref="IConsolePlugin.OnUnloaded(Terminal)"/>
     /// </summary>
     /// <param name="terminal">The terminal instance executing this operation.</param>
-    public Task UnloadPlugins(Terminal terminal);
+    public Task UnloadPlugins(IConsole terminal);
 
     /// <summary>
     /// Unload a single plugin with the name <paramref name="name"/>,
@@ -78,7 +78,7 @@ public interface IPluginManager
     /// </summary>
     /// <param name="terminal">The parent terminal executing this action.</param>
     /// <param name="id">The identifier of the plugin to unload.</param>
-    public Task UnloadSinglePlugin(Terminal terminal, Guid id);
+    public Task UnloadSinglePlugin(IConsole terminal, Guid id);
 
     /// <summary>
     /// Activate a plugin. This will allow it to be called by the
@@ -86,7 +86,7 @@ public interface IPluginManager
     /// </summary>
     /// <param name="terminal">The parent terminal.</param>
     /// <param name="id">The id of the plugin to activate.</param>
-    public Task<bool> ActivatePlugin(Terminal terminal, Guid id);
+    public Task<bool> ActivatePlugin(IConsole terminal, Guid id);
 
     /// <summary>
     /// De-activate a plugin. This will prevent it from being called
@@ -94,7 +94,7 @@ public interface IPluginManager
     /// </summary>
     /// <param name="terminal"></param>
     /// <param name="id"></param>
-    public Task<bool> DeactivatePlugin(Terminal terminal, Guid id);
+    public Task<bool> DeactivatePlugin(IConsole terminal, Guid id);
 
     /// <summary>
     /// Process this hook, calling all plugins
@@ -105,7 +105,7 @@ public interface IPluginManager
     /// <param name="terminal">The parent terminal</param>
     /// <param name="input">The user input</param>
     /// <returns>True if the hook allows the input, otherwise false.</returns>
-    public Task<bool> OnUserInput(Terminal terminal, string input);
+    public Task<bool> OnUserInput(IConsole terminal, string input);
 
     /// <summary>
     /// Process the hook, calling all plugins
@@ -114,7 +114,7 @@ public interface IPluginManager
     /// </summary>
     /// <param name="terminal">The parent terminal this operation is being executed on.</param>
     /// <param name="command">The command that has been executed.</param>
-    public void OnCommandExecuted(Terminal terminal, Commands.ICommand command);
+    public void OnCommandExecuted(IConsole terminal, Commands.ICommand command);
 
     /// <summary>
     /// Process the hook, calling the 
@@ -123,7 +123,7 @@ public interface IPluginManager
     /// <param name="settings">The settings instance</param>
     /// <param name="settingName">The setting name.</param>
     /// <param name="newValue">The new value, or null if the value is being removed.</param>
-    public bool OnSettingChange(Terminal terminal, ISettings settings, string settingName, object newValue);
+    public bool OnSettingChange(IConsole terminal, ISettings settings, string settingName, object newValue);
 
     public T? GetPlugin<T>() where T : IConsolePlugin;
 }
@@ -143,7 +143,7 @@ public class PluginLoader : IPluginLoader
         // use an async foreach to load all the commands
         // if the DLL has any files in it that inherit from
         // IConsoleCommand then load them.
-        await Parallel.ForEachAsync(files, (async (file, stop) =>
+        await Parallel.ForEachAsync(files, (file, stop) =>
         {
             var assembly = Assembly.LoadFrom(file);
             var types = assembly.GetTypes().Where(t => t.GetInterfaces().Contains(typeof(IConsolePlugin)));
@@ -155,7 +155,9 @@ public class PluginLoader : IPluginLoader
                     plugins.Add(plugin);
                 }
             }
-        }));
+
+            return ValueTask.CompletedTask;
+        });
 
         Logger().LogInfo(this, $"Loaded {plugins.Count} plugins!");
 
@@ -187,9 +189,9 @@ public class PluginManager : IPluginManager
         Loader = new PluginLoader();
     }
 
-    public Task LoadPlugins(Terminal terminal)
+    public Task LoadPlugins(IConsole terminal)
     {
-        var plugins = Loader.LoadFromPath(Path.Combine(terminal.ConfigurationPath, "plugins")).Result;
+        var plugins = Loader.LoadFromPath(Path.Combine(terminal.GetConfigPath(), "plugins")).Result;
         foreach (var plugin in plugins)
         {
             // assign each a unique Guid.
@@ -207,7 +209,7 @@ public class PluginManager : IPluginManager
         return Task.CompletedTask;
     }
 
-    public Task LoadSinglePlugin(Terminal terminal, string path)
+    public Task LoadSinglePlugin(IConsole terminal, string path)
     {
         var plugin = Loader.LoadSinglePlugin(path);
         if (plugin is null)
@@ -229,7 +231,7 @@ public class PluginManager : IPluginManager
         return Task.CompletedTask;
     }
 
-    public Task UnloadPlugins(Terminal terminal)
+    public Task UnloadPlugins(IConsole terminal)
     {
         foreach (var plugin in Plugins)
         {
@@ -240,7 +242,7 @@ public class PluginManager : IPluginManager
         return Task.CompletedTask;
     }
 
-    public Task UnloadSinglePlugin(Terminal terminal, Guid id)
+    public Task UnloadSinglePlugin(IConsole terminal, Guid id)
     {
         if (!Plugins.ContainsKey(id))
             return Task.CompletedTask;
@@ -251,7 +253,7 @@ public class PluginManager : IPluginManager
         return Task.CompletedTask;
     }
 
-    public Task<bool> ActivatePlugin(Terminal terminal, Guid id)
+    public Task<bool> ActivatePlugin(IConsole terminal, Guid id)
     {
         if (!Plugins.ContainsKey(id))
             return Task.FromResult(false);
@@ -261,7 +263,7 @@ public class PluginManager : IPluginManager
         return Task.FromResult(true);
     }
 
-    public Task<bool> DeactivatePlugin(Terminal terminal, Guid id)
+    public Task<bool> DeactivatePlugin(IConsole terminal, Guid id)
     {
         if (!Plugins.ContainsKey(id))
             return Task.FromResult(false);
@@ -271,7 +273,7 @@ public class PluginManager : IPluginManager
         return Task.FromResult(true);
     }
 
-    public Task<bool> OnUserInput(Terminal terminal, string input)
+    public Task<bool> OnUserInput(IConsole terminal, string input)
     {
         foreach (var (_, data) in Plugins)
         {
@@ -287,7 +289,7 @@ public class PluginManager : IPluginManager
         return Task.FromResult(true);
     }
 
-    public void OnCommandExecuted(Terminal terminal, ICommand command)
+    public void OnCommandExecuted(IConsole terminal, ICommand command)
     {
         foreach (var (_, data) in Plugins)
         {
@@ -298,7 +300,7 @@ public class PluginManager : IPluginManager
         }
     }
 
-    public bool OnSettingChange(Terminal terminal, ISettings settings, string settingName, object newValue)
+    public bool OnSettingChange(IConsole terminal, ISettings settings, string settingName, object newValue)
     {
         foreach (var (_, data) in Plugins)
         {
@@ -316,7 +318,7 @@ public class PluginManager : IPluginManager
         return true;
     }
 
-    private bool AttemptReload(Terminal terminal, IConsolePlugin plugin)
+    private bool AttemptReload(IConsole terminal, IConsolePlugin plugin)
     {
         foreach (var (key, value) in Plugins.Where(x => x.Value.Plugin.GetType() == plugin.GetType()))
         {

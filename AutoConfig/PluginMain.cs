@@ -20,7 +20,7 @@ public class AutoConfigDisableForceCommand : BaseBuiltinCommand
 
     public override DateTime? LastRunTime { get; set; }
 
-    public override int Run(List<string> args, Terminal parent)
+    public override int Run(List<string> args, IConsole parent)
     {
         if (args.Count == 0)
         {
@@ -95,12 +95,12 @@ public class AutoConfigPlugin : IConsolePlugin
 
     public static AutoConfig Defaults => new() { ForceSettings = true };
 
-    public void OnCommandExecuted(Terminal terminal, ICommand command)
+    public void OnCommandExecuted(IConsole terminal, ICommand command)
     {
         return;
     }
 
-    public void OnLoaded(Terminal terminal)
+    public void OnLoaded(IConsole terminal)
     {
         // TODO: Add a config file to the config folder that contains the default config.
         ConfigFolder = terminal.Config.MakeSection(terminal, Name);
@@ -124,6 +124,11 @@ public class AutoConfigPlugin : IConsolePlugin
             {
                 // This will be disabled.
                 setting.Value = "#000000";
+                manager.SetOption(ConsoleOptions.Setting_ShowBlock, (opt) =>
+                {
+                    opt.Value = false;
+                    return opt;
+                });
             }
             if (setting.TechnicalName == ConsoleOptions.Setting_MachineNameColor)
             {
@@ -141,23 +146,27 @@ public class AutoConfigPlugin : IConsolePlugin
         terminal.Commands.LoadCustomCommand(new AutoConfigDisableForceCommand());
     }
 
-    public bool OnSettingChange(Terminal terminal, ISettings settings, string settingName, object newValue)
+    // TODO: This is throwing a TypeLoadException in that this method is not implemented?
+    //       Look into this.
+
+    public bool OnSettingChange(IConsole terminal, ISettings settings, string settingName, object newValue)
     {
         if (Options.ForceSettings)
         {
-            terminal.WriteLine($"{Name}: force block new settings is enabled, {settingName} has been blocked from changes.");
+            terminal.Ui.DisplayLine($"{Name}: force block new settings is enabled, {settingName} has been blocked from changes.");
             return false;
         }
 
         return true;
     }
 
-    public void OnUnloaded(Terminal terminal)
+    public void OnUnloaded(IConsole terminal)
     {
         Config.WriteAll(JsonConvert.SerializeObject(Options));
     }
 
-    public bool OnUserInput(Terminal terminal, string input)
+
+    public bool OnUserInput(IConsole terminal, string input)
     {
         return true;
     }

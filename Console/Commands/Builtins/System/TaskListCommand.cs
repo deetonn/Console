@@ -8,7 +8,7 @@ public class TaskListCommand : BaseBuiltinCommand
     public override string Name => "tasklist";
     public override string Description => "List all running processes on the system";
     public override DateTime? LastRunTime { get; set; } = null;
-    public override int Run(List<string> args, Terminal parent)
+    public override int Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
 

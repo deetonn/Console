@@ -34,9 +34,9 @@ public class ConsoleOptions : ISettings
     public List<ConsoleOption> Options { get; set; }
     public string SavePath { get; }
 
-    public Terminal Parent { get; }
+    public IConsole Parent { get; }
 
-    public ConsoleOptions(string savePath, Terminal parent)
+    public ConsoleOptions(string savePath, IConsole parent)
     {
         Parent = parent;
         Options = new List<ConsoleOption>();
@@ -240,7 +240,7 @@ public class ConsoleOptions : ISettings
         return true;
     }
 
-    public void Save(Terminal parent)
+    public void Save(IConsole parent)
     {
         // keep sync for safety, no way to safely
         // save between threads currently.

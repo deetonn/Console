@@ -118,16 +118,16 @@ public interface IConfiguration
     /// <param name="name">The name of your module.</param>
     /// <returns>The config section.</returns>
     [NoDiscard]
-    public ConfigSection MakeSection(Terminal parent, string name);
+    public ConfigSection MakeSection(IConsole parent, string name);
 }
 
 public class Configuration : IConfiguration
 {
     public IDictionary<string, ConfigSection> Sections { get; } = new Dictionary<string,  ConfigSection>();
 
-    public ConfigSection MakeSection(Terminal parent, string name)
+    public ConfigSection MakeSection(IConsole parent, string name)
     {
-        var configPath = parent.ConfigurationPath;
+        var configPath = parent.GetConfigPath();
         // get the full path to plugin config. [ConfigPath]/plugins/config
         var fullPath = SysPath.Combine(configPath, "plugins", "config");
 

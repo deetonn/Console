@@ -5,7 +5,7 @@ public class ReadTrayCommand : BaseBuiltinCommand
     public override string Name => "tray";
     public override string Description => "Read queued messages";
     public override DateTime? LastRunTime { get; set; } = null;
-    public override int Run(List<string> args, Terminal parent)
+    public override int Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
 

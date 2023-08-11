@@ -21,7 +21,7 @@ public class BaseCommandCentre : ICommandCentre
     public IList<ICommand> Elements { get; }
     public IList<ICommand> PausedCommands { get; }
 
-    public int Run(string name, List<string> args, Terminal owner)
+    public int Run(string name, List<string> args, IConsole owner)
     {
         var command = Elements
                    .FirstOrDefault(x => x.Name.ToLower().Equals(name.ToLower()));
@@ -128,7 +128,7 @@ public class BaseCommandCentre : ICommandCentre
         return results;
     }
 
-    public int AttemptToQueueCommand(string name, List<string> args, Terminal owner)
+    public int AttemptToQueueCommand(string name, List<string> args, IConsole owner)
     {
         if (!CommandExists(name))
         {
@@ -161,7 +161,7 @@ public class BaseCommandCentre : ICommandCentre
                 .FirstOrDefault(x => x.Name == command);
     }
 
-    public int ExecuteFrom(Terminal parent, string name, params string[] args)
+    public int ExecuteFrom(IConsole parent, string name, params string[] args)
     {
         if (!CommandExists(name, out var command))
         {

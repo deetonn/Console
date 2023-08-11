@@ -8,7 +8,7 @@ public class HelpCommand : BaseBuiltinCommand
     public override string Name => "help";
     public override string Description => "List all active commands.";
     public override DateTime? LastRunTime { get; set; } = null;
-    public override int Run(List<string> args, Terminal parent)
+    public override int Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
         var wantsAll = args.Contains("--all");

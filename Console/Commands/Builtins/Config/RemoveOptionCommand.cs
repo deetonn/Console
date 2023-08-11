@@ -8,7 +8,7 @@ public class RemoveOptionCommand : BaseBuiltinCommand
     public override string Name => "optrm";
     public override string Description => "Remove an option from the configuration";
     public override DateTime? LastRunTime { get; set; } = null;
-    public override int Run(List<string> args, Terminal parent)
+    public override int Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
 

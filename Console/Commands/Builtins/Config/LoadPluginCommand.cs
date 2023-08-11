@@ -7,7 +7,7 @@ public class LoadPluginCommand : BaseBuiltinCommand
 
     public override string Description => "Load a plugin.";
 
-    public override int Run(List<string> args, Terminal parent)
+    public override int Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
 

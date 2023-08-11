@@ -8,7 +8,7 @@ public class RmDirCommand : BaseBuiltinCommand
     public override string Name => "rmdir";
     public override string Description => "Remove a directory";
     public override DateTime? LastRunTime { get; set; } = null;
-    public override int Run(List<string> args, Terminal parent)
+    public override int Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
 

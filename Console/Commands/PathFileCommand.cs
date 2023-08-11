@@ -61,14 +61,14 @@ public class PathFileCommand : ICommand
         return PausedInstance != null;
     }
 
-    public int ResumeExecution(List<string> args, Terminal terminal)
+    public int ResumeExecution(List<string> args, IConsole terminal)
     {
         return Run(args, terminal);
     }
 
-    private Terminal? _terminal = null;
+    private IConsole? _terminal = null;
 
-    private static Thread LaunchQuitKeyThread(Terminal parent, Process process)
+    private static Thread LaunchQuitKeyThread(IConsole parent, Process process)
     {
         const int VK_CONTROL = 0x11;
 
@@ -93,7 +93,7 @@ public class PathFileCommand : ICommand
         return t;
     }
 
-    public int Run(List<string> args, Terminal parent)
+    public int Run(List<string> args, IConsole parent)
     {
         _terminal = parent;
         LastRunTime = DateTime.Now;

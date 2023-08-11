@@ -11,7 +11,7 @@ public class UnloadPluginCommand : BaseBuiltinCommand
     public override string Name => "unload_plugin";
     public override string Description => "Unload a plugin";
 
-    public override int Run(List<string> args, Terminal parent)
+    public override int Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
 

@@ -58,7 +58,7 @@ public class ChatServer : IServer
         } 
     }
 
-    public Terminal Parent { get; set; }
+    public IConsole Parent { get; set; }
     public bool NetworkThreadSpinning { get; private set; }
 
     public TcpListener? Listener { get; set; }
@@ -76,7 +76,7 @@ public class ChatServer : IServer
         return (Listener!.Server.LocalEndPoint as IPEndPoint)!.ToString();
     }
 
-    public ChatServer(string? password, Terminal parent)
+    public ChatServer(string? password, IConsole parent)
     {
         Messages = new List<Message>
         {

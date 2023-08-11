@@ -20,7 +20,7 @@ public interface ICommandCentre
     /// <param name="args">The arguments passed by the user</param>
     /// <param name="owner">The parent terminal owning this command</param>
     /// <returns>The command result</returns>
-    public int Run(string name, List<string> args, Terminal owner);
+    public int Run(string name, List<string> args, IConsole owner);
     
     /// <summary>
     /// Load all types that derive from <see cref="ICommand"/>.
@@ -38,9 +38,9 @@ public interface ICommandCentre
 
     public void LoadCustomCommand(ICommand command);
 
-    public int ExecuteFrom(Terminal parent, string name, params string[] args);
+    public int ExecuteFrom(IConsole parent, string name, params string[] args);
 
     public ICommand? FinishQueuedCommand(string command);
 
-    public int AttemptToQueueCommand(string name, List<string> args, Terminal owner);
+    public int AttemptToQueueCommand(string name, List<string> args, IConsole owner);
 }

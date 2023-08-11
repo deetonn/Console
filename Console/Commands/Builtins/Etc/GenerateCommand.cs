@@ -5,7 +5,7 @@ public class GenerateCommand : BaseBuiltinCommand
     public override string Name => "generate";
     public override string Description => "generate different things. use --help for more information.";
 
-    public override int Run(List<string> args, Terminal parent)
+    public override int Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
 
@@ -18,7 +18,7 @@ public class GenerateCommand : BaseBuiltinCommand
 
         return mode switch
         {
-            "password" => PasswordPath(args.ToArray()[1..].ToList(), parent),
+            "password" => PasswordPath(args.ToArray()[1..].ToList()),
             "integer" => RandomIntegerPath(args.Contains("--long")),
             _ => DoHelp(),
         };
@@ -40,7 +40,7 @@ public class GenerateCommand : BaseBuiltinCommand
         return 0;
     }
 
-    public int PasswordPath(List<string> args, Terminal parent)
+    public int PasswordPath(List<string> args)
     {
         if (args.Count == 0)
         {

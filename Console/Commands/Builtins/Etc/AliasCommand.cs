@@ -23,7 +23,7 @@ public class AliasBuiltinCommand : BaseBuiltinCommand
         Alias = alias;
     }
 
-    public override int Run(List<string> args, Terminal parent)
+    public override int Run(List<string> args, IConsole parent)
     {
         var toExecute = Alias.Commands;
         int lastResult = 0;
@@ -51,7 +51,7 @@ public class AliasCommand : BaseBuiltinCommand
     public override string Name => "alias";
     public override string Description => "Alias a string to a command.";
 
-    public override int Run(List<string> args, Terminal parent)
+    public override int Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
 
@@ -106,9 +106,9 @@ public class AliasCommand : BaseBuiltinCommand
         return 0;
     }
 
-    public override void OnInit(Terminal parent)
+    public override void OnInit(IConsole parent)
     {
-        var path = Path.Join(parent.ConfigurationPath, "aliases.json");
+        var path = Path.Join(parent.GetConfigPath(), "aliases.json");
         Logger().LogDebug(this, $"Alias configuration is being loaded from `{path}`");
 
         if (!File.Exists(path))
@@ -130,9 +130,9 @@ public class AliasCommand : BaseBuiltinCommand
         }
     }
 
-    private void Save(Terminal parent)
+    private void Save(IConsole parent)
     {
-        var path = Path.Join(parent.ConfigurationPath, AliasConfigFileName);
+        var path = Path.Join(parent.GetConfigPath(), AliasConfigFileName);
         if (!File.Exists(path))
         {
             try

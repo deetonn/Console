@@ -11,7 +11,7 @@ public class CopyCommand : BaseBuiltinCommand
     // override base class members
     public override string Name => "copy";
     public override string Description => "Copies a file or directory to another location.";
-    public override int Run(List<string> args, Terminal parent)
+    public override int Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
 

@@ -5,7 +5,7 @@ namespace Console.Commands;
 
 public class BaseBuiltinCommand : ICommand
 {
-    private Terminal? _terminal;
+    private IConsole? _terminal;
     
     public virtual string Name { get; } = null!; 
     
@@ -15,7 +15,7 @@ public class BaseBuiltinCommand : ICommand
 
     public virtual string DocString { get; protected set; } = "No documentation provided";
 
-    public virtual int Run(List<string> args, Terminal parent)
+    public virtual int Run(List<string> args, IConsole parent)
     {
         LastRunTime = DateTime.Now;
         _terminal = parent;
@@ -49,7 +49,7 @@ public class BaseBuiltinCommand : ICommand
         _terminal?.Ui.Display(message, severity);
     }
 
-    public virtual void OnInit(Terminal parent)
+    public virtual void OnInit(IConsole parent)
     {
         // called when the command is loaded.
     }

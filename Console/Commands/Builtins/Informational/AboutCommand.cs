@@ -5,7 +5,7 @@ public class AboutCommand : BaseBuiltinCommand
     public override string Name => "about";
     public override string Description => "About Console";
     public override DateTime? LastRunTime { get; set; } = null;
-    public override int Run(List<string> args, Terminal parent)
+    public override int Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
         

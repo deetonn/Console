@@ -5,7 +5,7 @@ public class DirCommand : BaseBuiltinCommand
     public override string Name => "dir";
     public override string Description => "Query the active directory";
     public override DateTime? LastRunTime { get; set; } = null;
-    public override int Run(List<string> args, Terminal parent)
+    public override int Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
 

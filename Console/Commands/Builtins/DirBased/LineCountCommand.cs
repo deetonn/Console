@@ -50,7 +50,7 @@ public class LineCountCommand : BaseBuiltinCommand
     public override string Name => "linec";
     public override string Description => "View the total line count of all files within a directory.";
     public override DateTime? LastRunTime { get; set; } = null;
-    public override int Run(List<string> args, Terminal parent)
+    public override int Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
 

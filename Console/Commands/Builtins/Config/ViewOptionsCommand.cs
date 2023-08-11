@@ -10,7 +10,7 @@ public class ViewOptionsCommand : BaseBuiltinCommand
     public override string Name => "optview";
     public override string Description => "View the configuration settings";
     public override DateTime? LastRunTime { get; set; } = null;
-    public override int Run(List<string> args, Terminal parent)
+    public override int Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
 
@@ -19,7 +19,7 @@ public class ViewOptionsCommand : BaseBuiltinCommand
             WriteLine($"[{option.TechnicalName}]: {option.VisualName} (Value: {option.Value})");
         }
 
-        var savePath = parent.ConfigurationPath;
+        var savePath = parent.GetConfigPath();
 
         WriteLine($"\nAll options are saved inside the path ` {savePath} `");
 

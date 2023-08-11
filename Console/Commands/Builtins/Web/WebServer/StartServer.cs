@@ -22,7 +22,7 @@ public class StartServer : BaseBuiltinCommand
     public override string Description => "Launch a server to talk to people over the network! (not encrypted)";
     public override DateTime? LastRunTime { get => base.LastRunTime; set => base.LastRunTime = value; }
 
-    public override int Run(List<string> args, Terminal parent)
+    public override int Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
 

@@ -56,7 +56,7 @@ public class ViewFileCommand : BaseBuiltinCommand
     public override string Name => "vwf";
     public override string Description => "View a file contents within the terminal";
     public override DateTime? LastRunTime { get; set; } = null;
-    public override int Run(List<string> args, Terminal parent)
+    public override int Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
 
