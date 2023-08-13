@@ -223,9 +223,10 @@ public class ConsoleOptions : ISettings
                 .Where(x => x.TechnicalName == TechnicalName)
                 .First();
             var index = Options.IndexOf(option);
+            var oldValue = option.Value;
             var value = (ConsoleOption)editor_cb(option);
             // Only set the new value if all plugins allow it.
-            if (Parent.PluginManager.OnSettingChange(Parent, this, TechnicalName, Options[index].Value))
+            if (Parent.EventHandler.HandleOnSettingChange(new(option.TechnicalName, option.VisualName, oldValue, option.Value)))
             {
                 Options[index] = value;
                 Save(Parent);
@@ -254,8 +255,11 @@ public class ConsoleOptions : ISettings
         if (!OptionExists(TechnicalName))
             return false;
         var match = Options.Where(x => x.TechnicalName == TechnicalName).First();
-        Options.Remove(match);
-        Parent.PluginManager.OnSettingChange(Parent, this, TechnicalName, null!);
+        if (!Parent.EventHandler.HandleOnSettingChange(
+            new(match.TechnicalName, match.VisualName, match.Value, null!)))
+        {
+            Options.Remove(match);
+        }
         Logger().LogInfo(this, $"Remove option `{TechnicalName}`");
         return true;
     }
