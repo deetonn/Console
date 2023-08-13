@@ -10,6 +10,7 @@ using Console.Utilitys.Configuration;
 using Console.Utilitys.Options;
 using Pastel;
 using Runtime;
+using System.Diagnostics;
 using System.Drawing;
 using System.Text;
 
@@ -161,6 +162,13 @@ public class Terminal : IDisposable, IConsole
             if (!HandleOnInputEvent(input))
                 continue;
 
+            if (input.Length >= 1 && input[0].StartsWith("./"))
+            {
+                lastResult = DoDotSlashCommand(input.ToList());
+                // Fuck my life
+                goto AfterProcessing;
+            }
+
             switch (input.Length)
             {
                 case 0:
@@ -175,6 +183,7 @@ public class Terminal : IDisposable, IConsole
                     break;
             }
 
+        AfterProcessing:
             if (string.IsNullOrEmpty(input[0]))
                 lastResult = CommandReturnValues.DontShowText;
 
@@ -334,6 +343,22 @@ public class Terminal : IDisposable, IConsole
 
         var asString = string.Join(' ', data);
         return EventHandler.HandleOnUserInput(new(asString));
+    }
+
+    private int DoDotSlashCommand(List<string> data)
+    {
+        var fileName = data[0].Replace("./", "");
+        var fullPath = Path.Combine(WorkingDirectory, fileName);
+
+        if (!File.Exists(fullPath))
+        {
+            Ui.DisplayLine($"The file `{fileName}` does not exist in the current directory.");
+            return -1;
+        }
+
+        var arguments = new List<string>() { fullPath };
+        data.Skip(1).ToList().ForEach(arguments.Add);
+        return Commands.ExecuteFrom(this, "run", arguments.ToArray());
     }
 
     public void Dispose()
