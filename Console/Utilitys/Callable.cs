@@ -1,5 +1,4 @@
-﻿using System.Runtime.Remoting;
-
+﻿
 namespace Console.Utilitys;
 
 public class Callable
@@ -8,13 +7,7 @@ public class Callable
     
     public Callable(dynamic callable)
     {
-        var type = (Type)callable.GetType();
-
-        if (type is null)
-        {
-            throw new ArgumentException("failed to get type information of callable");
-        }
-
+        var type = (Type)callable.GetType() ?? throw new ArgumentException("failed to get type information of callable");
         var methods = type.GetMethods();
         var hasCall = methods.Any(x => x.Name == "Invoke");
 
