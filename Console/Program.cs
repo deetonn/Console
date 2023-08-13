@@ -33,7 +33,8 @@ void Main()
         type: wantsUi ? UiType.ImGui : UiType.Console
     );
 
-    AutoUpdater.CheckForUpdates(terminal);
+    // Skip update checks for now, seeing as there is no server to request from.
+    // AutoUpdater.CheckForUpdates(terminal);
 
     var doesWantScript = args.Contains(value: "--script");
     if (doesWantScript)
