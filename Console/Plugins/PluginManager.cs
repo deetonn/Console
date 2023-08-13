@@ -1,5 +1,7 @@
 ﻿
 using Console.Commands;
+using Console.Events;
+using Console.Events.Handlers;
 using Console.Utilitys.Options;
 using System.Reflection;
 
@@ -96,35 +98,6 @@ public interface IPluginManager
     /// <param name="id"></param>
     public Task<bool> DeactivatePlugin(IConsole terminal, Guid id);
 
-    /// <summary>
-    /// Process this hook, calling all plugins
-    /// <see cref="IConsolePlugin.OnUserInput(Terminal, string)"/> method.
-    /// NOTE: This hook is called before the input is registered.
-    /// If your hook returns false, any hooks after it will not be called.
-    /// </summary>
-    /// <param name="terminal">The parent terminal</param>
-    /// <param name="input">The user input</param>
-    /// <returns>True if the hook allows the input, otherwise false.</returns>
-    public Task<bool> OnUserInput(IConsole terminal, string input);
-
-    /// <summary>
-    /// Process the hook, calling all plugins
-    /// <see cref="IConsolePlugin.OnCommandExecuted(Terminal, Commands.ICommand)"/> method.
-    /// NOTE: This hook is called after the command has been executed.
-    /// </summary>
-    /// <param name="terminal">The parent terminal this operation is being executed on.</param>
-    /// <param name="command">The command that has been executed.</param>
-    public void OnCommandExecuted(IConsole terminal, Commands.ICommand command);
-
-    /// <summary>
-    /// Process the hook, calling the 
-    /// <see cref="IConsolePlugin.OnSettingChange(ISettings, string, object)"/> method.
-    /// </summary>
-    /// <param name="settings">The settings instance</param>
-    /// <param name="settingName">The setting name.</param>
-    /// <param name="newValue">The new value, or null if the value is being removed.</param>
-    public bool OnSettingChange(IConsole terminal, ISettings settings, string settingName, object newValue);
-
     public T? GetPlugin<T>() where T : IConsolePlugin;
 }
 
@@ -183,10 +156,20 @@ public class PluginManager : IPluginManager
 
     IDictionary<Guid, PluginData> IPluginManager.Plugins => Plugins;
 
-    public PluginManager()
+    public PluginManager(IConsole console)
     {
         Plugins = new();
         Loader = new PluginLoader();
+
+        console.EventHandler.RegisterEvent(Event.OnUserInput, new OnUserInputEvent(x =>
+        {
+            var promise = OnUserInput(console, x.Input);
+            return promise.Result;
+        }));
+        console.EventHandler.RegisterEvent(Event.OnSettingChange, new OnSettingChangeEvent(x =>
+        {
+            return OnSettingChange(console, console.Settings, x.TechnicalName, x.NewValue);
+        }));
     }
 
     public Task LoadPlugins(IConsole terminal)
@@ -273,7 +256,7 @@ public class PluginManager : IPluginManager
         return Task.FromResult(true);
     }
 
-    public Task<bool> OnUserInput(IConsole terminal, string input)
+    private Task<bool> OnUserInput(IConsole terminal, string input)
     {
         foreach (var (_, data) in Plugins)
         {
@@ -289,7 +272,7 @@ public class PluginManager : IPluginManager
         return Task.FromResult(true);
     }
 
-    public void OnCommandExecuted(IConsole terminal, ICommand command)
+    private void OnCommandExecuted(IConsole terminal, ICommand command)
     {
         foreach (var (_, data) in Plugins)
         {
@@ -300,7 +283,7 @@ public class PluginManager : IPluginManager
         }
     }
 
-    public bool OnSettingChange(IConsole terminal, ISettings settings, string settingName, object newValue)
+    private bool OnSettingChange(IConsole terminal, ISettings settings, string settingName, object? newValue)
     {
         foreach (var (_, data) in Plugins)
         {
