@@ -55,7 +55,25 @@ public class AliasCommand : BaseBuiltinCommand
     {
         base.Run(args, parent);
 
-        if (args.Contains("--remove"))
+        if (args.Count != 1)
+        {
+            WriteLine("expected at least one argument.");
+            return -1;
+        }
+
+        var firstArgument = args[0];
+
+        if (firstArgument == "--list")
+        {
+            foreach (var individual in Aliases)
+            {
+                WriteLine($"{individual.Name}: \"{string.Join('&', individual.Commands)}\"");
+            }
+
+            return 0;
+        }
+
+        if (firstArgument == "--remove")
         {
             // expect args[0] to be remove.
             if (args.Count != 2)
