@@ -17,6 +17,19 @@ public class HelpCommand : BaseBuiltinCommand
         if (wantsHelp)
             return DisplayUsage();
 
+        // handle syntax of --contains=TEXT
+        if (args.Any(x => x.StartsWith("--contains=")))
+        {
+            var text = args.First(x => x.StartsWith("--contains=")).Split('=')[1];
+            var commands = parent.Commands.Elements.Where(x => x.Name.Contains(text));
+            foreach (var command in commands)
+            {
+                DisplayCommand(command);
+            }
+
+            return CommandReturnValues.DontShowText;
+        }
+
         if (wantsAll)
         {
             foreach (var command in parent.Commands.Elements)
@@ -32,10 +45,10 @@ public class HelpCommand : BaseBuiltinCommand
                 DisplayCommand(command);
             }
 
-            return 2;
+            return CommandReturnValues.DontShowText;
         }
 
-        return 0;
+        return CommandReturnValues.DontShowText;
     }
 
     public static string NameOutput(string name) => name.Pastel(Color.SkyBlue);
@@ -56,9 +69,11 @@ public class HelpCommand : BaseBuiltinCommand
 This command will display a list of all active commands.
 
 Usage:
-    {Name} [--all]
+    {Name} [[--all]] [[--contains=<value>]]
 
 Options:
   --all: If this flag is present, all commands will be displayed, including ones loaded from PATH.
+  --contains=<value>: If this is present, the command will only output commands whos name include
+                      <value>. This check is case sensitive.
 ";
 }
