@@ -55,7 +55,7 @@ public class AliasCommand : BaseBuiltinCommand
     {
         base.Run(args, parent);
 
-        if (args.Count != 1)
+        if (args.Count < 1)
         {
             WriteLine("expected at least one argument.");
             return -1;
