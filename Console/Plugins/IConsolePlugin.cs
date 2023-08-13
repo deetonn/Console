@@ -18,5 +18,5 @@ public interface IConsolePlugin
     public bool OnUserInput(IConsole terminal, string input);
     public void OnCommandExecuted(IConsole terminal, Commands.ICommand command);
 
-    public bool OnSettingChange(IConsole terminal, ISettings settings, string settingName, object newValue);
+    public bool OnSettingChange(IConsole terminal, ISettings settings, string settingName, object? newValue);
 }
