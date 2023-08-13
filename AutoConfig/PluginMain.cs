@@ -149,11 +149,11 @@ public class AutoConfigPlugin : IConsolePlugin
     // TODO: This is throwing a TypeLoadException in that this method is not implemented?
     //       Look into this.
 
-    public bool OnSettingChange(IConsole terminal, ISettings settings, string settingName, object newValue)
+    public bool OnSettingChange(IConsole terminal, ISettings settings, string settingName, object? newValue)
     {
         if (Options.ForceSettings)
         {
-            terminal.Ui.DisplayLine($"{Name}: force block new settings is enabled, {settingName} has been blocked from changes.");
+            terminal.Ui.DisplayLineMarkup($"{Name}: force block new settings is [italic][blue]enabled[/][/], {settingName} has been blocked from changes.");
             return false;
         }
 
