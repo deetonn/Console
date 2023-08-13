@@ -37,8 +37,8 @@ public class DirCommand : BaseBuiltinCommand
                 file.LastAccessTimeUtc, "", $"{file.Length}", file.Name);
             WriteLine(fmt);
         }
-        
-        return 1;
+
+        return CommandReturnValues.DontShowText;
     }
 
     public override string DocString => $@"
