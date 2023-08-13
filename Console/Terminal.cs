@@ -1,5 +1,6 @@
 ﻿using Console.Commands;
 using Console.Commands.Builtins.Web.WebServer;
+using Console.Events;
 using Console.Extensions;
 using Console.Plugins;
 using Console.UserInterface;
@@ -28,6 +29,7 @@ public interface IConsole
     public IServer? Server { get; set; }
     public IInputHandler InputHandler { get; }
     public IConfiguration Config { get; }
+    public IEventHandler EventHandler { get; }
 
     public string GetConfigPath();
 }
@@ -57,10 +59,14 @@ public class Terminal : IDisposable, IConsole
     public IInputHandler InputHandler { get; internal set; }
     public IConfiguration Config { get; internal set; }
 
+    public IEventHandler EventHandler { get; }
+
     public readonly string SavePath;
 
     public Terminal(UiType type)
     {
+        EventHandler = new GlobalEventHandler();
+
         ConfigurationPath = SortConfigPath();
         SavePath = Path.Combine(ConfigurationPath, "options.json");
 
@@ -88,10 +94,12 @@ public class Terminal : IDisposable, IConsole
         Environment.CurrentDirectory = prevDirectory;
         WorkingDirectory = Environment.CurrentDirectory;
 
-        PluginManager = new PluginManager();
+        PluginManager = new PluginManager(this);
         PluginManager.LoadPlugins(this);
 
         Logger().LogInfo(this, $"Main terminal instance ready. [{this}]");
+
+        EventHandler.HandleOnApplicationStart(new(this));
     }
 
     private void EnsurePluginsDirectory()
@@ -325,7 +333,7 @@ public class Terminal : IDisposable, IConsole
         }
 
         var asString = string.Join(' ', data);
-        return PluginManager.OnUserInput(this, asString).Result;
+        return EventHandler.HandleOnUserInput(new(asString));
     }
 
     public void Dispose()
@@ -333,6 +341,7 @@ public class Terminal : IDisposable, IConsole
         // unload all plugins.
         GC.SuppressFinalize(this);
 
+        EventHandler.HandleOnApplicationExit(new(this));
         PluginManager.UnloadPlugins(this);
     }
 }
