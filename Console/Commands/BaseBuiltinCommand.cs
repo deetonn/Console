@@ -33,9 +33,9 @@ public class BaseBuiltinCommand : ICommand
     /// </summary>
     /// <param name="message">The message</param>
     /// <param name="severity">The messages severity</param>
-    protected void WriteLine(string message, Severity severity = Severity.None)
+    protected void WriteLine(string message)
     {
-        _terminal?.Ui.DisplayLine(message, severity);
+        _terminal?.Ui.DisplayLineMarkup($"[cyan]{Name}[/]: " + message);
     }
     
     /// <summary>
@@ -44,9 +44,9 @@ public class BaseBuiltinCommand : ICommand
     /// </summary>
     /// <param name="message">The message</param>
     /// <param name="severity">The messages severity</param>
-    protected void Write(string message, Severity severity = Severity.None)
+    protected void Write(string message)
     {
-        _terminal?.Ui.Display(message, severity);
+        _terminal?.Ui.DisplayMarkup($"[cyan]{Name}[/]: " + message);
     }
 
     public virtual void OnInit(IConsole parent)

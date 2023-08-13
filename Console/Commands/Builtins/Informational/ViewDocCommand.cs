@@ -12,7 +12,7 @@ public class ViewDocCommand : BaseBuiltinCommand
 
         if (args.Count == 0)
         {
-            WriteLine($"{Name}: expected one argument. (The name of the command to view the docs of)");
+            WriteLine("expected one argument. (The name of the command to view the docs of)");
             return -1;
         }
 
@@ -22,7 +22,7 @@ public class ViewDocCommand : BaseBuiltinCommand
 
         if (command == null)
         {
-            WriteLine($"{Name}: command '{name}' does not exist.");
+            WriteLine($"command '{name}' does not exist.");
             return -1;
         }
 
