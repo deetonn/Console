@@ -30,7 +30,7 @@ public class BaseCommandCentre : ICommandCentre
             return int.MinValue;
 
         var result = command.Run(args, owner);
-        owner.PluginManager.OnCommandExecuted(owner, command);
+        owner.EventHandler.HandleOnCommandExecuted(new(command));
         return result;
     }
 
@@ -169,7 +169,7 @@ public class BaseCommandCentre : ICommandCentre
         }
 
         var result = command.Run(args.ToList(), parent);
-        parent.PluginManager.OnCommandExecuted(parent, command);
+        parent.EventHandler.HandleOnCommandExecuted(new(command));
         return result;
     }
 
