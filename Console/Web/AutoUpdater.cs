@@ -21,7 +21,7 @@ public static class AutoUpdater
     /// </summary>
     public static void CheckForUpdates(IConsole parent)
     {
-        var client = new HttpClient()
+        using var client = new HttpClient()
         {
             Timeout = TimeSpan.FromSeconds(2)
         };
