@@ -52,8 +52,8 @@ public class ChangeDirectoryCommand : BaseBuiltinCommand
         }
         
         parent.WorkingDirectory = Environment.CurrentDirectory;
-        
-        return 1;
+
+        return CommandReturnValues.DontShowText;
     }
 
     public override string DocString => $@"
