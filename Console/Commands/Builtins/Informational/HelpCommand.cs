@@ -21,7 +21,7 @@ public class HelpCommand : BaseBuiltinCommand
         {
             foreach (var command in parent.Commands.Elements)
             {
-                parent.Ui.DisplayLine($"{NameOutput(command.Name)}: {command.Description}");
+                DisplayCommand(command);
             }
         }
         else
@@ -29,7 +29,7 @@ public class HelpCommand : BaseBuiltinCommand
             var builtins = parent.Commands.Elements.Where(x => x is BaseBuiltinCommand);
             foreach (var command in builtins)
             {
-                parent.Ui.DisplayLine($"{NameOutput(command.Name)}: {command.Description}");
+                DisplayCommand(command);
             }
 
             return 2;
@@ -45,6 +45,11 @@ public class HelpCommand : BaseBuiltinCommand
         WriteLine($"{Name} - usage");
         WriteLine("  --all: display all commands, including ones loaded from PATH.");
         return 0;
+    }
+
+    void DisplayCommand(ICommand command)
+    {
+        WriteLine($"[blue]{command.Name}[/]: [white]{command.Description}[/]");
     }
 
     public override string DocString => $@"
