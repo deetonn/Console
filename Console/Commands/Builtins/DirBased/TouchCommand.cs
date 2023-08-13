@@ -19,8 +19,8 @@ public class TouchCommand : BaseBuiltinCommand
 
         if (string.IsNullOrWhiteSpace(args[0]))
         {
-            WriteLine("touch: missing file operand");
-            WriteLine("Try 'touch --help' for more information.");
+            WriteLine("missing file operand");
+            WriteLine("try 'touch --help' for more information.");
             return CommandReturnValues.BadArguments;
         }
 
@@ -33,8 +33,8 @@ public class TouchCommand : BaseBuiltinCommand
             return 0;
         }
 
-        File.Create(path).Dispose();
-        return CommandReturnValues.SafeExit;
+        using var _ = File.Create(path);
+        return 0;
     }
 
     public override string DocString => $@"
