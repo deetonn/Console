@@ -10,6 +10,7 @@ using Console.Utilitys.Configuration;
 using Console.Utilitys.Options;
 using Spectre.Console;
 using System.Drawing;
+using System.Runtime.InteropServices;
 using System.Text;
 
 using SystemColor = System.Drawing.Color;
@@ -62,6 +63,32 @@ public class Terminal : IDisposable, IConsole
     public IEventHandler EventHandler { get; }
 
     public readonly string SavePath;
+
+    private string GetFolderPath()
+    {
+        // If the system is linux, use the home directory.
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        {
+            return Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        }
+
+        // If the system is windows, use the desktop directory.
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            return Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+        }
+
+        // If the system is mac, use the desktop directory.
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        {
+            return Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+        }
+
+        SystemConsole.WriteLine("This environment is unknown. The application is unsure of " + 
+            " where the default directory should be. Attempting to use GetCurrentDirectory()");
+
+        return Directory.GetCurrentDirectory();
+    }
 
     public Terminal(UiType type)
     {
