@@ -22,7 +22,7 @@ public class RunCommand : BaseBuiltinCommand
         {
             // FIXME: this is a hack, but it works for now.
             var process = new PathFileCommand(new FileInfo(fullPath));
-            process.Run(arguments.ToList(), parent);
+            return process.Run(arguments.ToList(), parent);
         }
         catch (Exception e)
         {
