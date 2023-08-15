@@ -62,7 +62,14 @@ public class HelpCommand : BaseBuiltinCommand
 
     void DisplayCommand(ICommand command)
     {
-        WriteLine($"[blue]{command.Name}[/]: [white]{command.Description}[/]");
+        try
+        {
+            WriteLine($"[blue]{command.Name}[/]: [white]{command.Description}[/]");
+        }
+        catch (Exception e)
+        {
+            WriteLine(e.ToString());
+        }
     }
 
     public override string DocString => $@"
