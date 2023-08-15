@@ -68,7 +68,7 @@ public class HelpCommand : BaseBuiltinCommand
         }
         catch (Exception e)
         {
-            WriteLine(e.ToString());
+            WriteLine("[italic][red]failed to display command[/][/]");
         }
     }
 
