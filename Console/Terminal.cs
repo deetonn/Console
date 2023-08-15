@@ -260,6 +260,18 @@ public class Terminal : IDisposable, IConsole
 
     private string SortConfigPath()
     {
+        // if the OS is linux, use the XDG_DATA_DIRS variable
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        {
+            var userHomeDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            // use the .config folder in the user's home directory
+            if (!Directory.Exists(Path.Combine(userHomeDirectory, ".config")))
+                Directory.CreateDirectory(Path.Combine(userHomeDirectory, ".config"));
+            var fullPath = Path.Combine(userHomeDirectory, ".config", "console");
+            if (!Directory.Exists(fullPath)) Directory.CreateDirectory(fullPath);
+            return fullPath;
+        }
+
         var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
         var configPath = Path.Combine(appData, "Console");
         Directory.CreateDirectory(configPath);
