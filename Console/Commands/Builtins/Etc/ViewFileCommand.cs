@@ -2,6 +2,7 @@
 using Console.Commands.Builtins.Etc.Lexer;
 using Console.UserInterface;
 using Pastel;
+using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Text;
@@ -79,7 +80,7 @@ public class ViewFileCommand : BaseBuiltinCommand
                 }
                 var contents0 = File.ReadAllText(path0);
                 var info0 = new FileInfo(path0);
-                return DisplayFileContents(contents0, info0.Extension, showTokens);
+                return DisplayFileContents(contents0, info0.Extension, parent, showTokens);
             }
 
             var path = Path.Combine(parent.WorkingDirectory, args[0]);
@@ -91,7 +92,7 @@ public class ViewFileCommand : BaseBuiltinCommand
 
             var contents = File.ReadAllText(path);
             var info = new FileInfo(path);
-            return DisplayFileContents(contents, info.Extension, showTokens);
+            return DisplayFileContents(contents, info.Extension, parent, showTokens);
         }
         catch (Exception ex)
         {
@@ -111,7 +112,7 @@ public class ViewFileCommand : BaseBuiltinCommand
         return -1;
     }
 
-    private int DisplayFileContents(string contents, string ext, bool showTokens = false)
+    private int DisplayFileContents(string contents, string ext, IConsole console, bool showTokens = false)
     {
         var lines = contents.Split('\n');
         ISyntaxGenerator syntaxHighlighter;
@@ -129,11 +130,13 @@ public class ViewFileCommand : BaseBuiltinCommand
 
         for (int i = 0; i < lines.Length; ++i)
         {
+            var indent = i + 1 < 10 ? " " : "";
+
             if (!showTokens)
             {
                 var line = syntaxHighlighter.Generate(lines[i], ext);
                 var lno = i + 1;
-                WriteLine($"{lno} | {line}");
+                console.Ui.DisplayLinePure($"{lno}{indent}| {line}");
                 continue;
             }
             else
