@@ -272,7 +272,7 @@ public class Terminal : IDisposable, IConsole
         // if the OS is linux, use the XDG_DATA_DIRS variable
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
         {
-            var userHomeDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            var userHomeDirectory = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             // use the .config folder in the user's home directory
             if (!Directory.Exists(Path.Combine(userHomeDirectory, ".config")))
                 Directory.CreateDirectory(Path.Combine(userHomeDirectory, ".config"));
