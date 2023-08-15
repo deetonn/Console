@@ -8,12 +8,11 @@ using Console.UserInterface.Input;
 using Console.UserInterface.UiTypes;
 using Console.Utilitys.Configuration;
 using Console.Utilitys.Options;
-using Pastel;
-using Runtime;
-using System.Diagnostics;
+using Spectre.Console;
 using System.Drawing;
 using System.Text;
 
+using SystemColor = System.Drawing.Color;
 using SystemConsole = global::System.Console;
 
 namespace Console;
@@ -71,7 +70,7 @@ public class Terminal : IDisposable, IConsole
         ConfigurationPath = SortConfigPath();
         SavePath = Path.Combine(ConfigurationPath, "options.json");
 
-        Config = new Utilitys.Configuration.Configuration();
+        Config = new Configuration();
 
         var prevDirectory = Environment.CurrentDirectory;
         Environment.CurrentDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
@@ -116,12 +115,12 @@ public class Terminal : IDisposable, IConsole
     {
         var sb = new StringBuilder();
 
-        var userNameColor = Settings.GetOptionValue<Color>(ConsoleOptions.Setting_UserNameColor);
-        var machineNameColor = Settings.GetOptionValue<Color>(ConsoleOptions.Setting_MachineNameColor);
+        var userNameColor = Settings.GetOptionValue<SystemColor>(ConsoleOptions.Setting_UserNameColor);
+        var machineNameColor = Settings.GetOptionValue<SystemColor>(ConsoleOptions.Setting_MachineNameColor);
 
-        sb.Append($"{User.Pastel(userNameColor)}");
+        sb.Append($"[italic][{userNameColor.ToHexString()}]{User}[/][/]");
         sb.Append('@');
-        sb.Append($"{UserMachineName.Pastel(machineNameColor)}");
+        sb.Append($"[{machineNameColor.ToHexString()}]{UserMachineName}[/]");
         sb.Append($"~{UnixStyleWorkingDirectory}$");
 
         return sb.ToString();
@@ -130,8 +129,8 @@ public class Terminal : IDisposable, IConsole
     // Wrappers for IUserInterface
     public IMessageTray GetTray() => Ui.Tray;
 
-    public void WriteLine(string message = "", Severity severity = Severity.None)
-        => Ui.DisplayLine(message, severity);
+    public void WriteLine(string message = "")
+        => Ui.DisplayLineMarkup(message);
 
     internal void MainLoop()
     {
@@ -143,8 +142,8 @@ public class Terminal : IDisposable, IConsole
         SystemConsole.Clear();
         var lastResult = 0;
 
-        WriteLine($"Welcome to {"Console".Pastel(Color.Cyan)}. Type {"help".Pastel(Color.Red)} to get started with commands.");
-        WriteLine($"This application is open source, and can be found at {GithubLink.Pastel(Color.Blue)}\n\n");
+        WriteLine($"Welcome to [cyan]Console[/]. Type [red]help[/] to get started with commands.");
+        WriteLine($"This application is open source, and can be found at [link={GithubLink}]it's repository[/].\n\n");
 
         while (lastResult != CommandReturnValues.SafeExit)
         {
@@ -178,7 +177,7 @@ public class Terminal : IDisposable, IConsole
                     lastResult = Commands.Run(input[0], Array.Empty<string>().ToList(), this);
                     break;
                 default:
-                    var args = input[1..];
+                    var args = ProcessInputArgs(input[1..]);
                     lastResult = Commands.Run(input[0], args.ToList(), this);
                     break;
             }
@@ -191,6 +190,8 @@ public class Terminal : IDisposable, IConsole
             if (!string.IsNullOrEmpty(translation))
                 Ui.DisplayLine($"{translation}");
         }
+
+        WriteLine("safe quit has began, [italic]exiting[/]");
     }
 
     public string[] GetInput(string prompt)
@@ -211,7 +212,7 @@ public class Terminal : IDisposable, IConsole
 
         if (shouldShow)
         {
-            var blockColor = Settings.GetOptionValue<Color>(ConsoleOptions.Setting_BlockColor);
+            var blockColor = Settings.GetOptionValue<SystemColor>(ConsoleOptions.Setting_BlockColor);
 
             const char space = ' ';
             System.Console.BackgroundColor = blockColor.ClosestConsoleColor();
@@ -220,7 +221,7 @@ public class Terminal : IDisposable, IConsole
         }
     }
 
-    public static Color MakeColorFromHexString(string hexString)
+    public static SystemColor MakeColorFromHexString(string hexString)
     {
         return ColorTranslator.FromHtml(hexString);
     }
@@ -361,12 +362,56 @@ public class Terminal : IDisposable, IConsole
         return Commands.ExecuteFrom(this, "run", arguments.ToArray());
     }
 
+    private List<string> ProcessInputArgs(string[] args)
+    {
+        var result = new List<string>();
+
+        for (uint i = 0; i < args.Length; ++i)
+        {
+            var arg = args[i];
+
+            if (arg.StartsWith("\""))
+            {
+                var argBuilder = new StringBuilder();
+                argBuilder.Append(arg[1..]);
+
+                while (true)
+                {
+                    if (arg.EndsWith("\""))
+                    {
+                        argBuilder.Remove(argBuilder.Length - 1, 1);
+                        break;
+                    }
+
+                    argBuilder.Append(' ');
+                    argBuilder.Append(args[++i]);
+                    arg = args[i];
+                }
+
+                result.Add(argBuilder.ToString());
+            }
+            else
+            {
+                result.Add(args[i]);
+            }
+        }
+
+        return result;
+    }
+
     public void Dispose()
     {
         // unload all plugins.
         GC.SuppressFinalize(this);
 
-        EventHandler.HandleOnApplicationExit(new(this));
-        PluginManager.UnloadPlugins(this);
+        WriteLine("");
+
+        AnsiConsole.Status()
+            .Spinner(Spinner.Known.Star)
+            .Start("Closing...", ctx => {
+                // Omitted
+                EventHandler.HandleOnApplicationExit(new(this));
+                PluginManager.UnloadPlugins(this);
+            });
     }
 }
