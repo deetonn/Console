@@ -20,8 +20,17 @@ public class PathFileCommand : ICommand
         _versionInfo = FileVersionInfo.GetVersionInfo(_file.FullName);
     }
     
-    //                                ignored `.exe`
-    public string Name => _file.Name[..^4];
+    public string Name 
+    { 
+        get
+        {
+            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+                //                         ignored `.exe`
+                return _file.Name[..^4];
+
+            return _file.Name;
+        } 
+    }
     
     public string Description => _versionInfo.FileDescription ?? "no description";
     
