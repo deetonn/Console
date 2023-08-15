@@ -66,7 +66,7 @@ public class HelpCommand : BaseBuiltinCommand
         {
             WriteLine($"[blue]{command.Name}[/]: [white]{command.Description}[/]");
         }
-        catch (Exception e)
+        catch
         {
             WriteLine("[italic][red]failed to display command[/][/]");
         }
