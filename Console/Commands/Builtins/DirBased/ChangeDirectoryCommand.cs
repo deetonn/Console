@@ -50,6 +50,11 @@ public class ChangeDirectoryCommand : BaseBuiltinCommand
             WriteLine($"{ex.Message}");
             return -1;
         }
+        catch (IOException ex)
+        {
+            WriteLine($"IoError: {ex.Message}");
+            return -1;
+        }
         
         parent.WorkingDirectory = Environment.CurrentDirectory;
 
