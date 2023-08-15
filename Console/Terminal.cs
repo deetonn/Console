@@ -40,7 +40,15 @@ public class Terminal : IDisposable, IConsole
     public const string GithubLink = "https://github.com/deetonn/Console";
 
     public string WorkingDirectory { get; set; }
-    public string UnixStyleWorkingDirectory => WorkingDirectory[2..].Replace("\\", "/");
+    public string UnixStyleWorkingDirectory
+    {
+        get
+        {
+            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+                return WorkingDirectory[2..].Replace("\\", "/");
+            return WorkingDirectory;
+        }
+    }
 
     public static string UserMachineName => Environment.MachineName;
     public static string User => Environment.UserName;
