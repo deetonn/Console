@@ -2,6 +2,7 @@
 using Console.Commands;
 using Console.Events;
 using Console.Events.Handlers;
+using Console.UserInterface;
 using Console.Utilitys.Options;
 using System.Reflection;
 
@@ -219,10 +220,18 @@ public class PluginManager : IPluginManager
         foreach (var plugin in Plugins)
         {
             plugin.Value.Plugin.OnUnloaded(terminal);
+            DebugLog(terminal.Ui, $"unloaded plugin `{plugin.Key}`");
         }
 
         Plugins.Clear();
         return Task.CompletedTask;
+    }
+
+    private void DebugLog(IUserInterface ui, string message)
+    {
+#if DEBUG
+        ui.DisplayLineMarkup("[[[italic][red]DEBUG[/][/]]] " + message);
+#endif
     }
 
     public Task UnloadSinglePlugin(IConsole terminal, Guid id)
