@@ -2,8 +2,10 @@
 using System.IO;
 using System.Reflection;
 using System.Reflection.Metadata.Ecma335;
+using System.Runtime.InteropServices;
 using Console.Commands.Builtins.Etc;
 using Console.Utilitys;
+using PInvoke;
 
 namespace Console.Commands;
 
@@ -79,6 +81,25 @@ public class BaseCommandCentre : ICommandCentre
         return instances;
     }
 
+    private string GetSearchPatternForOs()
+    {
+        // If the OS is windows, use "*.exe"
+        // Otherwise, use "*"
+        return Environment.OSVersion.Platform == PlatformID.Win32NT ? "*.exe" : "*";
+    }
+
+    public static char PathSep
+    {
+        get
+        {
+            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+            {
+                return ';';
+            }
+            return ':';
+        }
+    }
+
     public List<ICommand> LoadPathExecutables()
     {
         var logger = Singleton<ILogger>.Instance();
@@ -89,8 +110,26 @@ public class BaseCommandCentre : ICommandCentre
             return new List<ICommand>();
         }
 
+        List<ICommand> results;
+        var dirs = path.Split(PathSep);
+
+        if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+        {
+            results = LoadFromWindowsPath(dirs);
+        }
+        else
+        {
+            results = LoadFromGnuBasedPath(dirs);
+        }
+
+        Logger().LogInfo(this, $"Loaded {results.Count} from the PATH variable.");
+
+        return results;
+    }
+
+    private List<ICommand> LoadFromWindowsPath(string[] dirs)
+    {
         var results = new List<ICommand>();
-        var dirs = path.Split(';');
 
         foreach (var directory in dirs)
         {
@@ -101,29 +140,45 @@ public class BaseCommandCentre : ICommandCentre
 
             try
             {
-                var commands = Directory.EnumerateFiles(directory, "*.exe");
+                var commands = Directory.EnumerateFiles(directory, GetSearchPatternForOs());
                 Parallel.ForEach(commands, fileInfo =>
                 {
                     var info = new FileInfo(fileInfo);
-                    logger.Info(this, $"[prelude] Loaded {info.Name}");
-#if !DEBUG
-                    System.Console.Clear();
-#endif
                     results.Add(new PathFileCommand(info));
                 });
 
             }
             catch (Exception ex) when (ex is DirectoryNotFoundException || ex is IOException)
             {
-                logger.Err(this, $"Failed to load path `{directory}` [{ex.Message}]");
+                Logger().LogError(this, $"Failed to load path `{directory}` [{ex.Message}]");
             }
             catch (ArgumentException ex)
             {
-                logger.Err(this, $"Invalid path entry `{directory}` [{ex.Message}]");
+                Logger().LogError(this, $"Invalid path entry `{directory}` [{ex.Message}]");
             }
         }
 
-        Logger().LogInfo(this, $"Loaded {results.Count} from the PATH variable.");
+        return results;
+    }
+    private List<ICommand> LoadFromGnuBasedPath(string[] dirs)
+    {
+        var results = new List<ICommand>();
+
+        foreach (var dir in dirs)
+        {
+            // each directory will only have the binarys in them, so just iterate
+            // them all and add them to the list
+            var files = Directory.EnumerateFiles(dir);
+            foreach (var file in files)
+            {
+                var info = new FileInfo(file);
+                if (info.Extension != string.Empty)
+                {
+                    continue;
+                }
+                results.Add(new PathFileCommand(info));
+            }
+        }
 
         return results;
     }
