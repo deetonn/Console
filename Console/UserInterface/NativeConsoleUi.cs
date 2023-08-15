@@ -127,7 +127,7 @@ public class NativeConsoleUi : IUserInterface
 
     public string GetLine(string prompt)
     {
-        DisplayPure(prompt);
+        DisplayMarkup(prompt);
         var input = SystemConsole.ReadLine();
         DisplayPure("\n");
         return input ?? "Ctrl+Z";
@@ -141,12 +141,12 @@ public class NativeConsoleUi : IUserInterface
 
     public void DisplayMarkup(string markup)
     {
-        AnsiConsole.Markup(markup);
+        AnsiConsole.Markup($"[white]{markup}[/]");
     }
 
     public void DisplayLineMarkup(string markup)
     {
-        AnsiConsole.MarkupLine(markup);
+        AnsiConsole.MarkupLine($"[white]{markup}[/]");
     }
 
     public IMessageTray Tray { get; }
