@@ -100,7 +100,7 @@ public class Terminal : IDisposable, IConsole
         Config = new Configuration();
 
         var prevDirectory = Environment.CurrentDirectory;
-        Environment.CurrentDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+        Environment.CurrentDirectory = GetFolderPath();
         WorkingDirectory = Environment.CurrentDirectory;
 
         Logger().LogInfo(this, $"Initialized the working directory to `{WorkingDirectory}`");
