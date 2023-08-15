@@ -139,6 +139,7 @@ public class AliasCommand : BaseBuiltinCommand
 
             var fileContents = File.ReadAllText(path);
             Aliases = JsonConvert.DeserializeObject<List<Alias>>(fileContents)!;
+            Aliases ??= new List<Alias>();
             Logger().LogInfo(this, $"Loaded {Aliases.Count} saved aliases.");
 
             foreach (var commandAlias in Aliases)
