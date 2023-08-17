@@ -13,6 +13,8 @@ public class AboutCommand : BaseBuiltinCommand
         WriteLine("It attempts to emulate Windows cmd.");
         WriteLine("While also keeping the nice feel of bash alive.");
 
+        WriteLine($"This project can be found at [link={Terminal.GithubLink}]this github repo[/]. It is open source.");
+
         return CommandReturnValues.DontShowText;
     }
 
