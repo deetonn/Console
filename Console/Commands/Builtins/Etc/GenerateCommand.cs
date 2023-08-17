@@ -1,4 +1,6 @@
-﻿namespace Console.Commands.Builtins.Etc;
+﻿using System.Security.Cryptography;
+
+namespace Console.Commands.Builtins.Etc;
 
 public class GenerateCommand : BaseBuiltinCommand
 {
@@ -64,16 +66,16 @@ public class GenerateCommand : BaseBuiltinCommand
     {
         const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@!";
         return new string(Enumerable.Repeat(chars, size)
-                     .Select(s => s[Random.Shared.Next(s.Length)]).ToArray());
+                       .Select(s => s[RandomNumberGenerator.GetInt32(0, s.Length)]).ToArray());
     }
 
     int DoHelp()
     {
         WriteLine($"{Name} - usage");
         WriteLine("  password: generate a password");
-        WriteLine("    [count: number] - The number of characters for the password to contain.");
+        WriteLine("    [[count: number]] - The number of characters for the password to contain.");
         WriteLine("  integer: generate a random number");
-        WriteLine("    [--long: flag] if present, the number generated will be 64-bit, instead of 32-bit.");
+        WriteLine("    [[--long: flag]] if present, the number generated will be 64-bit, instead of 32-bit.");
 
         return 0;
     }
