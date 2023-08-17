@@ -83,7 +83,7 @@ public class Terminal : IDisposable, IConsole
         // If the system is windows, use the desktop directory.
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            return "/usr/local/share";
+            return Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
         }
 
         // If the system is mac, use the desktop directory.
