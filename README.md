@@ -1,4 +1,4 @@
-[![.NET Core Desktop](https://github.com/deetonn/Console/actions/workflows/dotnet-desktop.yml/badge.svg)](https://github.com/deetonn/Console/actions/workflows/dotnet-desktop.yml) ![GitHub stars](https://img.shields.io/github/stars/deetonn/Console.svg)
+[![dotnet package](https://github.com/deetonn/Console/actions/workflows/dotnet-desktop.yml/badge.svg?branch=master)](https://github.com/deetonn/Console/actions/workflows/dotnet-desktop.yml) ![GitHub stars](https://img.shields.io/github/stars/deetonn/Console.svg)
 
 # Console 🖥️
 ## Overview 
