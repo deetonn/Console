@@ -133,7 +133,6 @@ public class Terminal : IDisposable, IConsole
         PluginManager.LoadPlugins(this);
 
         Logger().LogInfo(this, $"Main terminal instance ready. [{this}]");
-        Logger().LinuxLog(this, $"Configuration was resolved to: {ConfigurationPath}");
 
         EventHandler.HandleOnApplicationStart(new(this));
     }
