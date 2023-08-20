@@ -70,6 +70,10 @@ public class DummyUserInterface : IUserInterface
     }
 }
 
+/// <summary>
+/// This class just implements the bare bones of IConsole. There is no user functionality.
+/// This is used for testing.
+/// </summary>
 public class NonfunctionalTerminal : IConsole
 {
     public string WorkingDirectory { get; set; } = Directory.GetCurrentDirectory();
