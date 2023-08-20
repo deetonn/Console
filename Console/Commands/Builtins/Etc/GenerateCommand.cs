@@ -85,9 +85,9 @@ This command can generate random strings & numbers based on user input.
 
 The options are:
   password: generate a password
-    [count: number] - The number of characters for the password to contain.
+    [[count: number]] - The number of characters for the password to contain.
   integer: generate a random number
-    [--long: flag] if present, the number generated will be 64-bit, instead of 32-bit.
+    [[--long: flag]] if present, the number generated will be 64-bit, instead of 32-bit.
 
 Example usages:
   generate password 16
