@@ -39,4 +39,15 @@ public class SetCommand : BaseBuiltinCommand
 
         return 0;
     }
+
+    public override string DocString => $@"
+This command will set an environment variable in the current processes context.
+
+USAGE: {Name} <env-name> <value>
+EXAMPLES:
+    set the path to the current path + /bin on windows.
+       set PATH {{PATH}};/bin
+    set the path to /bin on any os.
+       set PATH /bin
+";
 }
