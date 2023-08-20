@@ -13,7 +13,7 @@ public class BaseBuiltinCommand : ICommand
     
     public virtual DateTime? LastRunTime { get; set; } = default;
 
-    public virtual string DocString { get; protected set; } = "No documentation provided";
+    public virtual string DocString { get; protected set; } = "";
 
     public virtual int Run(List<string> args, IConsole parent)
     {
@@ -36,6 +36,11 @@ public class BaseBuiltinCommand : ICommand
     protected void WriteLine(string message)
     {
         _terminal?.Ui.DisplayLineMarkup($"[cyan]{Name}[/]: " + message);
+    }
+
+    protected void WriteError(string message)
+    {
+        WriteLine($"[[[red]error[/]]]: {message}");
     }
     
     /// <summary>
