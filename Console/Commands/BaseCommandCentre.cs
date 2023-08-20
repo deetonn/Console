@@ -168,10 +168,28 @@ public class BaseCommandCentre : ICommandCentre
         {
             // each directory will only have the binarys in them, so just iterate
             // them all and add them to the list
-            var files = Directory.EnumerateFiles(dir);
+            IEnumerable<string>? files;
+            try
+            {
+                files = Directory.EnumerateFiles(dir);
+            }
+            catch (Exception e)
+            {
+                Logger().LogWarning(this, $"failed to load PATH variable. {e.Message}");
+                return Array.Empty<ICommand>().ToList();
+            }
             foreach (var file in files)
             {
-                var info = new FileInfo(file);
+                FileInfo info;
+                try
+                {
+                    info = new FileInfo(file);
+                }
+                catch (Exception e)
+                {
+                    Logger().LogWarning(this, $"the file `{file}` in a path variable directory does not exist. ({e.Message})");
+                    continue;
+                }
                 if (info.Extension != string.Empty)
                 {
                     continue;
