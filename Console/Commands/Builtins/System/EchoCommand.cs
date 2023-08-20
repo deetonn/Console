@@ -17,4 +17,19 @@ public class EchoCommand : BaseBuiltinCommand
         }
         return CommandReturnValues.DontShowText;
     }
+
+    public override string DocString => $@"
+This command allows you to output text onto the terminal interface.
+
+Markup using Spectre.Console is supported.
+
+USAGE: {Name} <text...>
+EXAMPLES:
+  Output the text ""hello world""
+    {Name} hello world
+  Output my name is joe, with joe being [italic]italic[/]
+    {Name} my name is [[italic]]joe[[/]]
+  Output the path environment variable all [red]red[/]
+    {Name} [[red]]{{PATH}}[[/]]
+";
 }
