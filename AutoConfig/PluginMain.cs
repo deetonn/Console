@@ -102,7 +102,6 @@ public class AutoConfigPlugin : IConsolePlugin
 
     public void OnLoaded(IConsole terminal)
     {
-        // TODO: Add a config file to the config folder that contains the default config.
         ConfigFolder = terminal.Config.MakeSection(terminal, Name);
         Config = ConfigFolder.MakeFile("settings");
 
@@ -145,9 +144,6 @@ public class AutoConfigPlugin : IConsolePlugin
         manager.Save(terminal);
         terminal.Commands.LoadCustomCommand(new AutoConfigDisableForceCommand());
     }
-
-    // TODO: This is throwing a TypeLoadException in that this method is not implemented?
-    //       Look into this.
 
     public bool OnSettingChange(IConsole terminal, ISettings settings, string settingName, object? newValue)
     {
