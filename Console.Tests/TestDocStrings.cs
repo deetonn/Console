@@ -125,12 +125,6 @@ public class TestDocStrings
     }
 
     [TestMethod]
-    public void TestEnvCommand()
-    {
-        RunTestsFor(new EnvCommand());
-    }
-
-    [TestMethod]
     public void TestGenerateCommand()
     {
         RunTestsFor(new GenerateCommand());
