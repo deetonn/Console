@@ -36,6 +36,8 @@ public class ConsoleOptions : ISettings
 
     public IConsole Parent { get; }
 
+    public bool IsTestMode { get; init; } = false;
+
     public ConsoleOptions(string savePath, IConsole parent)
     {
         Parent = parent;
@@ -43,14 +45,11 @@ public class ConsoleOptions : ISettings
         SavePath = savePath;
 
         Logger().LogInfo(this, $"Initialized the options manager. [{this}, path={savePath}]");
+        LoadDefaultOptions();
 
         // load options or load defaults
 
-        if (!File.Exists(savePath))
-        {
-            LoadDefaultOptions();
-        }
-        else
+        if (File.Exists(savePath) && !IsTestMode)
         {
             var fileContents = File.ReadAllText(savePath);
             Options = JsonConvert.DeserializeObject<List<ConsoleOption>>(fileContents)!;
@@ -243,11 +242,24 @@ public class ConsoleOptions : ISettings
 
     public void Save(IConsole parent)
     {
+        if (IsTestMode)
+            // When testing, dont save.
+            return;
+
         // keep sync for safety, no way to safely
         // save between threads currently.
         var serialized = JsonConvert.SerializeObject(Options, Formatting.Indented);
         Logger().LogInfo(this, $"Saved console options with json byte count of `{serialized.Length}`");
-        File.WriteAllText(Path.Combine(parent.WorkingDirectory, SavePath), serialized);
+
+        try
+        {
+            File.WriteAllText(Path.Combine(parent.WorkingDirectory, SavePath), serialized);
+        }
+        catch (Exception e)
+        {
+            Logger().LogError(this, $"failed to save configuration. {e.Message}");
+            parent.Ui.DisplayLine("failed to save config, check log file for more information.");
+        }
     }
 
     public bool RemoveOption(string TechnicalName)
