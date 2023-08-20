@@ -9,13 +9,6 @@ public interface ILogger
     void LogError(object self, string err);
     void LogWarning(object self, string warn);
     void LogDebug(object self, string dbg);
-
-    /// <summary>
-    /// TODO: Remove me, this exists to help debugging on linux.
-    /// </summary>
-    /// <param name="self"></param>
-    /// <param name="log"></param>
-    void LinuxLog(object self, string log);
 }
 
 public class FileLogger : ILogger
@@ -42,11 +35,6 @@ public class FileLogger : ILogger
     public void LogError(object self, string err)
     {
         LogToFile(self, $"[error]: {err}");
-    }
-
-    public void LinuxLog(object self, string log)
-    {
-        AnsiConsole.MarkupLine($"[[[red]linux[/]]] {log}");
     }
 
     public void LogInfo(object self, string info)
