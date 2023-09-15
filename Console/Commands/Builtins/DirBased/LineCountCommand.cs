@@ -1,6 +1,8 @@
 ﻿
 using CommandLine;
 using Console.Commands.Builtins.Arguments;
+using Console.Extensions;
+using Spectre.Console;
 using System.ComponentModel;
 using System.Diagnostics;
 
@@ -120,7 +122,18 @@ public class LineCountCommand : BaseBuiltinCommand
         }
         catch (Exception ex)
         {
-            WriteLine($"Failure. Cannot enumerate folders. [{ex.Message}]");
+            WriteLine($"Failure. Cannot enumerate folders. [[{ex.Message}]]");
+            if (parent.IsAdministrator())
+            {
+                return -1;
+            }
+            var input = parent.Ui.GetLine("Do you want to try again as admin? (y/n) ");
+            if (input == "y")
+            {
+                parent.RequestAdminPermissions(Name,
+                    arguments.IntoOriginal());
+                return 0;
+            }
             return -1;
         }
 
@@ -146,7 +159,7 @@ public class LineCountCommand : BaseBuiltinCommand
                 if (arguments.Verbose)
                 {
                     global::System.Console.Clear();
-                    WriteLine($"[{filesCounted}/{files.Length}] {file}");
+                    WriteLine($"[[{filesCounted}/{files.Length}]] {file}");
                 }
             }
             catch (Exception ex)
