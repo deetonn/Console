@@ -1,5 +1,7 @@
-﻿
 // Necessary to avoid repetitive code fetching singleton instances.
+// global using static Console.Logging.StaticLoggerGlobalUseMe;
+
+
 global using static Console.Logging.StaticLoggerGlobalUseMe;
 
 using Console;
@@ -32,6 +34,16 @@ void Main()
         // These are the only two UiTypes.
         type: wantsUi ? UiType.ImGui : UiType.Console
     );
+
+    if (args.Contains("--jump"))
+    {
+        var commandToJumpTo = args.Where(x => x.Contains("--jump=")).First().Split("=")[1];
+        var commandArguments = args.Where(x => x.Contains("--jump-args=")).FirstOrDefault()?.Split("=")[1..];
+
+        // Just execute previous context then continue within the other process.
+        terminal.Commands.ExecuteFrom(terminal, commandToJumpTo, commandArguments ?? Array.Empty<string>());
+        Environment.Exit(0);
+    }
 
     // Skip update checks for now, seeing as there is no server to request from.
     // AutoUpdater.CheckForUpdates(terminal);
