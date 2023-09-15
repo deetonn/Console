@@ -21,4 +21,36 @@ public class LineCountCommandArguments
 
     [Option('P', "preset", HelpText = "Choose a language preset. This matches the languages natural extension. For example, C++ would be `cpp`. CSharp would be `cs` etc...")]
     public string? Preset { get; set; } = null;
+
+    public List<string> IntoOriginal()
+    {
+        List<string> original = new();
+
+        if (ValidExtensions is not null)
+        {
+            original.Add($"-V {string.Join(", ", ValidExtensions)}");
+        }
+
+        original.Add($"-d {Path}");
+
+        if (Recursive)
+        {
+            original.Add("-r");
+        }
+
+        if (Verbose)
+            original.Add("-v");
+
+        if (!string.IsNullOrEmpty(FileName))
+        {
+            original.Add($"-f {FileName}");
+        }
+
+        if (!string.IsNullOrEmpty(Preset))
+        {
+            original.Add($"-P {Preset}");
+        }
+
+        return original;
+    }
 } 
