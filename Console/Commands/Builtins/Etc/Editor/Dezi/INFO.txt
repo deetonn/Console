@@ -1,0 +1,14 @@
+This editor is from the repository "https://github.com/AlterFalter/dezi".
+
+From the time of using this code (29/08/2023), there is no license present
+within the repository.
+
+It's a cool project, after trying it out it's really nice to use.
+
+TODO: This project is unfinished, meaning there is work to do.
+  1. When trying to go deeper into the file, the file contents do not
+     update, and you end up with an exception. We need to update the
+     ui contents with the next line of the file, and not adjust
+     cursor position if we are at the bottom of the contents.
+  2. The popup Ui elements are janky, it's expected with an unfinished
+     project but I will work to sort these.
