@@ -18,7 +18,7 @@ public class TaskListCommand : BaseBuiltinCommand
         {
             try
             {
-                WriteLine($"[{process.Id}] {process.ProcessName}");
+                WriteLine($"[[[bold]{process.Id}[/]]] {process.ProcessName}");
             }
             catch (Win32Exception w32)
             {
