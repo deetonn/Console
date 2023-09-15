@@ -54,6 +54,21 @@ public class BaseBuiltinCommand : ICommand
         _terminal?.Ui.DisplayMarkup($"[cyan]{Name}[/]: " + message);
     }
 
+    /// <summary>
+    /// Helper methods, read input from the user. This support markup.
+    /// </summary>
+    /// <param name="prompt">The markup string to present, if null <see cref="string.Empty"/> is used.</param>
+    /// <returns>The string if successful.</returns>
+    protected string? ReadLine(string? prompt = null)
+    {
+        if (prompt == null)
+        {
+            return _terminal?.Ui.GetLine(string.Empty);
+        }
+
+        return _terminal?.Ui.GetLine(prompt);
+    }
+
     public virtual void OnInit(IConsole parent)
     {
         // called when the command is loaded.
