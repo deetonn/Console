@@ -71,9 +71,27 @@ public class ConsoleOptions : ISettings
     public const string Setting_ShowBlock = "ui.options.block";
     public const string Setting_BlockColor = "ui.color.block";
     public const string Setting_DisplayWatermark = "ui.options.watermark_enabled";
+    public const string Setting_ShowWhenInsideGitRepo = "ui.options.display_git_branch";
+
+    public const string Setting_GitRepoMarkup = "ui.markup.git";
+    public const string Setting_GitRepoMarkupDefault = "bold red";
 
     private void LoadDefaultOptions()
     {
+        SetOption(Setting_GitRepoMarkup, (thing) =>
+        {
+            thing.VisualName = $"The style of the git branch name when \"{Setting_ShowWhenInsideGitRepo}\" is enabled.";
+            thing.Value = Setting_GitRepoMarkupDefault;
+            return thing;
+        });
+
+        SetOption(Setting_ShowWhenInsideGitRepo, (thing) =>
+        {
+            thing.VisualName = "When enabled, the command pointer (where the path is) will be set to the current branch when inside of git repo.";
+            thing.Value = true;
+            return thing;
+        });
+
         SetOption(Setting_UserNameColor, (thing) =>
         {
             thing.VisualName = "The color of the username section";
