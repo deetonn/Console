@@ -11,7 +11,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{8C9A
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AutoConfig", "AutoConfig\AutoConfig.csproj", "{FB76F861-DD24-4125-8BB7-F8BA3689F12E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Console.Tests", "Console.Tests\Console.Tests.csproj", "{63745267-1782-440B-98AE-4DCC1DC61E2B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Console.Tests", "Console.Tests\Console.Tests.csproj", "{63745267-1782-440B-98AE-4DCC1DC61E2B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Console.Editor", "Console.Lsp\Console.Editor.csproj", "{1F49B4BC-9E63-45BA-A360-56E84EB2F88A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,6 +37,10 @@ Global
 		{63745267-1782-440B-98AE-4DCC1DC61E2B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{63745267-1782-440B-98AE-4DCC1DC61E2B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{63745267-1782-440B-98AE-4DCC1DC61E2B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1F49B4BC-9E63-45BA-A360-56E84EB2F88A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1F49B4BC-9E63-45BA-A360-56E84EB2F88A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1F49B4BC-9E63-45BA-A360-56E84EB2F88A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1F49B4BC-9E63-45BA-A360-56E84EB2F88A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

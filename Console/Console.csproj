@@ -1,10 +1,16 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <TargetFramework>net7.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <Description>The better windows command processor.</Description>
+        <PackageProjectUrl>https://github.com/deetonn/Console</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/deetonn/Console</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageTags>terminal;console;cmd</PackageTags>
+        <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
     </PropertyGroup>
 
     <ItemGroup>
@@ -14,6 +20,7 @@
       <PackageReference Include="Pastel" Version="3.0.1" />
       <PackageReference Include="PInvoke.User32" Version="0.7.124" />
       <PackageReference Include="Spectre.Console" Version="0.47.0" />
+      <PackageReference Include="StreamJsonRpc" Version="2.16.36" />
     </ItemGroup>
 
     <ItemGroup>
