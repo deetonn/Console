@@ -163,7 +163,7 @@ public class ViewFileCommand : BaseBuiltinCommand
 This command will display the contents of a file.
 If the file is a source code file, it will be syntax highlighted.
 
-USAGE: {Name} <file-name> [...options]
+USAGE: {Name} <file-name> [[...options]]
 
 Options:
   --show-tokens: display the generated lexed tokens instead of text
