@@ -16,7 +16,7 @@ public class ViewOptionsCommand : BaseBuiltinCommand
 
         foreach (var option in parent.Settings.Options)
         {
-            WriteLine($"[{option.TechnicalName}]: {option.VisualName} (Value: {option.Value})");
+            WriteLine($"[[{option.TechnicalName}]]: {option.VisualName} (Value: {option.Value})");
         }
 
         var savePath = parent.GetConfigPath();
