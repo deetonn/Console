@@ -1,0 +1,7 @@
+When process starts, begin inner node.exe with a custom
+script that starts a server on localhost. All endpoints
+take a key, that only the current instance knows.
+
+The main process communicates with node via a shared file
+under the data directory (under roaming). This file is just a list of all requests made. This only serves as
+a way to execute commands by clicking links on the TUI.
