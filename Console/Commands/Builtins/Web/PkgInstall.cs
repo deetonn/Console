@@ -18,7 +18,13 @@ public enum InstallerType
     /// be prompted on where to install the application. The user should also be
     /// asked if it should be added to the PATH variable.
     /// </summary>
-    Compressed
+    Compressed,
+
+    /// <summary>
+    /// A windows ".msi" file. We just need to execute it the same as
+    /// an exe.
+    /// </summary>
+    WindowsMsi,
 }
 
 public class PackageData
@@ -67,6 +73,8 @@ public class PkgInstall : BaseBuiltinCommand
             new PackageData("https://www.win-rar.com/fileadmin/winrar-versions/winrar/winrar-x64-621.exe", "WinRAR is a trialware file archiver utility for Windows, developed by Eugene Roshal of win.rar GmbH. It can create and view archives in RAR or ZIP file formats, and unpack numerous archive file formats.", InstallerType.WindowsExe),
         ["docker"] = 
             new PackageData("https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe?utm_source=docker&utm_medium=webreferral&utm_campaign=dd-smartbutton&utm_location=module", "Docker is a set of platform as a service products that use OS-level virtualization to deliver software in packages called containers.", InstallerType.WindowsExe),
+        ["nodejs"] = 
+            new PackageData("https://nodejs.org/dist/v18.17.1/node-v18.17.1-x64.msi", "Node.js® is an open-source, cross-platform JavaScript runtime environment.", InstallerType.WindowsMsi)
     };
 
     public override string Name => "pkg-install";
@@ -84,6 +92,21 @@ public class PkgInstall : BaseBuiltinCommand
 
         var packageString = args[0];
 
+        // This exists for other parts of Console that want to install packages for
+        // full functionality, but want to ask for permission before-hand.
+        if (args.Contains("--prompt"))
+        {
+            var data = ReadLine($"would you like to install \"{packageString}\"? [[Y/n]] ")?.ToLower();
+            if (data == null)
+            {
+                return -4;
+            }
+            if (data.Contains('n'))
+            {
+                return -4;
+            }
+        }
+
         if (!PackageDirectory.ContainsKey(packageString))
         {
             WriteLine($"ERROR: No such package `{packageString}`. Use pkg-list for information.");
@@ -100,6 +123,9 @@ public class PkgInstall : BaseBuiltinCommand
             case InstallerType.Compressed:
                 InstallZipPackage(packageString, package, parent);
                 break;
+            case InstallerType.WindowsMsi:
+                InstallMsiPackage(packageString, package, parent);
+                break;
             default:
                 {
                     Debug.Assert(false, $"Unhandled InstallerType ({package.Type})");
@@ -108,6 +134,66 @@ public class PkgInstall : BaseBuiltinCommand
         }
 
         return 0;
+    }
+
+    public void InstallMsiPackage(string packageName, PackageData package, IConsole parent)
+    {
+        var fileName = $@"C:/Users/{Environment.UserName}/Downloads/_Temp_{packageName}.msi";
+
+        var handler = new HttpClientHandler() { AllowAutoRedirect = true };
+        var ph = new ProgressMessageHandler(handler);
+
+        ph.HttpReceiveProgress += (_, args) =>
+        {
+            parent.Ui.Clear();
+            var total = args.TotalBytes;
+            var received = args.BytesTransferred;
+            var total_str = ToMB(total ?? 0) == 0 ? $"Unknown" : $"{ToMB(total ?? 0)}";
+            WriteLine($"{args.ProgressPercentage}% Done | {ToMB(received)}Mb / {total_str}Mb");
+            Task.Delay(5).RunSynchronously();
+        };
+
+        using var client = new HttpClient(ph);
+        parent.Ui.Clear();
+
+        if (File.Exists(fileName))
+            File.Delete(fileName);
+
+        var download = Task.Run(async () =>
+        {
+            await client.DownloadFileTaskAsync(new Uri(package.DownloadLink), fileName);
+        });
+        download.Wait();
+
+        Process? installerInstance;
+
+        try
+        {
+            var info = new ProcessStartInfo(fileName)
+            {
+                // Run the file as adminstrator, this is generally okay
+                // as most of them are installers and request it either way.
+                FileName = "msiexec",
+                Arguments = $"{fileName}",
+                Verb = "runas",
+            };
+            installerInstance = Process.Start(info);
+        }
+        // catch relevant exceptions
+        catch (Win32Exception ex)
+        {
+            WriteLine($"failed to start process. {ex.Message} (run as admin/root)");
+            return;
+        }
+        catch (Exception ex)
+        {
+            WriteLine($"ERROR: {ex.Message}");
+            return;
+        }
+        WriteLine($"Waiting for [{installerInstance?.ProcessName}] to finish.");
+        installerInstance?.WaitForExit();
+
+        File.Delete(fileName);
     }
 
     public void InstallZipPackage(string packageName, PackageData package, IConsole parent)
@@ -133,13 +219,13 @@ public class PkgInstall : BaseBuiltinCommand
         var handler = new HttpClientHandler() { AllowAutoRedirect = true };
         var ph = new ProgressMessageHandler(handler);
 
-        ph.HttpReceiveProgress += async (_, args) =>
+        ph.HttpReceiveProgress += (_, args) =>
         {
             parent.Ui.Clear();
             var total = args.TotalBytes;
             var received = args.BytesTransferred;
             WriteLine($"{args.ProgressPercentage}% Done | {ToMB(received)}Mb / {ToMB(total!.Value)}Mb");
-            await Task.Delay(5);
+            Task.Delay(5).RunSynchronously();
         };
 
         using var client = new HttpClient(ph);
@@ -204,14 +290,14 @@ public class PkgInstall : BaseBuiltinCommand
         var handler = new HttpClientHandler() { AllowAutoRedirect = true };
         var ph = new ProgressMessageHandler(handler);
 
-        ph.HttpReceiveProgress += async (_, args) =>
+        ph.HttpReceiveProgress += (_, args) =>
         {
             parent.Ui.Clear();
             var total = args.TotalBytes;
             var received = args.BytesTransferred;
             var total_str = ToMB(total ?? 0) == 0 ? $"Unknown" : $"{ToMB(total ?? 0)}";
             WriteLine($"{args.ProgressPercentage}% Done | {ToMB(received)}Mb / {total_str}Mb");
-            await Task.Delay(5);
+            Task.Delay(5).RunSynchronously();
         };
 
         using var client = new HttpClient(ph);
