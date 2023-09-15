@@ -130,7 +130,7 @@ public class Terminal : IDisposable, IConsole
         WorkingDirectory = Environment.CurrentDirectory;
 
         PluginManager = new PluginManager(this);
-        PluginManager.LoadPlugins(this);
+        _ = PluginManager.LoadPlugins(this);
 
         Logger().LogInfo(this, $"Main terminal instance ready. [{this}]");
 
@@ -146,6 +146,81 @@ public class Terminal : IDisposable, IConsole
         }
     }
 
+    public (bool IsInGitRepo, string? PathToGitRepo) IsInsideGitRepository(string workingDirectory)
+    {
+        /*
+         * Walk from the current directory until the root
+         * directory and check if a ".git" folder exists.
+         */
+
+        if (Directory.Exists(Path.Combine(workingDirectory, ".git")))
+        {
+            return (true, workingDirectory);
+        }
+
+        if (workingDirectory == "C:\\"
+            || workingDirectory == "/")
+        {
+            return (false, null);
+        }
+
+        var parentDirectory = Directory.GetParent(workingDirectory)?.FullName;
+
+        if (parentDirectory is null)
+        {
+            // no parent, we are at the root.
+            return (false, null);
+        }
+
+        return IsInsideGitRepository(parentDirectory);
+    }
+
+    public string ParseGitRepoInfo(string folderContainingGit)
+    {
+        var gitPath = Path.Combine(folderContainingGit, ".git");
+
+        if (!Directory.Exists(gitPath))
+        {
+            throw new ArgumentException($"the folder \"{folderContainingGit}\" does not contain a \".git\" sub-folder.");
+        }
+
+        var headFile = Path.Combine(gitPath, "HEAD");
+
+        if (!File.Exists(headFile))
+        {
+            // we cannot figure out the branch.
+            return "git";
+        }
+
+        var headFileData = File.ReadAllText(headFile);
+
+        // The data in here will be like this:
+        // ref: refs/heads/[branch]
+
+        var splitData = headFileData.Split(":");
+        var pathToBranch = splitData.ElementAt(1);
+
+        if (pathToBranch is null)
+        {
+            // unexpected format.
+            return "git";
+        }
+
+        pathToBranch = pathToBranch.Trim();
+
+        // Get the last thing in the path.
+        var branchName = pathToBranch.Split("/").LastOrDefault();
+
+        if (branchName is null)
+        {
+            // unexpected format.
+            return "git";
+        }
+        var markupSetting = Settings.GetOptionValue<string>(ConsoleOptions.Setting_GitRepoMarkup);
+        // The escape translates to "✨"
+        return $"[{markupSetting}]{branchName}[/]";
+    }
+
     public string BuildPromptPointer()
     {
         var sb = new StringBuilder();
@@ -155,9 +230,17 @@ public class Terminal : IDisposable, IConsole
 
         sb.Append($"[italic][{userNameColor.ToHexString()}]{User}[/][/]");
         sb.Append('@');
-        sb.Append($"[{machineNameColor.ToHexString()}]{UserMachineName}[/]");
-        sb.Append($"~{UnixStyleWorkingDirectory}$");
+        var (isInGitRepo, pathContainingGit) = IsInsideGitRepository(WorkingDirectory);
 
+        if (!isInGitRepo && Settings.GetOptionValue<bool>(ConsoleOptions.Setting_ShowWhenInsideGitRepo))
+        {
+            sb.Append($"[{machineNameColor.ToHexString()}]{UserMachineName}[/]");
+            sb.Append($"~{UnixStyleWorkingDirectory}$");
+            return sb.ToString();
+        }
+
+        var gitRepoString = ParseGitRepoInfo(pathContainingGit);
+        sb.Append(gitRepoString + "$");
         return sb.ToString();
     }
 
