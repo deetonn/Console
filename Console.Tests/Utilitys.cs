@@ -100,6 +100,8 @@ public class NonfunctionalTerminal : IConsole
 
     public IEventHandler EventHandler { get; } = new GlobalEventHandler();
 
+    public IEnvironmentVariables EnvironmentVars => new EnvironmentVariables();
+
     public string GetConfigPath()
     {
         // For tests, the config path should be contained.
