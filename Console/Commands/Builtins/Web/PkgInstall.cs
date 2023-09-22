@@ -107,24 +107,24 @@ public class PkgInstall : BaseBuiltinCommand
             }
         }
 
-        if (!PackageDirectory.ContainsKey(packageString))
+        if (!PackageDirectory.TryGetValue(packageString, out PackageData? value))
         {
             WriteLine($"ERROR: No such package `{packageString}`. Use pkg-list for information.");
             return -1;
         }
 
-        var package = PackageDirectory[packageString];
+        var package = value;
 
         switch (package.Type)
         {
             case InstallerType.WindowsExe:
-                InstallWindowsExe(packageString, package, parent);
+                Task.Run(async () => await InstallMsiPackageAsync(packageString, package, parent));
                 break;
             case InstallerType.Compressed:
-                InstallZipPackage(packageString, package, parent);
+                Task.Run(async () => InstallZipPackageAsync(packageString, package, parent));
                 break;
             case InstallerType.WindowsMsi:
-                InstallMsiPackage(packageString, package, parent);
+                Task.Run(async () => await InstallMsiPackageAsync(packageString, package, parent));
                 break;
             default:
                 {
@@ -136,7 +136,7 @@ public class PkgInstall : BaseBuiltinCommand
         return 0;
     }
 
-    public void InstallMsiPackage(string packageName, PackageData package, IConsole parent)
+    public async Task InstallMsiPackageAsync(string packageName, PackageData package, IConsole parent)
     {
         var fileName = $@"C:/Users/{Environment.UserName}/Downloads/_Temp_{packageName}.msi";
 
@@ -159,11 +159,7 @@ public class PkgInstall : BaseBuiltinCommand
         if (File.Exists(fileName))
             File.Delete(fileName);
 
-        var download = Task.Run(async () =>
-        {
-            await client.DownloadFileTaskAsync(new Uri(package.DownloadLink), fileName);
-        });
-        download.Wait();
+        await client.DownloadFileTaskAsync(new Uri(package.DownloadLink), fileName);
 
         Process? installerInstance;
 
@@ -196,7 +192,7 @@ public class PkgInstall : BaseBuiltinCommand
         File.Delete(fileName);
     }
 
-    public void InstallZipPackage(string packageName, PackageData package, IConsole parent)
+    public async Task InstallZipPackageAsync(string packageName, PackageData package, IConsole parent)
     {
         Logger().LogInfo(this, $"Installing Zip package `{packageName}`.");
         Logger().LogInfo(this, $"^^^ Package Url is `{package.DownloadLink}` ^^^");
@@ -231,11 +227,7 @@ public class PkgInstall : BaseBuiltinCommand
         using var client = new HttpClient(ph);
         parent.Ui.Clear();
 
-        var download = Task.Run(async () =>
-        {
-            await client.DownloadFileTaskAsync(new Uri(package.DownloadLink), fullPath);
-        });
-        download.Wait();
+        await client.DownloadFileTaskAsync(new Uri(package.DownloadLink), fullPath);
 
         WriteLine($"Downloaded to temporary file `{path}`.\n Extracting contents...");
 
@@ -283,7 +275,7 @@ public class PkgInstall : BaseBuiltinCommand
         return bytes / 1024 / 1024;
     }
 
-    public void InstallWindowsExe(string packageName, PackageData package, IConsole parent)
+    public async Task InstallWindowsExeAsync(string packageName, PackageData package, IConsole parent)
     {
         var fileName = $@"C:/Users/{Environment.UserName}/Downloads/_Temp_{packageName}.exe";
 
@@ -306,11 +298,7 @@ public class PkgInstall : BaseBuiltinCommand
         if (File.Exists(fileName))
             File.Delete(fileName);
 
-        var download = Task.Run(async () =>
-        {
-            await client.DownloadFileTaskAsync(new Uri(package.DownloadLink), fileName);
-        });
-        download.Wait();
+        await client.DownloadFileTaskAsync(new Uri(package.DownloadLink), fileName);
 
         Process? installerInstance;
 
