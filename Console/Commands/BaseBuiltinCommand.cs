@@ -1,5 +1,6 @@
 ﻿using Console.UserInterface;
 using Console.UserInterface.UiTypes;
+using System.ComponentModel;
 
 namespace Console.Commands;
 
@@ -24,6 +25,7 @@ public class BaseBuiltinCommand : ICommand
             "no arguments"
             : "[" + string.Join(", ", args) + "]";
         Logger().LogInfo(this, $"`{Name}` is executing with `{args_str}` under terminal `{parent}`");
+        parent.EnvironmentVars.EnterCommandContext();
         return 0;
     }
     
@@ -35,6 +37,7 @@ public class BaseBuiltinCommand : ICommand
     /// <param name="severity">The messages severity</param>
     protected void WriteLine(string message)
     {
+        _terminal?.EnvironmentVars.AppendCommandOutput(message + "\n");
         _terminal?.Ui.DisplayLineMarkup($"[cyan]{Name}[/]: " + message);
     }
 
@@ -51,6 +54,7 @@ public class BaseBuiltinCommand : ICommand
     /// <param name="severity">The messages severity</param>
     protected void Write(string message)
     {
+        _terminal?.EnvironmentVars.AppendCommandOutput(message);
         _terminal?.Ui.DisplayMarkup($"[cyan]{Name}[/]: " + message);
     }
 
