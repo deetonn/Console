@@ -34,7 +34,8 @@ public class HelpCommand : BaseBuiltinCommand
         {
             foreach (var command in parent.Commands.Elements)
             {
-                DisplayCommand(command);
+                if (command is not null)
+                    DisplayCommand(command);
             }
         }
         else
