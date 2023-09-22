@@ -16,7 +16,7 @@ public static class Result
             CommandReturnValues.CQueueNotFound => $"cannot dequeue that command, we could not resolve it.",
             CommandReturnValues.FailedToStartProcess => $"failed to start that process.",
             int.MinValue => $"the command was not found",
-            >= 0 => $"the command was successful ({result})",
+            >= 0 => string.Empty,
             < 0 => $"the command failed ({result})"
         };
     }
