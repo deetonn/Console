@@ -35,6 +35,10 @@ public class AliasBuiltinCommand : BaseBuiltinCommand
                 return 0;
             var name = split.First();
             var line_args = split.Skip(1);
+            if (parent is Terminal terminal)
+            {
+                line_args = terminal.HandleInlineEnvironmentVariables(line_args.ToArray());
+            }
             lastResult = parent.Commands.ExecuteFrom(parent, name, line_args.ToArray());
         }
 
