@@ -16,6 +16,7 @@ public class PwdCommand : BaseBuiltinCommand
         base.Run(args, parent);
 
         var workingDirectory = parent.WorkingDirectory;
+        parent.EnvironmentVars.AppendCommandOutput(workingDirectory);
         parent.Ui.DisplayLinePure(workingDirectory);
 
         return 0;
