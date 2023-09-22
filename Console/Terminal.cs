@@ -425,7 +425,7 @@ public class Terminal : IDisposable, IConsole
 
                 // Convert the StringBuilder to a string (the variable name)
                 var varName = currentVar.ToString();
-                var value = Environment.GetEnvironmentVariable(varName);
+                var value = EnvironmentVars.Get(varName);
 
                 // Check if the environment variable exists
                 if (value is null)
