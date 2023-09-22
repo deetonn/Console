@@ -29,7 +29,7 @@ public class SetCommand : BaseBuiltinCommand
 
         try
         {
-            Environment.SetEnvironmentVariable(env_variable_name, env_variable_new_val);
+            parent.EnvironmentVars.Set(env_variable_name, env_variable_new_val);
         }
         catch (Exception e)
         {
