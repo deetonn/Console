@@ -8,7 +8,7 @@ public class LineCountCommandArguments
     public IEnumerable<string>? ValidExtensions { get; set; }
 
     [Option('d', "directory", HelpText = "The directory to count the lines of.")]
-    public string Path { get; set; } = null!;
+    public string Path { get; set; } = "INVALID";
 
     [Option('r', "recursive", HelpText = "Recurse the directorys within the parent directory.")]
     public bool Recursive { get; set; }
@@ -17,10 +17,10 @@ public class LineCountCommandArguments
     public bool Verbose { get; set; }
 
     [Option('f', "file-name", HelpText = "The singular file you want to count the lines of.")]
-    public string? FileName { get; set; }
+    public string? FileName { get; set; } = "INVALID";
 
     [Option('P', "preset", HelpText = "Choose a language preset. This matches the languages natural extension. For example, C++ would be `cpp`. CSharp would be `cs` etc...")]
-    public string? Preset { get; set; } = null;
+    public string? Preset { get; set; } = "INVALID";
 
     public List<string> IntoOriginal()
     {

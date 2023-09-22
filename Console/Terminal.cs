@@ -6,6 +6,7 @@ using Console.Plugins;
 using Console.UserInterface;
 using Console.UserInterface.Input;
 using Console.UserInterface.UiTypes;
+using Console.Utilitys;
 using Console.Utilitys.Configuration;
 using Console.Utilitys.Options;
 using Spectre.Console;
@@ -31,6 +32,7 @@ public interface IConsole
     public IInputHandler InputHandler { get; }
     public IConfiguration Config { get; }
     public IEventHandler EventHandler { get; }
+    public IEnvironmentVariables EnvironmentVars { get; }
 
     public string GetConfigPath();
 }
@@ -67,8 +69,8 @@ public class Terminal : IDisposable, IConsole
     public IServer? Server { get; set; }
     public IInputHandler InputHandler { get; internal set; }
     public IConfiguration Config { get; internal set; }
-
     public IEventHandler EventHandler { get; }
+    public IEnvironmentVariables EnvironmentVars { get; }
 
     public readonly string SavePath;
 
@@ -101,6 +103,7 @@ public class Terminal : IDisposable, IConsole
     public Terminal(UiType type)
     {
         EventHandler = new GlobalEventHandler();
+        EnvironmentVars = new EnvironmentVariables();
 
         ConfigurationPath = SortConfigPath();
         SavePath = Path.Combine(ConfigurationPath, "options.json");
@@ -304,6 +307,8 @@ public class Terminal : IDisposable, IConsole
             if (string.IsNullOrEmpty(input[0]))
                 lastResult = CommandReturnValues.DontShowText;
 
+            EnvironmentVars.RegisterCommandResult(lastResult);
+
             var translation = Result.Translate(lastResult);
             if (!string.IsNullOrEmpty(translation))
                 Ui.DisplayLine($"{translation}");
@@ -373,11 +378,11 @@ public class Terminal : IDisposable, IConsole
         return realPath;
     }
 
-    private string[]? HandleInlineEnvironmentVariables(string[]? input)
+    public string[] HandleInlineEnvironmentVariables(string[]? input)
     {
         // If the input is null, return it directly
         if (input is null)
-            return input;
+            return Array.Empty<string>();
 
         // Join the array into a single string with space as separator
         var full = string.Join(' ', input);
@@ -425,7 +430,7 @@ public class Terminal : IDisposable, IConsole
 
                 // Convert the StringBuilder to a string (the variable name)
                 var varName = currentVar.ToString();
-                var value = Environment.GetEnvironmentVariable(varName);
+                var value = EnvironmentVars.Get(varName);
 
                 // Check if the environment variable exists
                 if (value is null)
