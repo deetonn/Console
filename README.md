@@ -1,7 +1,8 @@
 [![dotnet package](https://github.com/deetonn/Console/actions/workflows/dotnet-desktop.yml/badge.svg?branch=master)](https://github.com/deetonn/Console/actions/workflows/dotnet-desktop.yml) ![GitHub stars](https://img.shields.io/github/stars/deetonn/Console.svg)
 
+<img src="https://github.com/deetonn/Console/blob/master/console-logo.png" height="200" alt="Console logo" />
+
 # Console 🖥️
-<img src="https://github.com/deetonn/Console/blob/master/console-logo.png" width="200" height="200" alt="Console logo" />
 ## Overview 
  This is a fun and flexible terminal-like application that allows users to interact with the command line interface. The application is designed to be extensible with custom commands and externally loadable plugins, giving users the power to customize their terminal experience. 
 ## Features  
