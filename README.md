@@ -26,57 +26,14 @@
  - Go back to start-up and set it as your default profile.
  - Profit!
  ## Usage 
- It works just the same as the normal command processor. So use it normally if you wish. 
+ It works just the same as the normal command processor. So use it normally if you wish.
+ ### ⚠️ WARNING
+ It does not yet have full compatability with the windows command processor.
 
  You can also use any of the custom builtins of `Console`. Type `help` to view them. To view windows commands, use `help --all`.
 
- ### Plugins
- - If you want to get started with plugins, get started by creating a new C# project of type `Class Library`.
- - Add a project reference, this needs to point to wherever you installed the `Console` application. The `.dll` file you want to include is `Console.dll`.
- - Create a class and name it however you like, then implement the interface in `Console.Plugins.IConsolePlugin`.
- - Below is an example of how you must implement the class.
-```cs
-public class ExamplePlugin : Console.Plugins.IConsolePlugin
-{
-    // Doesn't have to by `_` seperated.
-    public string Name => "my_plugin_name";
-
-    public string Description => "My description";
-
-    public string Author => "Your name";
-
-    public Guid Id { get; set; } = Guid.Empty; // This is set by the plugin manager.
-
-    public void OnCommandExecuted(Terminal terminal, ICommand command)
-    {
-        throw new NotImplementedException();
-    }
-
-    public void OnLoaded(Terminal terminal)
-    {
-        throw new NotImplementedException();
-    }
-
-    public void OnSettingChange(Terminal terminal, ISettings settings, string settingName, object newValue)
-    {
-        throw new NotImplementedException();
-    }
-
-    public void OnUnloaded(Terminal terminal)
-    {
-        throw new NotImplementedException();
-    }
-
-    public bool OnUserInput(Terminal terminal, string input)
-    {
-        throw new NotImplementedException();
-    }
-}
-```
-- Build the application.
-- If you have finished your plugin (or installing someone elses) you can find the auto-loaded plugin path at C:\Users\YourUserName\AppData\Roaming\Console\saved\plugins.
-- If you want to test it, copy the path to your plugin, then run the command `load_plugin <path>`.
-To print to the console, use the `terminal` arguments member `WriteLine`.
+ ## Documentation
+ Visit the [wiki](https://github.com/deetonn/Console/wiki) here on github itself!
  
  ## Contributing 
  Contributions to this project are welcome! If you find any bugs or have suggestions for new features, feel free to open an issue or submit a pull request. 
