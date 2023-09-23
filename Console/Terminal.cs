@@ -354,7 +354,7 @@ public class Terminal : IDisposable, IConsole
         return $"Terminal(User={User})";
     }
 
-    private string SortConfigPath()
+    private static string SortConfigPath()
     {
         // if the OS is linux, use the XDG_DATA_DIRS variable
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))

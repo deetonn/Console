@@ -18,8 +18,6 @@ public class AutoConfigDisableForceCommand : BaseBuiltinCommand
 
     public override string Description => "Interface with the auto config plugin.";
 
-    public override DateTime? LastRunTime { get; set; }
-
     public override int Run(List<string> args, IConsole parent)
     {
         if (args.Count == 0)
