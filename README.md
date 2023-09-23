@@ -1,6 +1,8 @@
 [![dotnet package](https://github.com/deetonn/Console/actions/workflows/dotnet-desktop.yml/badge.svg?branch=master)](https://github.com/deetonn/Console/actions/workflows/dotnet-desktop.yml) ![GitHub stars](https://img.shields.io/github/stars/deetonn/Console.svg)
 
-<img src="https://github.com/deetonn/Console/blob/master/console-logo.png" height="200" alt="Console logo" />
+<p align="center">
+ <img src="https://github.com/deetonn/Console/blob/master/console-logo.png" height="200" alt="Console logo" />
+</p>
 
 # Console 🖥️
 ## Overview 
