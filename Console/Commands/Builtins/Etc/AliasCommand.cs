@@ -151,6 +151,17 @@ public class AliasCommand : BaseBuiltinCommand
                 parent.Commands.LoadCustomCommand(new AliasBuiltinCommand(commandAlias));
             }
         }
+
+        if (!parent.Commands.Elements.Any(x => x.Name == "ls"))
+        {
+            // load "ls" as an alias
+            parent.Commands.LoadCustomCommand(
+                new AliasBuiltinCommand(
+                    new Alias("dir", Array.Empty<string>().ToList()
+                    )
+                )
+            );
+        }
     }
 
     private void Save(IConsole parent)
