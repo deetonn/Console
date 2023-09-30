@@ -1,4 +1,6 @@
-﻿namespace Console.Commands;
+﻿using Console.Errors;
+
+namespace Console.Commands;
 
 public interface ICommandCentre
 {
@@ -8,7 +10,7 @@ public interface ICommandCentre
     /// their own implementation of ICommand
     /// </summary>
     public IList<ICommand> Elements { get; }
-    
+
     public IList<ICommand> PausedCommands { get; }
 
     /// <summary>
@@ -20,8 +22,8 @@ public interface ICommandCentre
     /// <param name="args">The arguments passed by the user</param>
     /// <param name="owner">The parent terminal owning this command</param>
     /// <returns>The command result</returns>
-    public int Run(string name, List<string> args, IConsole owner);
-    
+    public CommandResult Run(string name, List<string> args, IConsole owner);
+
     /// <summary>
     /// Load all types that derive from <see cref="ICommand"/>.
     /// </summary>
@@ -38,9 +40,5 @@ public interface ICommandCentre
 
     public void LoadCustomCommand(ICommand command);
 
-    public int ExecuteFrom(IConsole parent, string name, params string[] args);
-
-    public ICommand? FinishQueuedCommand(string command);
-
-    public int AttemptToQueueCommand(string name, List<string> args, IConsole owner);
+    public CommandResult ExecuteFrom(IConsole parent, string name, params string[] args);
 }
