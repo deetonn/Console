@@ -1,4 +1,6 @@
-﻿namespace Console.Commands.Builtins.System;
+﻿using Console.Errors;
+
+namespace Console.Commands.Builtins.System;
 
 internal class QuitCommand : BaseBuiltinCommand
 {
@@ -6,7 +8,7 @@ internal class QuitCommand : BaseBuiltinCommand
 
     public override string Description => "Exit the application with proper cleanup.";
 
-    public override int Run(List<string> args, IConsole parent)
+    public override CommandResult Run(List<string> args, IConsole parent)
     {
         return CommandReturnValues.SafeExit;
     }

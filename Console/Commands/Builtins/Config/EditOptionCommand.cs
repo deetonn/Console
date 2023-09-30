@@ -1,4 +1,5 @@
 ﻿
+using Console.Errors;
 using Console.UserInterface;
 
 namespace Console.Commands.Builtins.Config;
@@ -8,7 +9,7 @@ public class EditOptionCommand : BaseBuiltinCommand
     public override string Name => "optedit";
     public override string Description => "Edit the configuration";
     public override DateTime? LastRunTime { get; set; } = null;
-    public override int Run(List<string> args, IConsole parent)
+    public override CommandResult Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
 
@@ -24,13 +25,14 @@ public class EditOptionCommand : BaseBuiltinCommand
         var option = args[0];
         var value = args[1];
         var create = args.Contains("--create");
-        
+
         if (!parent.Settings.OptionExists(option))
         {
             if (!create)
             {
-                parent.Ui.DisplayLine($"No such command to edit. `{option}`");
-                return -2;
+                return Error()
+                    .WithMessage($"{option} does not exist as an option.")
+                    .Build();
             }
 
             parent.Settings.SetOption(option, (opt) =>

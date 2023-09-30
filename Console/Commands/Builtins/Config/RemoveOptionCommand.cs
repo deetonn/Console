@@ -1,4 +1,5 @@
 ﻿
+using Console.Errors;
 using Console.UserInterface;
 
 namespace Console.Commands.Builtins.Config;
@@ -8,7 +9,7 @@ public class RemoveOptionCommand : BaseBuiltinCommand
     public override string Name => "optrm";
     public override string Description => "Remove an option from the configuration";
     public override DateTime? LastRunTime { get; set; } = null;
-    public override int Run(List<string> args, IConsole parent)
+    public override CommandResult Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
 
@@ -25,8 +26,10 @@ public class RemoveOptionCommand : BaseBuiltinCommand
 
         if (!removed)
         {
-            parent.Ui.DisplayLinePure($"No existing command to remove named '{option}'");
-            return -1;
+            return Error()
+                .WithMessage($"no existing command to remove named \"{option}\"")
+                .WithNote("use the \"optview\" command to see all options.")
+                .Build();
         }
 
         parent.Ui.DisplayLinePure($"Successfully removed");

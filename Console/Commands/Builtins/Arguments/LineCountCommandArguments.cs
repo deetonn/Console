@@ -53,4 +53,4 @@ public class LineCountCommandArguments
 
         return original;
     }
-} 
+}

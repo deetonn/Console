@@ -1,10 +1,4 @@
-﻿using Console.Commands;
-using Console;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Console.Errors;
 
 namespace Console.Commands.Builtins.Config;
 
@@ -13,7 +7,7 @@ public class ListPluginsCommand : BaseBuiltinCommand
     public override string Name => "list_plugins";
     public override string Description => "List all loaded plugins";
 
-    public override int Run(List<string> args, IConsole parent)
+    public override CommandResult Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
         var count = parent.PluginManager.Plugins.Count;

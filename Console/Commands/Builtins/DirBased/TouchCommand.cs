@@ -1,4 +1,6 @@
 ﻿
+using Console.Errors;
+
 namespace Console.Commands.Builtins.DirBased;
 
 public class TouchCommand : BaseBuiltinCommand
@@ -6,22 +8,21 @@ public class TouchCommand : BaseBuiltinCommand
     public override string Name => "touch";
     public override string Description => "Creates a file with the specified name.";
 
-    public override int Run(List<string> args, IConsole target)
+    public override CommandResult Run(List<string> args, IConsole target)
     {
         base.Run(args, target);
 
         if (args.Count == 0 || args.Contains("--help"))
         {
-            WriteLine($"{Name} - usage\n");
-            WriteLine($"  {Name} <file-name>");
-            return 0;
+            return Usage();
         }
 
         if (string.IsNullOrWhiteSpace(args[0]))
         {
-            WriteLine("missing file operand");
-            WriteLine("try 'touch --help' for more information.");
-            return CommandReturnValues.BadArguments;
+            return Error()
+                .WithMessage("missing file operand")
+                .WithNote($"try \"{Name} --help\" for more information.")
+                .Build();
         }
 
         var path = Path.GetFullPath(args[0]);
@@ -35,6 +36,15 @@ public class TouchCommand : BaseBuiltinCommand
 
         using var _ = File.Create(path);
         return 0;
+    }
+
+    private CommandError Usage()
+    {
+        return Error()
+            .WithMessage("invalid usage")
+            .WithNote($"usage: {Name} <file-name>")
+            .WithNote("file-name: the name of the file to touch, or the name of the file to create.")
+            .Build();
     }
 
     public override string DocString => $@"

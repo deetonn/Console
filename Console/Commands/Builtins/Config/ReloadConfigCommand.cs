@@ -1,5 +1,5 @@
 ﻿
-using Console.UserInterface;
+using Console.Errors;
 using Console.Utilitys.Options;
 
 namespace Console.Commands.Builtins.Config;
@@ -27,7 +27,7 @@ public class ReloadConfigCommand : BaseBuiltinCommand
     public override string Name => "optreset";
     public override string Description => "Reset the configuration to its defaults";
     public override DateTime? LastRunTime { get; set; } = null;
-    public override int Run(List<string> args, IConsole parent)
+    public override CommandResult Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
 
@@ -37,19 +37,23 @@ public class ReloadConfigCommand : BaseBuiltinCommand
 
         var randomWord = RandomPhrases[Random.Shared.Next(0, RandomPhrases.Count)];
 
-        var input = parent.Ui.GetLine($"Phrase: {randomWord}");
+        var input = ReadLine($"Phrase: {randomWord}\nREPEAT: ");
 
         if (input != randomWord)
         {
-            WriteLine("Words do not match!");
-            return -1;
+            return Error()
+                .WithMessage("The specified code did not match.")
+                .WithNote($"The expected message was \"{randomWord}\"")
+                .WithNote($"but got \"{input}\"")
+                .WithNote("[blue bold]The check IS case sensitive.[/]")
+                .Build();
         }
 
         // delete the configuration file.
         File.Delete(parent.GetConfigPath());
         parent.Settings = new ConsoleOptions(parent.GetConfigPath(), parent);
 
-        WriteLine("Reset your configuration!");
+        WriteLine("Your configuration has been reset!");
 
         return 0;
     }

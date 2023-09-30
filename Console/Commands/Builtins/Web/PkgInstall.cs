@@ -1,4 +1,5 @@
-﻿using Console.Extensions;
+﻿using Console.Errors;
+using Console.Extensions;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Net.Http.Handlers;
@@ -61,33 +62,37 @@ public class PkgInstall : BaseBuiltinCommand
             new PackageData("https://git-scm.com/download/mac", "Git is a free and open source distributed version control system designed to handle everything from small to very large projects with speed and efficiency. (for macOS)", InstallerType.WindowsExe),
         ["python"] =
             new PackageData("https://www.python.org/ftp/python/3.11.3/python-3.11.3-amd64.exe", "Python is a high-level, general-purpose programming language.", InstallerType.WindowsExe),
-        ["firefox-win"] = 
+        ["firefox-win"] =
             new PackageData("https://download.mozilla.org/?product=firefox-stub&os=win&lang=en-GB", "Mozilla Firefox, or simply Firefox, is a free and open-source web browser developed by the Mozilla Foundation and its subsidiary, the Mozilla Corporation.", InstallerType.WindowsExe),
-        ["firefox-unix"] = 
+        ["firefox-unix"] =
             new PackageData("https://download.mozilla.org/?product=firefox-stub&os=linux&lang=en-GB", "Mozilla Firefox, or simply Firefox, is a free and open-source web browser developed by the Mozilla Foundation and its subsidiary, the Mozilla Corporation.", InstallerType.WindowsExe),
-        ["firefox-mac"] = 
+        ["firefox-mac"] =
             new PackageData("https://download.mozilla.org/?product=firefox-stub&os=mac&lang=en-GB", "Mozilla Firefox, or simply Firefox, is a free and open-source web browser developed by the Mozilla Foundation and its subsidiary, the Mozilla Corporation.", InstallerType.WindowsExe),
-        ["nano-win64"] = 
+        ["nano-win64"] =
             new PackageData("https://github.com/okibcn/nano-for-windows/releases/download/v7.2-22.1/nano-for-windows_win64_v7.2-22.1.zip", "Nano is a lightweight CLI editor. Ported from UNIX to windows.", InstallerType.Compressed),
-        ["winrar"] = 
+        ["winrar"] =
             new PackageData("https://www.win-rar.com/fileadmin/winrar-versions/winrar/winrar-x64-621.exe", "WinRAR is a trialware file archiver utility for Windows, developed by Eugene Roshal of win.rar GmbH. It can create and view archives in RAR or ZIP file formats, and unpack numerous archive file formats.", InstallerType.WindowsExe),
-        ["docker"] = 
+        ["docker"] =
             new PackageData("https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe?utm_source=docker&utm_medium=webreferral&utm_campaign=dd-smartbutton&utm_location=module", "Docker is a set of platform as a service products that use OS-level virtualization to deliver software in packages called containers.", InstallerType.WindowsExe),
-        ["nodejs"] = 
+        ["nodejs"] =
             new PackageData("https://nodejs.org/dist/v18.17.1/node-v18.17.1-x64.msi", "Node.js® is an open-source, cross-platform JavaScript runtime environment.", InstallerType.WindowsMsi)
     };
 
     public override string Name => "pkg-install";
     public override string Description => "Install an application locally.";
     public override DateTime? LastRunTime { get; set; } = null;
-    public override int Run(List<string> args, IConsole parent)
+    public override CommandResult Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
 
         if (args.Count < 1 || args.Contains("--help"))
         {
-            WriteLine($"USAGE: {Name} <package-name>");
-            return -1;
+            return Error()
+                .WithMessage("usage: {Name} <pkg>")
+                .WithNote("pkg: package name to install.")
+                .WithNote($"use \"pkg-list\" to view all available packages.")
+                .WithNote($"for more in-depth information, use \"docs {Name}\"")
+                .Build();
         }
 
         var packageString = args[0];
@@ -242,7 +247,8 @@ public class PkgInstall : BaseBuiltinCommand
             try
             {
                 File.Delete(fullPath);
-            } catch { }
+            }
+            catch { }
             return;
         }
 

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Console.Errors;
 
 namespace Console.Commands.Builtins.Etc;
 
@@ -11,18 +7,20 @@ public class ViewManyFilesCommand : BaseBuiltinCommand
     public override string Name => "vwmf";
     public override string Description => "View each code file in a directory.";
     public override DateTime? LastRunTime { get; set; } = null;
-    public override int Run(List<string> args, IConsole parent)
+    public override CommandResult Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
 
         var cwd = args.Any()
-            ? args[0] 
+            ? args[0]
             : parent.WorkingDirectory;
 
         if (!Directory.Exists(cwd))
         {
-            WriteLine($"ERROR: incorrect directory input. ({cwd})");
-            return CommandReturnValues.DontShowText;
+            return Error()
+                .WithMessage("invalid argument")
+                .WithNote($"the directory \"{cwd}\" does not exist.")
+                .Build();
         }
 
         var files = Directory.GetFiles(cwd, "*", SearchOption.AllDirectories);

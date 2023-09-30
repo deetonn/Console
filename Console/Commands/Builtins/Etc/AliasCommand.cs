@@ -1,9 +1,5 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Console.Errors;
+using Newtonsoft.Json;
 
 namespace Console.Commands.Builtins.Etc;
 
@@ -23,10 +19,10 @@ public class AliasBuiltinCommand : BaseBuiltinCommand
         Alias = alias;
     }
 
-    public override int Run(List<string> args, IConsole parent)
+    public override CommandResult Run(List<string> args, IConsole parent)
     {
         var toExecute = Alias.Commands;
-        int lastResult = 0;
+        CommandResult lastResult = 0;
 
         foreach (var line in toExecute)
         {
@@ -37,7 +33,7 @@ public class AliasBuiltinCommand : BaseBuiltinCommand
             var line_args = split.Skip(1);
             if (parent is Terminal terminal)
             {
-                line_args = terminal.HandleInlineEnvironmentVariables(line_args.ToArray());
+                line_args = terminal.HandleInlineEnvironmentVariables(string.Empty, line_args.ToArray()).Item1!;
             }
             lastResult = parent.Commands.ExecuteFrom(parent, name, line_args.ToArray());
         }
@@ -55,14 +51,21 @@ public class AliasCommand : BaseBuiltinCommand
     public override string Name => "alias";
     public override string Description => "Alias a string to a command.";
 
-    public override int Run(List<string> args, IConsole parent)
+    // TODO: when the user enters any environment variable into the input
+    // string, do not replace it at that time. It should be replaced when 
+    // the alias is executed. This will probably need something done inside
+    // of the actual terminal handler before a command is executed.
+
+    public override CommandResult Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
 
         if (args.Count < 1)
         {
-            WriteLine("expected at least one argument.");
-            return -1;
+            return Error()
+                .WithMessage("expected at least one argument")
+                .WithNote("usage: [green]alias[/] [italic blue]name[/]=[yellow]\"script...\"[/]")
+                .Build();
         }
 
         var firstArgument = args[0];
@@ -82,8 +85,10 @@ public class AliasCommand : BaseBuiltinCommand
             // expect args[0] to be remove.
             if (args.Count != 2)
             {
-                WriteLine("--remove: usage: alias --remove <name>");
-                return -1;
+                return Error()
+                    .WithMessage("--remove: expects a name argument.")
+                    .WithNote($"usage: {Name} --remove <name>")
+                    .Build();
             }
 
             var nameToRemove = args[1];
@@ -91,8 +96,9 @@ public class AliasCommand : BaseBuiltinCommand
 
             if (aliasToRemove is null)
             {
-                WriteLine($"No alias with name `{nameToRemove}` exists.");
-                return -1;
+                return Error()
+                    .WithMessage($"No alias with name `{nameToRemove}` exists.")
+                    .Build();
             }
 
             Aliases.Remove(aliasToRemove);
@@ -111,8 +117,10 @@ public class AliasCommand : BaseBuiltinCommand
 
         if (splitCommand.Length != 2)
         {
-            WriteLine("Invalid syntax: usage: alias=\"commands\"");
-            return -1;
+            return Error()
+                .WithMessage("invalid syntax.")
+                .WithNote("usage: [green]alias[/] [italic blue]name[/]=[yellow]\"script...\"[/]")
+                .Build();
         }
 
         var name = splitCommand.First();

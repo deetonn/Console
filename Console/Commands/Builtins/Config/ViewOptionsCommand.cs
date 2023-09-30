@@ -1,7 +1,5 @@
 ﻿
-using Pastel;
-using System.Drawing;
-using System.Security;
+using Console.Errors;
 
 namespace Console.Commands.Builtins.Config;
 
@@ -10,7 +8,7 @@ public class ViewOptionsCommand : BaseBuiltinCommand
     public override string Name => "optview";
     public override string Description => "View the configuration settings";
     public override DateTime? LastRunTime { get; set; } = null;
-    public override int Run(List<string> args, IConsole parent)
+    public override CommandResult Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
 

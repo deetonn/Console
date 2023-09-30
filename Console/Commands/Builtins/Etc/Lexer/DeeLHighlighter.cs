@@ -1,6 +1,4 @@
-﻿using System.Text;
-
-namespace Console.Commands.Builtins.Etc.Lexer;
+﻿namespace Console.Commands.Builtins.Etc.Lexer;
 
 public class DeeLHighlighter : ISyntaxGenerator
 {

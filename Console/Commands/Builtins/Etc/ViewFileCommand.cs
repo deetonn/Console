@@ -1,10 +1,8 @@
 ﻿
 using Console.Commands.Builtins.Etc.Lexer;
-using Console.UserInterface;
+using Console.Errors;
 using Pastel;
-using System.ComponentModel;
 using System.Drawing;
-using System.IO;
 using System.Text;
 
 namespace Console.Commands.Builtins.Etc;
@@ -57,7 +55,7 @@ public class ViewFileCommand : BaseBuiltinCommand
     public override string Name => "vwf";
     public override string Description => "View a file contents within the terminal";
     public override DateTime? LastRunTime { get; set; } = null;
-    public override int Run(List<string> args, IConsole parent)
+    public override CommandResult Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
 
@@ -75,8 +73,9 @@ public class ViewFileCommand : BaseBuiltinCommand
                 var path0 = Path.GetFullPath(args[0]);
                 if (!File.Exists(path0))
                 {
-                    WriteLine($"No such file '{path0}'");
-                    return -1;
+                    return Error()
+                        .WithMessage($"the file \"{path0}\" does not exist.")
+                        .Build();
                 }
                 var contents0 = File.ReadAllText(path0);
                 var info0 = new FileInfo(path0);
@@ -86,8 +85,9 @@ public class ViewFileCommand : BaseBuiltinCommand
             var path = Path.Combine(parent.WorkingDirectory, args[0]);
             if (!File.Exists(path))
             {
-                WriteLine($"No such file '{path}'");
-                return -1;
+                return Error()
+                    .WithMessage($"the file \"{path}\" does not exist.")
+                    .Build();
             }
 
             var contents = File.ReadAllText(path);
@@ -96,20 +96,20 @@ public class ViewFileCommand : BaseBuiltinCommand
         }
         catch (Exception ex)
         {
-            WriteLine($"Failed to read the file [{ex.Message}]");
+            return Error()
+                .WithMessage("failed to read the file contents")
+                .WithNote($"message: {ex.Message}")
+                .Build();
         }
-
-        return -1;
     }
 
-    private int DisplayUsage()
+    private CommandError DisplayUsage()
     {
-        WriteLine($"USAGE -- {Name}");
-        WriteLine($"{Name} <file-name>");
-        WriteLine($"Options:");
-        WriteLine("  --show-tokens: display the generated lexed tokens instead of text");
-
-        return -1;
+        return Error()
+            .WithMessage("invalid usage")
+            .WithNote($"usage: {Name} <file-path>")
+            .WithNote($"use \"docs {Name}\" for more information.")
+            .Build();
     }
 
     private int DisplayFileContents(string contents, string ext, IConsole console, bool showTokens = false)

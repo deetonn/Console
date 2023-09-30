@@ -1,5 +1,4 @@
-﻿using Pastel;
-using System.Drawing;
+﻿using Console.Errors;
 
 namespace Console.Commands.Builtins.Web;
 
@@ -8,7 +7,7 @@ public class PkgList : BaseBuiltinCommand
     public override string Name => "pkg-list";
     public override string Description => "List all packages available to install";
     public override DateTime? LastRunTime { get; set; } = null;
-    public override int Run(List<string> args, IConsole parent)
+    public override CommandResult Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
 
