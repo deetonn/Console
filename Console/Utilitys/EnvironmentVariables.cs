@@ -1,7 +1,4 @@
-﻿
-using Console.Commands.Builtins.Config;
-using Console.Extensions;
-using System.Collections;
+﻿using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Console.Utilitys;
@@ -18,7 +15,7 @@ public class EnvironmentVariables : IEnvironmentVariables
 
     public string? Get(string identifier)
     {
-        if (!Variables.TryGetValue(identifier, out var value))
+        if (!Variables.TryGetValue(identifier.ToLower(), out var value))
             return null;
         return value;
     }
@@ -45,7 +42,7 @@ public class EnvironmentVariables : IEnvironmentVariables
             {
                 if (pair.Value is string value)
                 {
-                    Variables.Add(key, value);
+                    Variables.Add(key.ToLower(), value);
                 }
             }
         }
