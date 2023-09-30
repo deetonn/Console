@@ -1,4 +1,6 @@
-﻿namespace Console.Commands;
+﻿using Console.Errors;
+
+namespace Console.Commands;
 
 public interface ICommand
 {
@@ -30,5 +32,5 @@ public interface ICommand
     /// <param name="args">The arguments the user has passed into this command.</param>
     /// <param name="parent">The terminal executing this command.</param>
     /// <returns></returns>
-    public int Run(List<string> args, IConsole parent);
+    public CommandResult Run(List<string> args, IConsole parent);
 }
