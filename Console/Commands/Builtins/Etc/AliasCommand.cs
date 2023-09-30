@@ -97,14 +97,14 @@ public class AliasCommand : BaseBuiltinCommand
             if (aliasToRemove is null)
             {
                 return Error()
-                    .WithMessage($"No alias with name `{nameToRemove}` exists.")
+                    .WithMessage($"no alias with name `{nameToRemove}` exists.")
                     .Build();
             }
 
             Aliases.Remove(aliasToRemove);
             Save(parent);
 
-            WriteLine("The alias has been removed. You need to restart for changes to take effect.");
+            WriteLine($"the alias \"{aliasToRemove}\" has been removed.");
 
             return 0;
         }
@@ -188,7 +188,7 @@ public class AliasCommand : BaseBuiltinCommand
             }
         }
 
-        var json = JsonConvert.SerializeObject(Aliases, Formatting.Indented);
+        var json = JsonConvert.SerializeObject(Aliases, Newtonsoft.Json.Formatting.Indented);
         File.WriteAllText(path, json);
     }
 
