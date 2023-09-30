@@ -28,7 +28,6 @@ public interface IConsole
     public ICommandCentre Commands { get; }
     public ISettings Settings { get; set; }
     public IPluginManager PluginManager { get; }
-    public IServer? Server { get; set; }
     public IInputHandler InputHandler { get; }
     public IConfiguration Config { get; }
     public IEventHandler EventHandler { get; }
@@ -69,7 +68,6 @@ public class Terminal : IDisposable, IConsole
     public ICommandCentre Commands { get; }
     public ISettings Settings { get; set; }
     public IPluginManager PluginManager { get; internal set; }
-    public IServer? Server { get; set; }
     public IInputHandler InputHandler { get; internal set; }
     public IConfiguration Config { get; internal set; }
     public IEventHandler EventHandler { get; }
@@ -97,7 +95,7 @@ public class Terminal : IDisposable, IConsole
             return Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
         }
 
-        SystemConsole.WriteLine("This environment is unknown. The application is unsure of " + 
+        SystemConsole.WriteLine("This environment is unknown. The application is unsure of " +
             " where the default directory should be. Attempting to use GetCurrentDirectory()");
 
         return Directory.GetCurrentDirectory();
@@ -258,68 +256,93 @@ public class Terminal : IDisposable, IConsole
     public void WriteLine(string message = "")
         => Ui.DisplayLineMarkup(message);
 
-    internal void MainLoop()
+    public CommandResult LastResult { get; private set; } = 0;
+
+    internal void Run()
     {
-#if DEBUG
-        SystemConsole.WriteLine("[DEBUG]: Waiting for input and displaying errors..");
-        SystemConsole.ReadKey();
-#endif
+        WriteWelcome();
 
-        SystemConsole.Clear();
-        var lastResult = 0;
-
-        WriteLine($"Welcome to [cyan]Console[/]. Type [red]help[/] to get started with commands.");
-        WriteLine($"This application is open source, and can be found at [link={GithubLink}]it's repository[/].\n\n");
-
-        while (lastResult != CommandReturnValues.SafeExit)
+        while (true)
         {
-            var prompt = WdUmDisplay + " ";
-            var initialInput = Ui.GetLine(prompt).Split();
-            var input = HandleInlineEnvironmentVariables(initialInput);
+            if (!LastResult.IsError() && LastResult.GetResult() == CommandReturnValues.SafeExit)
+                break;
 
-            if (input is null)
+            var input = (_lastExecutedCommand = Ui.GetLine($"{WdUmDisplay} ")).Split(' ');
+
+            if (input.Length is 0)
             {
-                Logger().LogError(this, "after inlining environment variables the result came back null?");
-                WriteLine($"Sorry, an error occured. LastInput: {string.Join(" ", initialInput)}");
+                Ui.DisplayPure("\n");
+                continue;
+            }
+
+            if (!DoInlineVariables(input.First(), ref input))
+            {
+                PanicIfIsErr();
                 continue;
             }
 
             if (!HandleOnInputEvent(input))
                 continue;
 
-            if (input.Length >= 1 && input[0].StartsWith("./"))
+            if (input.First().StartsWith("./"))
             {
-                lastResult = DoDotSlashCommand(input.ToList());
-                // Fuck my life
-                goto AfterProcessing;
+                LastResult = DoDotSlashCommand(input.ToList());
+                PanicIfIsErr();
+                continue;
             }
 
-            switch (input.Length)
+            // NOTE: zero is handled above.
+            LastResult = input.Length switch
             {
-                case 0:
-                    WriteLine("\n");
-                    continue;
-                case 1:
-                    lastResult = Commands.Run(input[0], Array.Empty<string>().ToList(), this);
-                    break;
-                default:
-                    var args = ProcessInputArgs(input[1..]);
-                    lastResult = Commands.Run(input[0], args.ToList(), this);
-                    break;
-            }
+                1 => Commands.Run(input.First(), Array.Empty<string>().ToList(), this),
+                _ => Commands.Run(input.First(), input[1..].ToList(), this),
+            };
 
-        AfterProcessing:
-            if (string.IsNullOrEmpty(input[0]))
-                lastResult = CommandReturnValues.DontShowText;
+            // This call does nothing if the previous command was okay.
+            PanicIfIsErr();
+        }
+    }
 
-            EnvironmentVars.RegisterCommandResult(lastResult);
+    internal void WriteWelcome()
+    {
+        WriteLine($"Welcome to [cyan]Console[/]. Type [red]help[/] to get started with commands.");
+        WriteLine($"This application is open source, and can be found at [link={GithubLink}]it's repository[/].\n\n");
+    }
 
-            var translation = Result.Translate(lastResult);
-            if (!string.IsNullOrEmpty(translation))
-                Ui.DisplayLine($"{translation}");
+    /// <summary>
+    /// Will display an error if the previous result was one.
+    /// </summary>
+    internal void PanicIfIsErr()
+    {
+        if (LastResult.IsError())
+        {
+            Ui.DisplayLineMarkup(LastResult.GetError().GetFormatted());
+        }
+    }
+
+    /// <summary>
+    /// This function is literal cancer dont look
+    /// </summary>
+    /// <param name="command"></param>
+    /// <param name="input"></param>
+    /// <returns></returns>
+    internal bool DoInlineVariables(string command, ref string[]? input)
+    {
+        var (contents, error) = HandleInlineEnvironmentVariables(command, input);
+
+        if ((contents, error) == IGNORE)
+        {
+            return true;
         }
 
-        WriteLine("safe quit has began, [italic]exiting[/]");
+        if (contents is null)
+        {
+            LastResult = error!;
+            return false;
+        }
+
+        input = contents!;
+        return true;
     }
 
     public string[] GetInput(string prompt)
@@ -343,9 +366,9 @@ public class Terminal : IDisposable, IConsole
             var blockColor = Settings.GetOptionValue<SystemColor>(ConsoleOptions.Setting_BlockColor);
 
             const char space = ' ';
-            System.Console.BackgroundColor = blockColor.ClosestConsoleColor();
+            SystemConsole.BackgroundColor = blockColor.ClosestConsoleColor();
             Ui.DisplayLinePure(new string(space, System.Console.BufferWidth));
-            System.Console.ResetColor();
+            SystemConsole.ResetColor();
         }
     }
 
@@ -383,11 +406,22 @@ public class Terminal : IDisposable, IConsole
         return realPath;
     }
 
-    public string[] HandleInlineEnvironmentVariables(string[]? input)
+    private static readonly string[] commandToNotExpand = new[]
     {
+        "alias"
+    };
+
+    static (string[]?, CommandError?) IGNORE = (null, null);
+
+    public (string[]?, CommandError?) HandleInlineEnvironmentVariables(string executingCommand, string[]? input)
+    {
+        if (commandToNotExpand.Contains(executingCommand))
+            // this result means just ignore.
+            return IGNORE;
+
         // If the input is null, return it directly
         if (input is null)
-            return Array.Empty<string>();
+            return IGNORE;
 
         // Join the array into a single string with space as separator
         var full = string.Join(' ', input);
@@ -440,21 +474,10 @@ public class Terminal : IDisposable, IConsole
                 // Check if the environment variable exists
                 if (value is null)
                 {
-                    // Get the "execution.strictmode" setting
-                    bool? isStrictCall = Settings.GetOptionValue<bool>("execution.strictmode");
-
-                    // Check if strict mode is enabled
-                    if (isStrictCall.HasValue && isStrictCall.Value)
-                    {
-                        // Print an error message and return the original input
-                        WriteLine($"ERROR: environment variable `{varName}` does not exist. Therefore it cannot be inserted inline.");
-                        return input;
-                    }
-                    else
-                    {
-                        // If not in strict mode, append the variable name as-is
-                        result.Append(varName);
-                    }
+                    return (null, new CommandErrorBuilder()
+                        .WithSource(GetLastExecutedString())
+                        .WithMessage($"the environment variable \"{varName}\" does not exist.")
+                        .Build());
                 }
                 else
                 {
@@ -472,7 +495,7 @@ public class Terminal : IDisposable, IConsole
 
         // Split the final result string into an array of strings and return it
         var res = result.ToString().Split();
-        return res;
+        return (res, null);
     }
 
     private bool HandleOnInputEvent(string[]? data)
@@ -486,7 +509,7 @@ public class Terminal : IDisposable, IConsole
         return EventHandler.HandleOnUserInput(new(asString));
     }
 
-    private int DoDotSlashCommand(List<string> data)
+    private CommandResult DoDotSlashCommand(List<string> data)
     {
         var fileName = data[0].Replace("./", "");
         var fullPath = Path.Combine(WorkingDirectory, fileName);
@@ -539,6 +562,11 @@ public class Terminal : IDisposable, IConsole
         return result;
     }
 
+    public string GetLastExecutedString()
+    {
+        return _lastExecutedCommand;
+    }
+
     public void Dispose()
     {
         // unload all plugins.
@@ -548,7 +576,8 @@ public class Terminal : IDisposable, IConsole
 
         AnsiConsole.Status()
             .Spinner(Spinner.Known.Star)
-            .Start("Closing...", ctx => {
+            .Start("Closing...", ctx =>
+            {
                 // Omitted
                 EventHandler.HandleOnApplicationExit(new(this));
                 PluginManager.UnloadPlugins(this);
