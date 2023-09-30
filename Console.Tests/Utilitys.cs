@@ -1,6 +1,7 @@
 ﻿
 using Console.Commands;
 using Console.Events;
+using Console.Formatting;
 using Console.Plugins;
 using Console.UserInterface;
 using Console.UserInterface.Input;
@@ -101,6 +102,8 @@ public class NonfunctionalTerminal : IConsole
     public IEventHandler EventHandler { get; } = new GlobalEventHandler();
 
     public IEnvironmentVariables EnvironmentVars => new EnvironmentVariables();
+
+    public ITextFormatter Formatter => new InlineTextFormatter();
 
     public string GetConfigPath()
     {

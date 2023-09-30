@@ -266,7 +266,7 @@ public class ConsoleOptions : ISettings
 
         // keep sync for safety, no way to safely
         // save between threads currently.
-        var serialized = JsonConvert.SerializeObject(Options, Formatting.Indented);
+        var serialized = JsonConvert.SerializeObject(Options, Newtonsoft.Json.Formatting.Indented);
         Logger().LogInfo(this, $"Saved console options with json byte count of `{serialized.Length}`");
 
         try

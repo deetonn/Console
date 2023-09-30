@@ -2,6 +2,7 @@
 using Console.Errors;
 using Console.Events;
 using Console.Extensions;
+using Console.Formatting;
 using Console.Plugins;
 using Console.UserInterface;
 using Console.UserInterface.Input;
@@ -10,8 +11,11 @@ using Console.Utilitys;
 using Console.Utilitys.Configuration;
 using Console.Utilitys.Options;
 using Spectre.Console;
+using StreamJsonRpc;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using System.Runtime.Serialization;
 using System.Text;
 
 using SystemColor = System.Drawing.Color;
@@ -32,6 +36,7 @@ public interface IConsole
     public IConfiguration Config { get; }
     public IEventHandler EventHandler { get; }
     public IEnvironmentVariables EnvironmentVars { get; }
+    public ITextFormatter Formatter { get; }
 
     public string GetConfigPath();
     public string GetLastExecutedString();
@@ -72,10 +77,11 @@ public class Terminal : IDisposable, IConsole
     public IConfiguration Config { get; internal set; }
     public IEventHandler EventHandler { get; }
     public IEnvironmentVariables EnvironmentVars { get; }
+    public ITextFormatter Formatter { get; } = new InlineTextFormatter();
 
     public readonly string SavePath;
 
-    private string GetFolderPath()
+    private static string GetFolderPath()
     {
         // If the system is linux, use the home directory.
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
@@ -474,10 +480,15 @@ public class Terminal : IDisposable, IConsole
                 // Check if the environment variable exists
                 if (value is null)
                 {
-                    return (null, new CommandErrorBuilder()
-                        .WithSource(GetLastExecutedString())
-                        .WithMessage($"the environment variable \"{varName}\" does not exist.")
-                        .Build());
+                    CommandError? errorValue;
+
+                    if ((errorValue = TryExpandFormat(varName, out value)) == null)
+                    {
+                        result.Append(value);
+                        continue;
+                    }
+
+                    return (null, errorValue);
                 }
                 else
                 {
@@ -496,6 +507,36 @@ public class Terminal : IDisposable, IConsole
         // Split the final result string into an array of strings and return it
         var res = result.ToString().Split();
         return (res, null);
+    }
+
+    private CommandError? TryExpandFormat(string format, [NotNullWhen(true)] out string? result)
+    {
+        if (!format.StartsWith(':'))
+        {
+            result = null;
+            return new CommandErrorBuilder()
+                .WithSource(GetLastExecutedString())
+                .WithMessage("content inside the braces is not an environment variable.")
+                .WithNote("it also isn't a format value.")
+                .WithNote("unsure what to expand this value into.")
+                .Build();
+        }
+
+        // format strings are like this:
+        // {:[text]:modifier}
+
+        var text = new StringBuilder();
+        var after = format[1..];
+
+        for (int index = 0; after[index] != ':'; ++index)
+        {
+            text.Append(after[index]);
+        }
+
+        var length = text.Length + 1;
+        var specifier = after[length..];
+
+        return Formatter.Format(text.ToString(), specifier, out result);
     }
 
     private bool HandleOnInputEvent(string[]? data)
