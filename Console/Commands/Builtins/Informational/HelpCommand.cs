@@ -1,4 +1,5 @@
-﻿using Pastel;
+﻿using Console.Errors;
+using Pastel;
 using System.Drawing;
 
 namespace Console.Commands.Builtins;
@@ -8,7 +9,7 @@ public class HelpCommand : BaseBuiltinCommand
     public override string Name => "help";
     public override string Description => "List all active commands.";
     public override DateTime? LastRunTime { get; set; } = null;
-    public override int Run(List<string> args, IConsole parent)
+    public override CommandResult Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
         var wantsAll = args.Contains("--all");

@@ -11,7 +11,7 @@ public enum GenericTokenType
     FunctionCall,
     Comment,
     Type
-} 
+}
 
 public record class GenericToken(
     string Lexeme,
@@ -48,10 +48,10 @@ public class GenericLexer
     };
     private readonly List<string> codeFileTypes = new()
     {
-        ".cpp", ".c", ".cc", ".hpp", ".h", 
-        ".cs", 
-        ".rs", 
-        ".js", ".py", ".ts", 
+        ".cpp", ".c", ".cc", ".hpp", ".h",
+        ".cs",
+        ".rs",
+        ".js", ".py", ".ts",
         ".dl",
         ".v"
     };
@@ -96,7 +96,7 @@ public class GenericLexer
             {
                 current = src[++i];
                 // parse string
-                                  /*"*/              /*'*/
+                /*"*/              /*'*/
                 while (current != 0x22 && current != 0x27)
                 {
                     lexeme += current;

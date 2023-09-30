@@ -1,5 +1,5 @@
 ﻿
-using System.Diagnostics;
+using Console.Errors;
 
 namespace Console.Commands.Builtins.System;
 
@@ -7,12 +7,14 @@ public class RunCommand : BaseBuiltinCommand
 {
     public override string Name => "run";
     public override string Description => "Execute a command from a full path.";
-    public override int Run(List<string> args, IConsole parent)
+    public override CommandResult Run(List<string> args, IConsole parent)
     {
         if (args.Count < 1)
         {
-            WriteLine("expected at least one argument.");
-            return -1;
+            return Error()
+                .WithMessage("expected at least one argument.")
+                .WithNote($"use \"docs {Name}\" for more information.")
+                .Build();
         }
 
         var fullPath = args[0];
@@ -26,10 +28,11 @@ public class RunCommand : BaseBuiltinCommand
         }
         catch (Exception e)
         {
-            WriteLine($"error: {e.Message}");
+            return Error()
+                .WithMessage("failed to execute command")
+                .WithNote($"{e.Message}")
+                .Build();
         }
-
-        return CommandReturnValues.DontShowText;
     }
 
     public override string DocString => $@"

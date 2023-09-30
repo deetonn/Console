@@ -11,6 +11,7 @@
         <RepositoryType>git</RepositoryType>
         <PackageTags>terminal;console;cmd</PackageTags>
         <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
+        <PackageIcon>icon.ico</PackageIcon>
     </PropertyGroup>
 
     <ItemGroup>
@@ -25,6 +26,13 @@
 
     <ItemGroup>
       <Folder Include="Images\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Include="icon.ico">
+        <Pack>True</Pack>
+        <PackagePath>\</PackagePath>
+      </None>
     </ItemGroup>
 
 </Project>

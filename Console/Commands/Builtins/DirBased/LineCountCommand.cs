@@ -1,10 +1,8 @@
 ﻿
 using CommandLine;
 using Console.Commands.Builtins.Arguments;
+using Console.Errors;
 using Console.Extensions;
-using Spectre.Console;
-using System.ComponentModel;
-using System.Diagnostics;
 
 namespace Console.Commands.Builtins.DirBased;
 
@@ -52,7 +50,7 @@ public class LineCountCommand : BaseBuiltinCommand
     public override string Name => "linec";
     public override string Description => "View the total line count of all files within a directory.";
     public override DateTime? LastRunTime { get; set; } = null;
-    public override int Run(List<string> args, IConsole parent)
+    public override CommandResult Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
 
@@ -62,19 +60,24 @@ public class LineCountCommand : BaseBuiltinCommand
             .Value;
 
         if (arguments is null)
-            return -1;
+        {
+            return Error()
+                .WithMessage("failed to parse arguments.")
+                .WithNote($"use \"{Name} --help\" for more information.")
+                .Build();
+        }
 
         if (arguments.Preset is not null)
         {
-            if (!Presets.ContainsKey(arguments.Preset))
+            if (!Presets.TryGetValue(arguments.Preset, out LineCountCommandArguments? value))
             {
-                WriteLine($"No such preset `{arguments.Preset}`");
-                var validPresets = Presets.Keys;
-                WriteLine($"Valid presets: {string.Join(", ", validPresets)}");
-                return -1;
+                return Error()
+                    .WithMessage($"no preset with the name \"{arguments.Preset}\" was found.")
+                    .WithNote($"valid presets: {string.Join(", ", Presets.Keys)}")
+                    .Build();
             }
 
-            arguments = Presets[arguments.Preset];
+            arguments = value;
         }
 
         if (arguments.FileName is not null)
@@ -86,8 +89,9 @@ public class LineCountCommand : BaseBuiltinCommand
                 path = Path.Combine(parent.WorkingDirectory, arguments.FileName);
                 if (!File.Exists(path))
                 {
-                    WriteLine($"No such file exists.");
-                    return -1;
+                    return Error()
+                        .WithMessage($"the file \"{arguments.FileName}\" does not exist.")
+                        .Build();
                 }
             }
 
@@ -104,8 +108,9 @@ public class LineCountCommand : BaseBuiltinCommand
 
             if (!Directory.Exists(full))
             {
-                WriteLine($"No such file or directory '{directory}'");
-                return -1;
+                return Error()
+                    .WithMessage($"the directory \"{directory}\" does not exist.")
+                    .Build();
             }
 
             directory = full;

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using Console.Errors;
+using System.ComponentModel;
 using System.Diagnostics;
 
 namespace Console.Commands.Builtins.System;
@@ -8,7 +9,7 @@ public class TaskListCommand : BaseBuiltinCommand
     public override string Name => "tasklist";
     public override string Description => "List all running processes on the system";
     public override DateTime? LastRunTime { get; set; } = null;
-    public override int Run(List<string> args, IConsole parent)
+    public override CommandResult Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
 

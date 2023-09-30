@@ -1,4 +1,5 @@
-﻿using Console.Utilitys.Options;
+﻿using Console.Errors;
+using Console.Utilitys.Options;
 
 namespace Console.Commands.Builtins.System;
 
@@ -6,7 +7,7 @@ public class EchoCommand : BaseBuiltinCommand
 {
     public override string Name => "echo";
     public override string Description => "Prints the specified text to the console. (supports markdown using AnsiConsole)";
-    public override int Run(List<string> args, IConsole parent)
+    public override CommandResult Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
         var joined = string.Join(" ", args);
@@ -18,7 +19,10 @@ public class EchoCommand : BaseBuiltinCommand
         {
             if (parent.Settings.GetOptionValue<bool>(ConsoleOptions.Setting_StrictMode))
             {
-                parent.Ui.DisplayLinePure($"failed due to markdown error. ({e.Message})");
+                return Error()
+                    .WithMessage("invalid markdown format")
+                    .WithNote($"{e.Message}")
+                    .Build();
             }
         }
         return CommandReturnValues.DontShowText;

@@ -13,7 +13,7 @@ public interface IUserInterface
     /// <param name="message">The message to display</param>
     /// <param name="type">The type of message the caller is sending</param>
     public void DisplayLine(string message, Severity type = Severity.None);
-    
+
     /// <summary>
     /// Display a message on the user interface
     /// </summary>
@@ -38,18 +38,18 @@ public interface IUserInterface
     /// </summary>
     /// <param name="markup">The markup string.</param>
     public void DisplayLineMarkup(string markup);
-    
+
     /// <summary>
     /// Set the user interface's main title
     /// </summary>
     /// <param name="message">The new title</param>
     public void SetTitle(string message);
-    
+
     /// <summary>
     /// Clear the active display.
     /// </summary>
     public void Clear();
-    
+
     /// <summary>
     /// Read a line from the interfaces stdin.
     /// </summary>
@@ -61,7 +61,7 @@ public interface IUserInterface
     /// </summary>
     /// <returns>The key that was read</returns>
     public ConsoleKeyInfo GetKey();
-    
+
     /// <summary>
     /// The applications message tray. This should be used to display
     /// messages that aren't relevant in the moment, but can be

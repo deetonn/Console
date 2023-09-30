@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Console.Errors;
 
 namespace Console.Commands.Builtins.DirBased;
 
@@ -11,7 +7,7 @@ public class PwdCommand : BaseBuiltinCommand
     public override string Name => "pwd";
     public override string Description => "Outputs the current working directory.";
 
-    public override int Run(List<string> args, IConsole parent)
+    public override CommandResult Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
 

@@ -1,7 +1,4 @@
-﻿
-using Spectre.Console;
-
-namespace Console.Logging;
+﻿namespace Console.Logging;
 
 public interface ILogger
 {

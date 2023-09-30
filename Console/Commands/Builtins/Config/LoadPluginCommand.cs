@@ -1,4 +1,6 @@
 ﻿
+using Console.Errors;
+
 namespace Console.Commands.Builtins.Config;
 
 public class LoadPluginCommand : BaseBuiltinCommand
@@ -7,21 +9,25 @@ public class LoadPluginCommand : BaseBuiltinCommand
 
     public override string Description => "Load a plugin.";
 
-    public override int Run(List<string> args, IConsole parent)
+    public override CommandResult Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
 
         if (args.Count == 0)
         {
-            WriteLine("Please specify a patch to a plugin to load.");
-            return -1;
+            return Error()
+                .WithMessage("You must specify a path to a valid .DLL")
+                .WithNote("Read[link=https://github.com/deetonn/Console/wiki/Plugins] here[/] for more information.")
+                .Build();
         }
 
         var path = args[0];
         if (!File.Exists(path))
         {
-            WriteLine("The specified file does not exist.");
-            return -1;
+            return Error()
+                .WithMessage("The specified file does not exist.")
+                .WithNote($"The file in question: {path}")
+                .Build();
         }
 
         parent.PluginManager.LoadSinglePlugin(parent, path);

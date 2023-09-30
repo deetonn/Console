@@ -1,4 +1,6 @@
 ﻿
+using Console.Errors;
+
 namespace Console.Commands.Builtins.Etc;
 
 public class ClearBufferCommand : BaseBuiltinCommand
@@ -6,7 +8,7 @@ public class ClearBufferCommand : BaseBuiltinCommand
     public override string Name => "clear";
     public override string Description => "Clear the Terminal buffer";
     public override DateTime? LastRunTime { get; set; } = null;
-    public override int Run(List<string> args, IConsole parent)
+    public override CommandResult Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
 

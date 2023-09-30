@@ -333,7 +333,7 @@ public class PluginManager : IPluginManager
         foreach (var otherPlugin in allPlugins.Where(x => x.Name == plugin.Name))
         {
             Logger().LogWarning(this, $"Hello {plugin.Author}! Your plugin's name appears to conflict " +
-                $"with another plugin made by {otherPlugin.Author}. This is not a direct problem, but may be confusing for others " + 
+                $"with another plugin made by {otherPlugin.Author}. This is not a direct problem, but may be confusing for others " +
                 "if they have the same plugin loaded.");
         }
     }

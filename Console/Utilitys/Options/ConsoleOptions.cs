@@ -23,7 +23,7 @@ public class ConsoleOption : IOption
     public string VisualName { get; set; }
     public object Value { get; set; }
 
-    public T? ValueAs<T>() where T: class
+    public T? ValueAs<T>() where T : class
     {
         return Value as T;
     }

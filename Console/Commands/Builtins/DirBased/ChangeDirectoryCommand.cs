@@ -1,4 +1,4 @@
-﻿using System.Security;
+﻿using Console.Errors;
 
 namespace Console.Commands.Builtins;
 
@@ -7,13 +7,15 @@ public class ChangeDirectoryCommand : BaseBuiltinCommand
     public override string Name => "cd";
     public override string Description => "Change the active directory";
     public override DateTime? LastRunTime { get; set; } = null;
-    public override int Run(List<string> args, IConsole parent)
+    public override CommandResult Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
 
         if (args.Count != 1)
         {
-            return CommandReturnValues.BadArguments;
+            // If the user just does "cd" then just walk back a directory.
+            // This saves actually typing "cd .., cd .., cd ..
+            return Run(new() { ".." }, parent);
         }
 
         var path = args.First();
@@ -26,39 +28,27 @@ public class ChangeDirectoryCommand : BaseBuiltinCommand
 
         if (string.IsNullOrEmpty(path))
         {
-            WriteLine("Cannot set the working directory to an empty string.");
-            return CommandReturnValues.BadArguments;
+            return Error()
+                .WithMessage("cannot set the working directory to an empty string.")
+                .WithNote("you can only transition into real directorys (???)")
+                .Build();
         }
 
         try
         {
             Environment.CurrentDirectory = path;
         }
-        catch (DirectoryNotFoundException ex)
+        catch (Exception ex)
         {
-            WriteLine($"{ex.Message}");
-            return CommandReturnValues.BadArguments;
+            return Error()
+                .WithMessage("an exception occured while trying to change directory.")
+                .WithNote($"message: {ex.Message}")
+                .Build();
         }
-        catch (SecurityException ex)
-        {
-            WriteLine($"{ex.Message}");
-            return -1;
-        }
-        catch (UnauthorizedAccessException ex)
-        {
-            // same as above, for some reason SecurityException is not thrown?
-            WriteLine($"{ex.Message}");
-            return -1;
-        }
-        catch (IOException ex)
-        {
-            WriteLine($"IoError: {ex.Message}");
-            return -1;
-        }
-        
+
         parent.WorkingDirectory = Environment.CurrentDirectory;
 
-        return CommandReturnValues.DontShowText;
+        return 0;
     }
 
     public override string DocString => $@"

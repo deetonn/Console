@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Console.Errors;
 
 namespace Console.Commands.Builtins.Config;
 
@@ -11,7 +7,7 @@ public class UnloadPluginCommand : BaseBuiltinCommand
     public override string Name => "unload_plugin";
     public override string Description => "Unload a plugin";
 
-    public override int Run(List<string> args, IConsole parent)
+    public override CommandResult Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
 

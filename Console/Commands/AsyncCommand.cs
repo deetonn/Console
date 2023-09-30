@@ -1,4 +1,6 @@
 ﻿
+using Console.Errors;
+
 namespace Console.Commands;
 
 /// <summary>
@@ -20,7 +22,7 @@ public class AsyncCommand : ICommand
 
     public DateTime? LastRunTime { get => _wrapper.LastRunTime; set => _wrapper.LastRunTime = value; }
 
-    public int Run(List<string> args, IConsole parent)
+    public CommandResult Run(List<string> args, IConsole parent)
     {
 #if DEBUG
         parent.Ui.DisplayLine($"AsyncCommandWrapper: `{Name}` is being executed. ({args.Count} arguments) [parent={parent}]");

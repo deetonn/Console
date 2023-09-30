@@ -1,13 +1,6 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.Contracts;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using SysPath = global::System.IO.Path;
 using NoDiscard = System.Diagnostics.Contracts.PureAttribute;
+using SysPath = global::System.IO.Path;
 
 namespace Console.Utilitys.Configuration;
 
@@ -123,7 +116,7 @@ public interface IConfiguration
 
 public class Configuration : IConfiguration
 {
-    public IDictionary<string, ConfigSection> Sections { get; } = new Dictionary<string,  ConfigSection>();
+    public IDictionary<string, ConfigSection> Sections { get; } = new Dictionary<string, ConfigSection>();
 
     public ConfigSection MakeSection(IConsole parent, string name)
     {

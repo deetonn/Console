@@ -1,4 +1,6 @@
-﻿namespace Console.Commands.Builtins.System;
+﻿using Console.Errors;
+
+namespace Console.Commands.Builtins.System;
 
 public class SetCommand : BaseBuiltinCommand
 {
@@ -6,7 +8,7 @@ public class SetCommand : BaseBuiltinCommand
 
     public override string Description => "set an environment variable.";
 
-    public override int Run(List<string> args, IConsole parent)
+    public override CommandResult Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
 
@@ -14,28 +16,24 @@ public class SetCommand : BaseBuiltinCommand
 
         if (args.Count < 2)
         {
-            WriteError($"[[[red]error[/]]] invalid arguments supplied. USAGE: {Name} <env-name> <value>");
-            return -1;
+            return Error()
+                .WithMessage("invalid amount of arguments supplied.")
+                .WithNote($"expected (< 2) but got {args.Count}")
+                .WithNote($"use \"docs {Name}\" for more information.")
+                .Build();
         }
 
-        var env_variable_name = args[0];
-        var env_variable_new_val = args[1];
+        var name = args[0];
+        var value = args[1];
 
-        if (Environment.GetEnvironmentVariable(env_variable_name) is null)
+        if (parent.EnvironmentVars.Get(name) is null)
         {
-            WriteError($"no such environment variable: `{env_variable_name}`");
-            return -1;
+            return Error()
+                .WithMessage($"no such environment variable \"{name}\"")
+                .Build();
         }
 
-        try
-        {
-            parent.EnvironmentVars.Set(env_variable_name, env_variable_new_val);
-        }
-        catch (Exception e)
-        {
-            WriteError(e.Message);
-            return -1;
-        }
+        parent.EnvironmentVars.Set(name, value);
 
         return 0;
     }

@@ -1,6 +1,5 @@
 ﻿using Console.Events.Handlers;
 using Console.Utilitys;
-using System.Diagnostics.Tracing;
 
 namespace Console.Events;
 

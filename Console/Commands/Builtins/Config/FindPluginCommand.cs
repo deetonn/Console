@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Console.Errors;
 
 namespace Console.Commands.Builtins.Config;
 
@@ -11,14 +7,16 @@ public class FindPluginCommand : BaseBuiltinCommand
     public override string Name => "find_plugin";
     public override string Description => "find a plugin by name.";
 
-    public override int Run(List<string> args, IConsole parent)
+    public override CommandResult Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
 
         if (args.Count != 1)
         {
-            WriteError("expected one argument: \"plugin_name\"");
-            return -1;
+            return Error()
+                .WithMessage("this command expects at least one argument.")
+                .WithNote("The expected arguments name is the plugin name.")
+                .Build();
         }
 
         foreach (var plugin in parent.PluginManager.Plugins)

@@ -1,5 +1,6 @@
 ﻿using Console;
 using Console.Commands;
+using Console.Errors;
 using Console.Plugins;
 using Console.Utilitys.Configuration;
 using Console.Utilitys.Options;
@@ -18,7 +19,7 @@ public class AutoConfigDisableForceCommand : BaseBuiltinCommand
 
     public override string Description => "Interface with the auto config plugin.";
 
-    public override int Run(List<string> args, IConsole parent)
+    public override CommandResult Run(List<string> args, IConsole parent)
     {
         if (args.Count == 0)
         {

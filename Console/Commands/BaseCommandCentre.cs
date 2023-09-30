@@ -1,35 +1,32 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Reflection;
-using System.Reflection.Metadata.Ecma335;
-using System.Runtime.InteropServices;
-using Console.Commands.Builtins.Etc;
+﻿using Console.Commands.Builtins.Etc;
+using Console.Errors;
 using Console.Utilitys;
-using PInvoke;
+using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 
 namespace Console.Commands;
 
 public class BaseCommandCentre : ICommandCentre
 {
     private const string PathVariableName = "PATH";
-    
+
     public BaseCommandCentre()
     {
         Elements = LoadBuiltinCommands();
         ((List<ICommand>)Elements).AddRange(LoadPathExecutables());
         PausedCommands = new List<ICommand>();
     }
-    
+
     public IList<ICommand> Elements { get; }
     public IList<ICommand> PausedCommands { get; }
 
-    public int Run(string name, List<string> args, IConsole owner)
+    public CommandResult Run(string name, List<string> args, IConsole owner)
     {
         var command = Elements
                    .FirstOrDefault(x => x.Name.ToLower().Equals(name.ToLower()));
 
         if (command == null)
-            return int.MinValue;
+            return CommandReturnValues.NoSuchCommand;
 
         var result = command.Run(args, owner);
         owner.EventHandler.HandleOnCommandExecuted(new(command));
@@ -55,7 +52,7 @@ public class BaseCommandCentre : ICommandCentre
     }
 
     public List<ICommand> LoadBuiltinCommands()
-    { 
+    {
         var instances = new List<ICommand>();
         var types = Assembly.GetExecutingAssembly().GetTypes();
         var @base = typeof(ICommand);
@@ -81,7 +78,7 @@ public class BaseCommandCentre : ICommandCentre
         return instances;
     }
 
-    private string GetSearchPatternForOs()
+    private static string GetSearchPatternForOs()
     {
         // If the OS is windows, use "*.exe"
         // Otherwise, use "*"
@@ -201,40 +198,7 @@ public class BaseCommandCentre : ICommandCentre
         return results;
     }
 
-    public int AttemptToQueueCommand(string name, List<string> args, IConsole owner)
-    {
-        if (!CommandExists(name))
-        {
-            return CommandReturnValues.NoSuchCommand;
-        }
-
-        var instance = Elements.First(x => x.Name == name);
-
-        if (instance is not PathFileCommand command)
-        {
-            var wrapper = new AsyncCommand(instance);
-            PausedCommands.Add(wrapper);
-            return 0;
-        }
-        
-        var started = command.StartThenPause(args);
-        PausedCommands.Add(instance);
-        
-        return started ? 0 : CommandReturnValues.FailedToStartProcess;
-    }
-
-    public ICommand? FinishQueuedCommand(string command)
-    {
-        if (PausedCommands.Count == 1)
-        {
-            return PausedCommands[0];
-        }
-
-        return PausedCommands
-                .FirstOrDefault(x => x.Name == command);
-    }
-
-    public int ExecuteFrom(IConsole parent, string name, params string[] args)
+    public CommandResult ExecuteFrom(IConsole parent, string name, params string[] args)
     {
         if (!CommandExists(name, out var command))
         {

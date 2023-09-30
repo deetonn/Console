@@ -6,7 +6,7 @@ public interface IOption
     /// <summary>
     /// The options technical name.
     /// </summary>
-    public string TechnicalName  { get; set; }
+    public string TechnicalName { get; set; }
 
     /// <summary>
     /// The options visual name, should be suitable for displaying
@@ -17,7 +17,7 @@ public interface IOption
     /// <summary>
     /// The options value. This is an object as it can be anything.
     /// </summary>
-    public object Value { get; set; } 
+    public object Value { get; set; }
 }
 
 public interface ISettings

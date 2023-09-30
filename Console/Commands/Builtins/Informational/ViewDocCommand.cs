@@ -1,4 +1,6 @@
 ﻿
+using Console.Errors;
+
 namespace Console.Commands.Builtins.Informational;
 
 public class ViewDocCommand : BaseBuiltinCommand
@@ -6,7 +8,7 @@ public class ViewDocCommand : BaseBuiltinCommand
     public override string Name => "docs";
     public override string Description => "View documentation for a command.";
 
-    public override int Run(List<string> args, IConsole parent)
+    public override CommandResult Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
 

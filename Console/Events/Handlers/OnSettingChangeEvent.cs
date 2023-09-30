@@ -1,6 +1,4 @@
-﻿using Console.Utilitys.Options;
-
-namespace Console.Events.Handlers;
+﻿namespace Console.Events.Handlers;
 
 using OnSettingChangeEventHandler = Func<OnSettingChangeEventArgs, bool>;
 

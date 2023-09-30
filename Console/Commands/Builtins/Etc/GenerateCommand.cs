@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography;
+﻿using Console.Errors;
+using System.Security.Cryptography;
 
 namespace Console.Commands.Builtins.Etc;
 
@@ -7,7 +8,7 @@ public class GenerateCommand : BaseBuiltinCommand
     public override string Name => "generate";
     public override string Description => "generate different things. use --help for more information.";
 
-    public override int Run(List<string> args, IConsole parent)
+    public override CommandResult Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
 
@@ -42,18 +43,21 @@ public class GenerateCommand : BaseBuiltinCommand
         return 0;
     }
 
-    public int PasswordPath(List<string> args)
+    public CommandResult PasswordPath(List<string> args)
     {
         if (args.Count == 0)
         {
-            WriteLine("generate: password: `length: number` argument not specified.");
-            return -1;
+            return Error()
+                .WithMessage("the argument \"length: number\" was not specified.")
+                .Build();
         }
 
         if (!int.TryParse(args[0], out var length))
         {
-            WriteLine("generate: password: length argument is invalid, the number is unable to be parsed.");
-            return -1;
+            return Error()
+                .WithMessage("length argument is invalid")
+                .WithNote("the number is unable to be parsed")
+                .Build();
         }
 
         var password = GeneratePassword(length);
@@ -69,15 +73,12 @@ public class GenerateCommand : BaseBuiltinCommand
                        .Select(s => s[RandomNumberGenerator.GetInt32(0, s.Length)]).ToArray());
     }
 
-    int DoHelp()
+    CommandError DoHelp()
     {
-        WriteLine($"{Name} - usage");
-        WriteLine("  password: generate a password");
-        WriteLine("    [[count: number]] - The number of characters for the password to contain.");
-        WriteLine("  integer: generate a random number");
-        WriteLine("    [[--long: flag]] if present, the number generated will be 64-bit, instead of 32-bit.");
-
-        return 0;
+        return Error()
+            .WithMessage("invalid usage")
+            .WithNote($"use \"docs {Name}\" for more information.")
+            .Build();
     }
 
     public override string DocString => $@"

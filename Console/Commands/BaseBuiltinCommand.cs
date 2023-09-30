@@ -1,26 +1,24 @@
-﻿using Console.UserInterface;
-using Console.UserInterface.UiTypes;
-using System.ComponentModel;
+﻿using Console.Errors;
 
 namespace Console.Commands;
 
 public class BaseBuiltinCommand : ICommand
 {
     private IConsole? _terminal;
-    
-    public virtual string Name { get; } = null!; 
-    
+
+    public virtual string Name { get; } = null!;
+
     public virtual string Description { get; } = null!;
-    
+
     public virtual DateTime? LastRunTime { get; set; } = default;
 
     public virtual string DocString { get; protected set; } = "";
 
-    public virtual int Run(List<string> args, IConsole parent)
+    public virtual CommandResult Run(List<string> args, IConsole parent)
     {
         LastRunTime = DateTime.Now;
         _terminal = parent;
-        var args_str = 
+        var args_str =
             args.Count == 0 ?
             "no arguments"
             : "[" + string.Join(", ", args) + "]";
@@ -28,7 +26,7 @@ public class BaseBuiltinCommand : ICommand
         parent.EnvironmentVars.EnterCommandContext();
         return 0;
     }
-    
+
     /// <summary>
     /// Helper methods, will write to the parents output stream.
     /// Must call <see cref="Run"/> from base before using.
@@ -45,7 +43,7 @@ public class BaseBuiltinCommand : ICommand
     {
         WriteLine($"[[[red]error[/]]]: {message}");
     }
-    
+
     /// <summary>
     /// Helper methods, will write to the parents output stream.
     /// Must call <see cref="Run"/> from base before using.
@@ -72,6 +70,9 @@ public class BaseBuiltinCommand : ICommand
 
         return _terminal?.Ui.GetLine(prompt);
     }
+
+    public CommandErrorBuilder Error()
+        => new CommandErrorBuilder().WithSource(_terminal!.GetLastExecutedString());
 
     public virtual void OnInit(IConsole parent)
     {

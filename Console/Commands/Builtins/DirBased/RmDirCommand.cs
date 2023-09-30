@@ -1,5 +1,5 @@
 ﻿
-using Console.UserInterface;
+using Console.Errors;
 
 namespace Console.Commands.Builtins.DirBased;
 
@@ -8,17 +8,17 @@ public class RmDirCommand : BaseBuiltinCommand
     public override string Name => "rmdir";
     public override string Description => "Remove a directory";
     public override DateTime? LastRunTime { get; set; } = null;
-    public override int Run(List<string> args, IConsole parent)
+    public override CommandResult Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
 
         if (args.Count < 1)
         {
-            return DisplayUsage(parent.Ui);
+            return DisplayUsage();
         }
 
         if (args.Contains("--help"))
-            return DisplayUsage(parent.Ui);
+            return DisplayUsage();
 
         var path = args[0];
 
@@ -59,16 +59,14 @@ public class RmDirCommand : BaseBuiltinCommand
         return 0;
     }
 
-    private int DisplayUsage(IUserInterface ui)
+    private CommandError DisplayUsage()
     {
-        ui.DisplayLinePure($"{Name} -- USAGE\n");
-
-        ui.DisplayLinePure($"rmdir <Path> [...options]\n");
-        ui.DisplayLinePure("Path: The path to remove");
-        ui.DisplayLinePure("Options:");
-        ui.DisplayLinePure("  --all: remove the file without any warnings.");
-
-        return -1;
+        return Error()
+            .WithMessage("invalid usage")
+            .WithNote($"usage: {Name} <path> [[...options]]")
+            .WithNote($"path: the path to remove.")
+            .WithNote($"use \"docs {Name}\" for more information.")
+            .Build();
     }
 
     public override string DocString => $@"
@@ -77,7 +75,7 @@ This command will attempt to remove a directory.
 If the argument supplied is relative, the directory removed will be relative to the CWD.
 
 The syntax is as follows:
-    {Name} <path> [...options]
+    {Name} <path> [[...options]]
        --all: remove the directory without any warnings, will remove all files/directorys within it too.
 ";
 }

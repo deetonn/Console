@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Console.Errors;
 
 namespace Console.Commands.Builtins.DirBased;
 
@@ -11,7 +7,7 @@ public class CopyCommand : BaseBuiltinCommand
     // override base class members
     public override string Name => "copy";
     public override string Description => "Copies a file or directory to another location.";
-    public override int Run(List<string> args, IConsole parent)
+    public override CommandResult Run(List<string> args, IConsole parent)
     {
         base.Run(args, parent);
 
@@ -19,8 +15,13 @@ public class CopyCommand : BaseBuiltinCommand
         // the syntax would be `copy <src> <dst> [options]
         if (args.Count < 2)
         {
-            WriteLine("usage: copy <src> <dst> [options...]");
-            return 1;
+            return Error()
+                .WithMessage("invalid usage. expected at least 2 arguments.")
+                .WithNote("usage: copy <src> <dst> [[options...]]")
+                .WithNote("src: The source file/directory")
+                .WithNote("dst: The destination file/directory.")
+                .WithNote($"use \"docs {Name}\" for more information.")
+                .Build();
         }
 
         // get the source and destination paths
@@ -129,6 +130,6 @@ If the source does not exist, an error will be displayed.
 If the destination does not exist, it will be created.
 
 Usage:
-    copy <src> <dst> [options...]
+    copy <src> <dst> [[options...]]
 ";
 }

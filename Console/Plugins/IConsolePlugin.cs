@@ -1,7 +1,4 @@
-﻿
-using Console.Commands;
-using Console.Utilitys.Options;
-using System.Windows.Input;
+﻿using Console.Utilitys.Options;
 
 namespace Console.Plugins;
 
