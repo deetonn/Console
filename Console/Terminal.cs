@@ -141,6 +141,8 @@ public class Terminal : IDisposable, IConsole
         Logger().LogInfo(this, $"Main terminal instance ready. [{this}]");
 
         EventHandler.HandleOnApplicationStart(new(this));
+
+        _lastExecutedCommand = string.Empty;
     }
 
     private void EnsurePluginsDirectory()
