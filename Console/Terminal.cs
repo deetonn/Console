@@ -61,6 +61,8 @@ public class Terminal : IDisposable, IConsole
     /// </summary>
     public readonly string ConfigurationPath;
 
+    private string _lastExecutedCommand;
+
     public string GetConfigPath() => ConfigurationPath;
 
     public IUserInterface Ui { get; }
