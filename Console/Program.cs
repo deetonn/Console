@@ -8,7 +8,6 @@ using Console;
 using Console.Commands.Scripting;
 using Console.UserInterface.UiTypes;
 using Console.Utilitys;
-using Console.Web;
 using System.Diagnostics;
 
 Main();
@@ -67,7 +66,7 @@ void Main()
         context.Execute(terminal);
     }
 
-    terminal.MainLoop();
+    terminal.Run();
 }
 
 void FixFileStructure()
@@ -79,7 +78,7 @@ void FixFileStructure()
     var cwd = Directory.GetCurrentDirectory();
 
     var updateFile = Path.Combine(cwd, "console.exe");
-    
+
     // We need to replace the file in the lower directory
     // with this file.
 
