@@ -10,13 +10,10 @@ public class BaseBuiltinCommand : ICommand
 
     public virtual string Description { get; } = null!;
 
-    public virtual DateTime? LastRunTime { get; set; } = default;
-
     public virtual string DocString { get; protected set; } = "";
 
     public virtual CommandResult Run(List<string> args, IConsole parent)
     {
-        LastRunTime = DateTime.Now;
         _terminal = parent;
         var args_str =
             args.Count == 0 ?

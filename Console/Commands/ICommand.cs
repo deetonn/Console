@@ -14,13 +14,6 @@ public interface ICommand
     public string Description { get; }
 
     /// <summary>
-    /// Call <see cref="Run(List{string}, Terminal)"/> on <see cref="base"/> to
-    /// enable this functionality. This will allow the lastranat command to show the user
-    /// when this command was last ran.
-    /// </summary>
-    public DateTime? LastRunTime { get; set; }
-
-    /// <summary>
     /// The documentation for this command. This should include as much information
     /// as possible.
     /// </summary>
