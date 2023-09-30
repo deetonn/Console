@@ -1,6 +1,5 @@
 ﻿
 using Console.Commands;
-using Console.Commands.Builtins.Web.WebServer;
 using Console.Events;
 using Console.Plugins;
 using Console.UserInterface;
@@ -76,6 +75,9 @@ public class DummyUserInterface : IUserInterface
 /// </summary>
 public class NonfunctionalTerminal : IConsole
 {
+    public string GetLastExecutedString()
+        => "This does not matter in a non-functional terminal.";
+
     public string WorkingDirectory { get; set; } = Directory.GetCurrentDirectory();
 
     public string UnixStyleWorkingDirectory => throw new NotImplementedException();
@@ -90,8 +92,6 @@ public class NonfunctionalTerminal : IConsole
 
     public IPluginManager PluginManager { get; }
 
-    // Ignore, not a main part of this project.
-    public IServer? Server { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
     // Unused
     public IInputHandler InputHandler => throw new NotImplementedException();

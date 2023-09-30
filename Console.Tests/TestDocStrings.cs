@@ -5,7 +5,6 @@ using Console.Commands.Builtins.Etc;
 using Console.Commands.Builtins.Informational;
 using Console.Commands.Builtins.System;
 using Console.Commands.Builtins.Web;
-using System.Windows.Input;
 
 namespace Console.Tests;
 
@@ -131,12 +130,6 @@ public class TestDocStrings
     }
 
     [TestMethod]
-    public void TestQueueCommand()
-    {
-        RunTestsFor(new QueueCommand());
-    }
-
-    [TestMethod]
     public void TestVwfCommand()
     {
         RunTestsFor(new ViewFileCommand());
@@ -160,12 +153,6 @@ public class TestDocStrings
     public void TestHelpCommand()
     {
         RunTestsFor(new HelpCommand());
-    }
-
-    [TestMethod]
-    public void TestLastRanAtCommand()
-    {
-        RunTestsFor(new LastRanAtCommand());
     }
 
     [TestMethod]
