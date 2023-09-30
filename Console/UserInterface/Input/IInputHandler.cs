@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
 namespace Console.UserInterface.Input;
 
@@ -61,7 +57,7 @@ public interface IInputHandler
 
 public class InputHandler : IInputHandler
 {
-    public IDictionary<char, OnInputCallback> Callbacks { get; } = new Dictionary<char,  OnInputCallback>();
+    public IDictionary<char, OnInputCallback> Callbacks { get; } = new Dictionary<char, OnInputCallback>();
 
     public StringBuilder Result { get; } = new();
 

@@ -2,7 +2,7 @@
 
 using OnUserInputEventHandler = Func<UserInputArgs, bool>;
 
-public record class UserInputArgs 
+public record class UserInputArgs
     (string Input);
 
 public class OnUserInputEvent : IGlobalEventHandler

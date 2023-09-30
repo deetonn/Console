@@ -10,7 +10,7 @@ public class ConsoleMessageTray : IMessageTray
     {
         Messages = new List<string>();
     }
-    
+
     public void AddMessage(string message)
     {
         Messages.Add(message);

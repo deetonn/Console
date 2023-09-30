@@ -27,7 +27,7 @@ public static class ProcessExtension
         // ReSharper disable once InconsistentNaming
         DIRECT_IMPERSONATION = (0x0200)
     }
-    
+
     [DllImport("kernel32.dll")]
     private static extern IntPtr OpenThread(ThreadAccess dwDesiredAccess, bool bInheritHandle, uint dwThreadId);
     [DllImport("kernel32.dll")]

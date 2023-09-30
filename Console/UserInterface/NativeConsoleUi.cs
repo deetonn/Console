@@ -1,10 +1,7 @@
-﻿using System.Drawing;
-using Pastel;
-using Console.UserInterface.UiTypes;
+﻿using Console.UserInterface.UiTypes;
 using Console.Utilitys.Options;
-
+using Pastel;
 using Spectre.Console;
-
 using NativeColor = System.Drawing.Color;
 using SystemConsole = System.Console;
 
@@ -36,7 +33,7 @@ public class NativeConsoleUi : IUserInterface
             return false;
         return result;
     }
-    
+
     public void DisplayLine(string message, Severity type = Severity.None)
     {
         var toStr = type.ToString();

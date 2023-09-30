@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Console.Extensions;
+﻿namespace Console.Extensions;
 
 public class HttpClientDownloadWithProgress : IDisposable
 {
