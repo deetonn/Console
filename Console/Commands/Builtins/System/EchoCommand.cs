@@ -15,13 +15,14 @@ public class EchoCommand : BaseBuiltinCommand
         {
             parent.Ui.DisplayLineMarkup(joined);
         }
-        catch (Exception e)
+        catch
         {
             if (parent.Settings.GetOptionValue<bool>(ConsoleOptions.Setting_StrictMode))
             {
                 return Error()
+                    .WithSource("[[[italic red]unavailable due to markdown errors[/]]]")
                     .WithMessage("invalid markdown format")
-                    .WithNote($"{e.Message}")
+                    .WithNote("visit https://spectreconsole.net/markup for information on how markup works.")
                     .Build();
             }
         }
