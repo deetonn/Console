@@ -1,5 +1,5 @@
 ﻿using Console.Commands;
-using Console.Commands.Builtins.Web.WebServer;
+using Console.Errors;
 using Console.Events;
 using Console.Extensions;
 using Console.Plugins;
@@ -35,6 +35,7 @@ public interface IConsole
     public IEnvironmentVariables EnvironmentVars { get; }
 
     public string GetConfigPath();
+    public string GetLastExecutedString();
 }
 
 public class Terminal : IDisposable, IConsole
