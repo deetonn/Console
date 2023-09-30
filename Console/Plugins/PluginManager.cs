@@ -220,7 +220,7 @@ public class PluginManager : IPluginManager
         foreach (var plugin in Plugins)
         {
             plugin.Value.Plugin.OnUnloaded(terminal);
-            DebugLog(terminal.Ui, $"unloaded plugin `{plugin.Key}`");
+            DebugLog(terminal.Ui, $"unloaded plugin `{plugin.Value.Plugin.Name}`");
         }
 
         Plugins.Clear();
