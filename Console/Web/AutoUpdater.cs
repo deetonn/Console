@@ -4,7 +4,10 @@ using System.Diagnostics;
 
 namespace Console.Web;
 
-public class Updates {};
+/// <summary>
+/// This class exists for logging. This is used at the "_this" parameter.
+/// </summary>
+public class Updates { };
 
 public static class AutoUpdater
 {
