@@ -4,7 +4,7 @@ namespace Console.Utilitys;
 public class Callable
 {
     private readonly dynamic Invokable;
-    
+
     public Callable(dynamic callable)
     {
         var type = (Type)callable.GetType() ?? throw new ArgumentException("failed to get type information of callable");
