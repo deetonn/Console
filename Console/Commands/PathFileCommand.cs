@@ -1,7 +1,8 @@
-﻿using System.Diagnostics;
-using PInvoke;
+﻿using Console.Errors;
 using Console.Extensions;
 using Pastel;
+using PInvoke;
+using System.Diagnostics;
 using System.Drawing;
 
 namespace Console.Commands;
@@ -10,18 +11,18 @@ public class PathFileCommand : ICommand
 {
     public const int FileMovedOrDeleted = -0xDEAD;
     public const int FailedToStartProcess = -0xDEAF;
-    
+
     private readonly FileInfo _file;
     private readonly FileVersionInfo _versionInfo;
-    
+
     public PathFileCommand(FileInfo info)
     {
         _file = info;
         _versionInfo = FileVersionInfo.GetVersionInfo(_file.FullName);
     }
-    
-    public string Name 
-    { 
+
+    public string Name
+    {
         get
         {
             if (Environment.OSVersion.Platform == PlatformID.Win32NT)
@@ -29,11 +30,11 @@ public class PathFileCommand : ICommand
                 return _file.Name[..^4];
 
             return _file.Name;
-        } 
+        }
     }
-    
+
     public string Description => _versionInfo.FileDescription ?? "no description";
-    
+
     public DateTime? LastRunTime { get; set; } = DateTime.Now;
 
     public Process? PausedInstance;
@@ -70,7 +71,7 @@ public class PathFileCommand : ICommand
         return PausedInstance != null;
     }
 
-    public int ResumeExecution(List<string> args, IConsole terminal)
+    public CommandResult ResumeExecution(List<string> args, IConsole terminal)
     {
         return Run(args, terminal);
     }
@@ -85,7 +86,7 @@ public class PathFileCommand : ICommand
         {
             while (!process.HasExited)
             {
-                parent.Ui.DisplayLine("Thread is spinning!"); 
+                parent.Ui.DisplayLine("Thread is spinning!");
 
                 bool is_ctrl = (User32.GetAsyncKeyState(VK_CONTROL) & 0x8000) == 0;
                 bool is_x = (User32.GetAsyncKeyState(0x58) & 0x8000) == 0;
@@ -102,7 +103,7 @@ public class PathFileCommand : ICommand
         return t;
     }
 
-    public int Run(List<string> args, IConsole parent)
+    public CommandResult Run(List<string> args, IConsole parent)
     {
         _terminal = parent;
         LastRunTime = DateTime.Now;
@@ -120,7 +121,7 @@ public class PathFileCommand : ICommand
             Arguments = string.Join(' ', args),
             UseShellExecute = false
         };
-        
+
         Process? process;
         string? readData;
         try
@@ -129,7 +130,7 @@ public class PathFileCommand : ICommand
 
             if (process is null)
                 return FailedToStartProcess;
-            
+
             process.Resume();
             parent.Ui.DisplayLine($"Process `{process.ProcessName}` has begun! Press Ctrl+X to stop it.");
             readData = process.StandardOutput.ReadToEnd();
@@ -141,7 +142,7 @@ public class PathFileCommand : ICommand
         {
             return FailedToStartProcess;
         }
-        
+
         parent.Ui.DisplayLinePure(readData);
         return process?.ExitCode ?? -1;
     }
@@ -152,7 +153,7 @@ public class PathFileCommand : ICommand
         {
             return;
         }
-        
+
         _terminal?.Ui.DisplayLinePure(e.Data);
     }
 
