@@ -37,71 +37,7 @@ public class PathFileCommand : ICommand
 
     public DateTime? LastRunTime { get; set; } = DateTime.Now;
 
-    public Process? PausedInstance;
-
-    public bool StartThenPause(List<string> args)
-    {
-        LastRunTime = DateTime.Now;
-
-        if (!_file.Exists)
-        {
-            return false;
-        }
-
-        var startInfo = new ProcessStartInfo
-        {
-            FileName = _file.FullName,
-            RedirectStandardError = true,
-            RedirectStandardOutput = true,
-            Arguments = string.Join(' ', args),
-            UseShellExecute = false,
-            CreateNoWindow = true
-        };
-
-        try
-        {
-            PausedInstance = Process.Start(startInfo);
-            PausedInstance?.Suspend();
-        }
-        catch
-        {
-            return false;
-        }
-
-        return PausedInstance != null;
-    }
-
-    public CommandResult ResumeExecution(List<string> args, IConsole terminal)
-    {
-        return Run(args, terminal);
-    }
-
     private IConsole? _terminal = null;
-
-    private static Thread LaunchQuitKeyThread(IConsole parent, Process process)
-    {
-        const int VK_CONTROL = 0x11;
-
-        var t = new Thread(() =>
-        {
-            while (!process.HasExited)
-            {
-                parent.Ui.DisplayLine("Thread is spinning!");
-
-                bool is_ctrl = (User32.GetAsyncKeyState(VK_CONTROL) & 0x8000) == 0;
-                bool is_x = (User32.GetAsyncKeyState(0x58) & 0x8000) == 0;
-
-                if (is_ctrl && is_x)
-                {
-                    process.Kill();
-                }
-
-                Thread.Sleep(1);
-            }
-        });
-        t.Start();
-        return t;
-    }
 
     public CommandResult Run(List<string> args, IConsole parent)
     {
@@ -110,51 +46,36 @@ public class PathFileCommand : ICommand
 
         if (!_file.Exists)
         {
-            return FileMovedOrDeleted;
+            return new CommandErrorBuilder()
+                .WithSource(_terminal?.GetLastExecutedString() ?? "<unavailable>")
+                .WithMessage("the file binded to this command name no longer exists.")
+                .Build();
         }
 
         var startInfo = new ProcessStartInfo
         {
             FileName = _file.FullName,
-            RedirectStandardError = true,
-            RedirectStandardOutput = true,
             Arguments = string.Join(' ', args),
             UseShellExecute = false
         };
 
         Process? process;
-        string? readData;
         try
         {
-            process = PausedInstance ?? Process.Start(startInfo);
-
-            if (process is null)
-                return FailedToStartProcess;
-
-            process.Resume();
-            parent.Ui.DisplayLine($"Process `{process.ProcessName}` has begun! Press Ctrl+X to stop it.");
-            readData = process.StandardOutput.ReadToEnd();
-            var thread = LaunchQuitKeyThread(parent, process);
-            process.WaitForExit();
-            thread.Join();
+            process = Process.Start(startInfo);
+            process?.WaitForExit();
         }
-        catch
+        catch (Exception e)
         {
-            return FailedToStartProcess;
+            return new CommandErrorBuilder()
+                .WithSource(_terminal?.GetLastExecutedString() ?? "<unavailable>")
+                .WithMessage("failed to launch the process.")
+                .WithNote("an exception occured while trying to start the process binded to that command name.")
+                .WithNote($"error: {e.Message}")
+                .Build();
         }
 
-        parent.Ui.DisplayLinePure(readData);
         return process?.ExitCode ?? -1;
-    }
-
-    private void ProcessOnOutputDataReceived(object sender, DataReceivedEventArgs e)
-    {
-        if (e?.Data is null)
-        {
-            return;
-        }
-
-        _terminal?.Ui.DisplayLinePure(e.Data);
     }
 
     public string DocString => $@"

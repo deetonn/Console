@@ -14,7 +14,7 @@ public class NativeConsoleUi : IUserInterface
     public NativeConsoleUi(Terminal parent)
     {
         Tray = new ConsoleMessageTray();
-        System.Console.Clear();
+        Clear();
 
         this.parent = parent;
 

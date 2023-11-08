@@ -11,11 +11,9 @@ using Console.Utilitys;
 using Console.Utilitys.Configuration;
 using Console.Utilitys.Options;
 using Spectre.Console;
-using StreamJsonRpc;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Runtime.InteropServices;
-using System.Runtime.Serialization;
 using System.Text;
 
 using SystemColor = System.Drawing.Color;
@@ -42,7 +40,7 @@ public interface IConsole
     public string GetLastExecutedString();
 }
 
-public class Terminal : IDisposable, IConsole
+public partial class Terminal : IDisposable, IConsole
 {
     public const string GithubLink = "https://github.com/deetonn/Console";
 
@@ -77,7 +75,7 @@ public class Terminal : IDisposable, IConsole
     public IConfiguration Config { get; internal set; }
     public IEventHandler EventHandler { get; }
     public IEnvironmentVariables EnvironmentVars { get; }
-    public ITextFormatter Formatter { get; } = new InlineTextFormatter();
+    public ITextFormatter Formatter { get; }
 
     public readonly string SavePath;
 
@@ -109,6 +107,8 @@ public class Terminal : IDisposable, IConsole
 
     public Terminal(UiType type)
     {
+        Formatter = new InlineTextFormatter(this);
+
         EventHandler = new GlobalEventHandler();
         EnvironmentVars = new EnvironmentVariables();
 
@@ -124,7 +124,7 @@ public class Terminal : IDisposable, IConsole
         Logger().LogInfo(this, $"Initialized the working directory to `{WorkingDirectory}`");
 
         Ui = UserInterface.Ui.Create(type, this);
-        Commands = new BaseCommandCentre();
+        Commands = new BaseCommandCentre(this);
         InputHandler = new InputHandler();
 
         // Call the OnInit function for each BaseBuiltinCommand.
@@ -252,7 +252,7 @@ public class Terminal : IDisposable, IConsole
         }
 
         var gitRepoString = ParseGitRepoInfo(pathContainingGit);
-        sb.Append(gitRepoString + "$");
+        sb.Append($"[{machineNameColor.ToHexString()}]{UserMachineName}[/]~{UnixStyleWorkingDirectory} ({gitRepoString})");
         return sb.ToString();
     }
 
@@ -419,6 +419,8 @@ public class Terminal : IDisposable, IConsole
 
     static (string[]?, CommandError?) IGNORE = (null, null);
 
+    public static char Slash => Path.DirectorySeparatorChar;
+
     public (string[]?, CommandError?) HandleInlineEnvironmentVariables(string executingCommand, string[]? input)
     {
         if (commandToNotExpand.Contains(executingCommand))
@@ -453,6 +455,16 @@ public class Terminal : IDisposable, IConsole
                     if (current == '{')
                     {
                         current = full[++i];
+                        if (current == '{')
+                        {
+                            // This is nested, this is not yet supported.
+                            // TODO: see https://github.com/deetonn/Console/issues/22
+                            return (null, new CommandErrorBuilder()
+                                .WithSource(GetLastExecutedString())
+                                .WithMessage("nested environment variables are not yet supported.")
+                                .WithNote("check [link=https://github.com/deetonn/Console/issues/22]this github[/] page for more information about this issue.")
+                                .Build());
+                        }
                         continue;
                     }
 
@@ -528,7 +540,9 @@ public class Terminal : IDisposable, IConsole
         var text = new StringBuilder();
         var after = format[1..];
 
-        for (int index = 0; after[index] != ':'; ++index)
+        // TODO: SOMETHING BREAKS HERE...
+
+        for (int index = 0; index > after.Length && after[index] != ':'; ++index)
         {
             text.Append(after[index]);
         }
@@ -623,5 +637,18 @@ public class Terminal : IDisposable, IConsole
                 EventHandler.HandleOnApplicationExit(new(this));
                 PluginManager.UnloadPlugins(this);
             });
+    }
+
+    public static char PathSep 
+    {
+        get
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return ';';
+            }
+
+            return ':';
+        } 
     }
 }

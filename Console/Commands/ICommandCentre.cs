@@ -34,7 +34,7 @@ public interface ICommandCentre
     /// Load all executables from PATH folders.
     /// </summary>
     /// <returns>All, if any, instances </returns>
-    public List<ICommand> LoadPathExecutables();
+    public void LoadPathExecutables(IConsole console);
 
     public ICommand? GetCommand(string name);
 

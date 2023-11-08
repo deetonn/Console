@@ -87,7 +87,7 @@ public class NonfunctionalTerminal : IConsole
 
     public IUserInterface Ui { get; } = new DummyUserInterface();
 
-    public ICommandCentre Commands { get; } = new BaseCommandCentre();
+    public ICommandCentre Commands { get; }
 
     public ISettings Settings { get; set; }
 
@@ -103,7 +103,7 @@ public class NonfunctionalTerminal : IConsole
 
     public IEnvironmentVariables EnvironmentVars => new EnvironmentVariables();
 
-    public ITextFormatter Formatter => new InlineTextFormatter();
+    public ITextFormatter Formatter { get; }
 
     public string GetConfigPath()
     {
@@ -119,6 +119,8 @@ public class NonfunctionalTerminal : IConsole
             IsTestMode = true
         };
         PluginManager = new PluginManager(this);
+        Commands = new BaseCommandCentre(this);
+        Formatter = new InlineTextFormatter(this);
     }
 }
 

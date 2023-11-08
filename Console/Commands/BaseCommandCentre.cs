@@ -4,16 +4,20 @@ using Console.Utilitys;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
+using SystemConsole = global::System.Console;
+
 namespace Console.Commands;
 
 public class BaseCommandCentre : ICommandCentre
 {
     private const string PathVariableName = "PATH";
+    private Thread _loadingThread;
 
-    public BaseCommandCentre()
+
+    public BaseCommandCentre(IConsole parent)
     {
         Elements = LoadBuiltinCommands();
-        ((List<ICommand>)Elements).AddRange(LoadPathExecutables());
+        LoadPathExecutables(parent);
         PausedCommands = new List<ICommand>();
     }
 
@@ -22,11 +26,27 @@ public class BaseCommandCentre : ICommandCentre
 
     public CommandResult Run(string name, List<string> args, IConsole owner)
     {
+        if (_loadingThread.IsAlive)
+        {
+            return new CommandErrorBuilder()
+                .WithSource("<global>")
+                .WithMessage("commands have not yet loaded, please wait a moment.")
+                .WithNote("it can take up to 5 seconds for commands to fully load.")
+                .Build();
+        }
+
         var command = Elements
                    .FirstOrDefault(x => x.Name.ToLower().Equals(name.ToLower()));
 
         if (command == null)
-            return CommandReturnValues.NoSuchCommand;
+        {
+            return new CommandErrorBuilder()
+                .WithSource(owner.GetLastExecutedString())
+                .WithMessage($"the command \"{name}\" does not exist.")
+                .WithNote("cases are not sensitive, this command was not found.")
+                .WithNote("use \"help\" for builtin commands, and \"help --all\" for all commands.")
+                .Build();
+        }
 
         var result = command.Run(args, owner);
         owner.EventHandler.HandleOnCommandExecuted(new(command));
@@ -97,31 +117,45 @@ public class BaseCommandCentre : ICommandCentre
         }
     }
 
-    public List<ICommand> LoadPathExecutables()
+    public void LoadPathExecutables(IConsole terminal)
     {
         var logger = Singleton<ILogger>.Instance();
 
         var path = Environment.GetEnvironmentVariable(PathVariableName);
         if (string.IsNullOrEmpty(path))
         {
-            return new List<ICommand>();
+            return;
         }
 
-        List<ICommand> results;
         var dirs = path.Split(PathSep);
 
-        if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+        _loadingThread = new Thread(() =>
         {
-            results = LoadFromWindowsPath(dirs);
-        }
-        else
-        {
-            results = LoadFromGnuBasedPath(dirs);
-        }
+#if DEBUG
+            SystemConsole.WriteLine("path command thread launched!");
+#endif
 
-        Logger().LogInfo(this, $"Loaded {results.Count} from the PATH variable.");
+            var results = new List<ICommand>();
 
-        return results;
+            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+            {
+                results = LoadFromWindowsPath(dirs);
+            }
+            else
+            {
+                results = LoadFromGnuBasedPath(dirs);
+            }
+
+            ((List<ICommand>)Elements).AddRange(results);
+
+#if DEBUG
+            SystemConsole.WriteLine("path command thread finished!");
+#endif
+
+            terminal.Ui.SetTitle($"Success | Loaded {Elements.Count} commands from disk.");
+        });
+
+        _loadingThread.Start();
     }
 
     private List<ICommand> LoadFromWindowsPath(string[] dirs)
@@ -157,8 +191,10 @@ public class BaseCommandCentre : ICommandCentre
 
         return results;
     }
+    
     private List<ICommand> LoadFromGnuBasedPath(string[] dirs)
     {
+        Logger().LogInfo(this, $"loading {dirs.Length} GNU based paths.");
         var results = new List<ICommand>();
 
         foreach (var dir in dirs)
@@ -203,6 +239,15 @@ public class BaseCommandCentre : ICommandCentre
         if (!CommandExists(name, out var command))
         {
             return CommandReturnValues.NoSuchCommand;
+        }
+
+        if (_loadingThread.IsAlive)
+        {
+            return new CommandErrorBuilder()
+                .WithSource("<global>")
+                .WithMessage("commands have not yet loaded, please wait a moment.")
+                .WithNote("it can take up to 5 seconds for commands to fully load.")
+                .Build();
         }
 
         var result = command.Run(args.ToList(), parent);

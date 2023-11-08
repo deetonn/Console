@@ -38,6 +38,33 @@ public class ChangeDirectoryCommand : BaseBuiltinCommand
         {
             Environment.CurrentDirectory = path;
         }
+        catch (DirectoryNotFoundException ex)
+        {
+            if (!Path.IsPathRooted(path))
+            {
+                // get all folders inside of the current directory.
+                var folders = Directory.GetDirectories(Environment.CurrentDirectory);
+                var possibleMatches = folders
+                        .Select(x => x.Split(Terminal.Slash).Last())
+                        .Where(x => x.StartsWith(path));
+
+                if (possibleMatches.Any())
+                {
+                    var matches = string.Format("possible matches: {0}", 
+                        string.Join(", ", possibleMatches));
+                    return Error()
+                        .WithMessage("an exception occured while trying to change directory.")
+                        .WithNote($"message: {ex.Message}")
+                        .WithNote(matches)
+                        .Build();
+                }
+            }
+
+            return Error()
+                .WithMessage("an exception occured while trying to change directory.")
+                .WithNote($"message: {ex.Message}")
+                .Build();
+        }
         catch (Exception ex)
         {
             return Error()

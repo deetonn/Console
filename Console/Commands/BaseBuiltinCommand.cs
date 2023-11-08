@@ -36,7 +36,7 @@ public class BaseBuiltinCommand : ICommand
     protected void WriteLine(string message)
     {
         _terminal?.EnvironmentVars.AppendCommandOutput(message + "\n");
-        _terminal?.Ui.DisplayLineMarkup($"[cyan]{Name}[/]: " + message);
+        _terminal?.Ui.DisplayLineMarkup(message);
     }
 
     protected void WriteError(string message)

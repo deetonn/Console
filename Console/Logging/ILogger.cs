@@ -54,7 +54,11 @@ public class FileLogger : ILogger
     private void LogToFile(object self, string info)
     {
         var name = self.GetType().Name;
-        File.AppendAllText(_logFile, $"[{name}]" + info + Environment.NewLine);
+        try
+        {
+            File.AppendAllText(_logFile, $"[{name}]" + info + Environment.NewLine);
+        }
+        catch { }
     }
 }
 

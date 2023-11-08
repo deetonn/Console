@@ -1,17 +1,19 @@
-﻿using Console.Errors;
+﻿using CommandLine;
+using Console.Commands.Builtins.Arguments;
+using Console.Errors;
 using Newtonsoft.Json;
 
 namespace Console.Commands.Builtins.Etc;
 
 public record class Alias
-    (string Name, List<string> Commands);
+    (string Name, List<string> Commands, string Description);
 
 public class AliasBuiltinCommand : BaseBuiltinCommand
 {
     public Alias Alias { get; }
 
     public override string Name { get; }
-    public override string Description => "This is an alias command.";
+    public override string Description => Alias.Description;
 
     public AliasBuiltinCommand(Alias alias)
     {
@@ -63,75 +65,91 @@ public class AliasCommand : BaseBuiltinCommand
         if (args.Count < 1)
         {
             return Error()
-                .WithMessage("expected at least one argument")
-                .WithNote("usage: [green]alias[/] [italic blue]name[/]=[yellow]\"script...\"[/]")
+                .WithMessage("Invalid command line arguments.")
+                .WithNote("alias: missing operand")
+                .WithNote("expected a `name`.")
                 .Build();
         }
 
-        var firstArgument = args[0];
-
-        if (firstArgument == "--list")
+        if (args.Contains("--clear"))
         {
-            foreach (var individual in Aliases)
+            // example: alias --clear
+            // first ask the user if they are sure they want to clear all aliases
+            // then clear all aliases
+            // then save the aliases
+            // then return 0
+            var result = ReadLine("Are you sure you want to clear all aliases? [[y/N]] ");
+
+            if (result?.ToLower() != "y")
             {
-                WriteLine($"{individual.Name}: \"{string.Join('&', individual.Commands)}\"");
+                return 0;
             }
+
+            var count = Aliases.Count;
+
+            Aliases.Clear();
+            Save(parent);
+            WriteLine($"Cleared all aliases (total of {count})");
+
+            // remove all elements in the parent that are aliases.
+            (parent.Commands.Elements as List<ICommand>)!.RemoveAll(x => x is AliasBuiltinCommand);
 
             return 0;
         }
 
-        if (firstArgument == "--remove")
+        if (args.Contains("--remove"))
         {
-            // expect args[0] to be remove.
-            if (args.Count != 2)
+            // when "--remove" is specified, remove the alias after the token "--remove"
+            // example: alias --remove test
+            var index = args.IndexOf("--remove");
+            if (index == -1)
             {
                 return Error()
-                    .WithMessage("--remove: expects a name argument.")
-                    .WithNote($"usage: {Name} --remove <name>")
+                    .WithMessage("Invalid command line arguments.")
+                    .WithNote("alias: missing operand")
+                    .WithNote("expected a `name`.")
                     .Build();
             }
-
-            var nameToRemove = args[1];
-            var aliasToRemove = Aliases.FirstOrDefault(x => x.Name == nameToRemove);
-
-            if (aliasToRemove is null)
+            var identToRemove = args[index + 1];
+            var aliasToRemove = Aliases.FirstOrDefault(x => x.Name == identToRemove);
+            if (aliasToRemove == null)
             {
                 return Error()
-                    .WithMessage($"no alias with name `{nameToRemove}` exists.")
+                    .WithMessage("Invalid command line arguments.")
+                    .WithNote("alias: invalid operand")
+                    .WithNote($"no alias with name `{identToRemove}` exists.")
                     .Build();
             }
 
             Aliases.Remove(aliasToRemove);
             Save(parent);
-
-            WriteLine($"the alias \"{aliasToRemove}\" has been removed.");
-
             return 0;
         }
 
-        // The syntax will look like this:
-        // alias alias_name="command1 arg1 & command2 arg2"
+        // the syntax for alias is like this:
+        // alias identifier="script & other arg1"
+        var allArgs = string.Join(' ', args);
 
-        var entireCommand = string.Join(' ', args);
-        var splitCommand = entireCommand.Split('=');
-
-        if (splitCommand.Length != 2)
+        var split = allArgs.Split('=');
+        if (split.Length != 2)
         {
             return Error()
-                .WithMessage("invalid syntax.")
-                .WithNote("usage: [green]alias[/] [italic blue]name[/]=[yellow]\"script...\"[/]")
+                .WithMessage("Invalid command line arguments.")
+                .WithNote("alias: invalid operand")
+                .WithNote("expected a `name` and a `command` separated by `=`.")
                 .Build();
         }
+        var name = split[0];
+        var command = split[1].Replace("\"", string.Empty);
 
-        var name = splitCommand.First();
-        var commands = splitCommand.Last().Split('&').Select(x => x.Trim().Replace("\"", "")).ToList();
-
-        Logger().LogDebug(this, $"Saved alias `{name}`, commands=`{string.Join(", ", commands)}`");
-
-        var alias = new Alias(name, commands);
+        var alias = new Alias(name, [command], $"Alias for `{command}`.");
         Aliases.Add(alias);
-        parent.Commands.LoadCustomCommand(new AliasBuiltinCommand(alias));
         Save(parent);
+        
+        // register the command in the parent
+        parent.Commands.LoadCustomCommand(new AliasBuiltinCommand(alias));
+
+        WriteLine("Alias created successfully.");
 
         return 0;
     }
@@ -165,8 +183,7 @@ public class AliasCommand : BaseBuiltinCommand
             // load "ls" as an alias
             parent.Commands.LoadCustomCommand(
                 new AliasBuiltinCommand(
-                    new Alias("dir", Array.Empty<string>().ToList()
-                    )
+                    new Alias("dir", [], "list files and folders in the current directory.")
                 )
             );
         }

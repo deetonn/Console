@@ -9,6 +9,8 @@ public class RunCommand : BaseBuiltinCommand
     public override string Description => "Execute a command from a full path.";
     public override CommandResult Run(List<string> args, IConsole parent)
     {
+        base.Run(args, parent);
+
         if (args.Count < 1)
         {
             return Error()
