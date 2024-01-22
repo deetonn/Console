@@ -1,4 +1,5 @@
-﻿using Console.Errors;
+﻿ using System.Text;
+using Console.Errors;
 
 namespace Console.Commands.Builtins;
 
@@ -11,13 +12,21 @@ public class DirCommand : BaseBuiltinCommand
     {
         base.Run(args, parent);
 
+        if (args.Contains("-u"))
+        {
+            // unix-style
+            return UnixStyleDir(parent);
+        }
+
+        var dirOnly = args.Contains("-d");
+
         var activeDirectory = parent.WorkingDirectory;
         var info = new DirectoryInfo(activeDirectory);
 
         if (!info.Exists)
         {
             return Error()
-                .WithMessage("the active working directory no longer exists.")
+                .WithMessage("The active working directory no longer exists.")
                 .WithNote("it must have been deleted recently.")
                 .Build();
         }
@@ -37,12 +46,20 @@ public class DirCommand : BaseBuiltinCommand
 
         foreach (var file in childrenFiles)
         {
-            var fmt = string.Format("{0,7} {1,7} {2,7} {3,7}",
-                file.LastAccessTimeUtc, "", $"{file.Length}", file.Name);
-            WriteLine(fmt);
+            if (!dirOnly)
+            {
+                var fmt = string.Format("{0,7} {1,7} {2,7} {3,7}",
+                    file.LastAccessTimeUtc, "", $"{file.Length}", file.Name);
+                WriteLine(fmt);
+            }
         }
 
         return 0;
+    }
+
+    public CommandResult UnixStyleDir(IConsole console)
+    {
+        return Error().Todo("Implement linux style ls with flag -u");
     }
 
     public override string DocString => $@"
