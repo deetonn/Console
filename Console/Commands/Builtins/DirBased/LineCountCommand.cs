@@ -136,7 +136,7 @@ public class LineCountCommand : BaseBuiltinCommand
             if (input == "y")
             {
                 parent.RequestAdminPermissions(Name,
-                    arguments.IntoOriginal());
+                    arguments.IntoOriginal(), parent);
                 return 0;
             }
             return -1;
