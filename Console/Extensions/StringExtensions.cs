@@ -5,6 +5,11 @@ namespace Console.Extensions;
 
 public static class StringExtensions
 {
+    public static string MarkupStrip(this string text)
+    {
+        return text.Replace("[", "[[").Replace("]", "]]");
+    }
+
     public static string GetAllBetweenStartingAt(this string self, char thing, ref int position)
     {
         ++position;
