@@ -1,6 +1,7 @@
 ﻿using Console.Commands.Builtins.Etc;
 using Console.Errors;
 using Console.Utilitys;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
@@ -13,6 +14,9 @@ public class BaseCommandCentre : ICommandCentre
     private const string PathVariableName = "PATH";
     private Thread _loadingThread;
 
+    private ICommand? _currentCommand;
+
+    public ICommand? GetCurrentCommand() => _currentCommand;
 
     public BaseCommandCentre(IConsole parent)
     {
@@ -48,7 +52,9 @@ public class BaseCommandCentre : ICommandCentre
                 .Build();
         }
 
+        _currentCommand = command;
         var result = command.Run(args, owner);
+        _currentCommand = null;
         owner.EventHandler.HandleOnCommandExecuted(new(command));
         return result;
     }
