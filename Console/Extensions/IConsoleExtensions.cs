@@ -7,6 +7,9 @@ namespace Console.Extensions;
 
 public static class IConsoleExtensions
 {
+    [DllImport("libc")]
+    private static extern uint getuid();
+
     public static bool IsAdministrator(this IConsole _)
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -16,21 +19,18 @@ public static class IConsoleExtensions
             return principal.IsInRole(WindowsBuiltInRole.Administrator);
         }
 
-        throw new NotImplementedException("check for root on gnu machines");
+        return getuid() != 0;
     }
 
-    public static void RequestAdminPermissions(this IConsole self, string commandToJumpTo, List<string> arguments)
+    public static void RequestAdminPermissions(this IConsole self, string commandToJumpTo, List<string> arguments, IConsole parent)
     {
         var startInfo = new ProcessStartInfo
         {
-            FileName = Path.Combine(Directory.GetCurrentDirectory(), "Console.exe"),
+            FileName = Path.Combine(parent.GetExecutableLocation(), "Console.exe"),
             // "--jump=run --jump-args=wmic diskdrive get serialnumber"
             Arguments = $"--jump={commandToJumpTo} --jump-args={string.Join(", ", arguments)}",
             // require administrator
             Verb = "runas",
-
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
             UseShellExecute = false,
         };
 
