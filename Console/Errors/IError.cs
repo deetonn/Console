@@ -18,7 +18,7 @@ public class CommandError : IError
     {
         var sb = new StringBuilder();
 
-        sb.AppendLine($"[italic red]ERROR[/]: {message}");
+        sb.AppendLine($"[italic red bold]ERROR[/]: {message}");
         sb.AppendLine(" --> <repl>:1:0");
         sb.AppendLine($"1 | {source}");
 
@@ -37,6 +37,13 @@ public class CommandError : IError
         }
 
         _built = sb.ToString();
+
+        Logger().LogError(this, " ---------------- ");
+        Logger().LogError(this, $"An error occured:");
+        Logger().LogError(this, $"--  {message}");
+        Logger().LogError(this, $"--  {notes?.Count ?? 0} notes attached.");
+        Logger().LogError(this, $"--    at \"{source}\"");
+        Logger().LogError(this, " ---------------- ");
     }
 
     public string GetFormatted()
@@ -72,10 +79,15 @@ public class CommandErrorBuilder
 
     public CommandErrorBuilder WithNote(string note)
     {
-        _notes ??= new List<string>();
+        _notes ??= [];
         _notes.Add(note);
         return this;
     }
 
-    public CommandError Build() => new CommandError(_source, _message, _notes);
+    public CommandError Todo(string message)
+        => WithMessage(message)
+            .WithNote("This command is not yet properly implemented.")
+            .Build();
+
+    public CommandError Build() => new(_source, _message, _notes);
 }
