@@ -20,8 +20,8 @@ public class NativeConsoleUi : IUserInterface
 
         AnsiConsole.Decoration = Decoration.Italic;
 
-        Logger().LogInfo(this, "Native console interface is being used.");
-        Logger().LogInfo(this, $"Parent terminal service is `{parent}`");
+        Logger().LogInfo(this, "    Native console interface is being used.");
+        Logger().LogInfo(this, $"       Parent terminal service is `{parent}`");
     }
 
     public bool ShouldDisplayWatermark()
@@ -145,6 +145,9 @@ public class NativeConsoleUi : IUserInterface
     {
         AnsiConsole.MarkupLine($"[white]{markup}[/]");
     }
+
+    public int BufferWidth => SystemConsole.BufferWidth;
+    public int BufferHeight => SystemConsole.BufferHeight;
 
     public IMessageTray Tray { get; }
 }

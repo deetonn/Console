@@ -63,6 +63,16 @@ public interface IUserInterface
     public ConsoleKeyInfo GetKey();
 
     /// <summary>
+    /// The size of the buffers width, specified in how many characters can fit.
+    /// </summary>
+    public int BufferWidth { get; }
+
+    /// <summary>
+    /// The size of the active buffer height, specified by how many lines can fit.
+    /// </summary>
+    public int BufferHeight { get; }
+
+    /// <summary>
     /// The applications message tray. This should be used to display
     /// messages that aren't relevant in the moment, but can be
     /// useful.
