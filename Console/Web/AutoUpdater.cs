@@ -63,7 +63,7 @@ public static class AutoUpdater
             return; // unlikely return
         }
 
-        parent.Ui.DisplayLineMarkup($"application is up to date!. (local => [italic]{ThisVersion}[/] matches server build)");
+        parent.Ui.DisplayLineMarkup($"application is up to date! (local => [italic]{ThisVersion}[/] matches server build)");
     }
 
     private static void UpdateApplication(IConsole parent, string url)
