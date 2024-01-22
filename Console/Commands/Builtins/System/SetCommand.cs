@@ -26,6 +26,11 @@ public class SetCommand : BaseBuiltinCommand
         var name = args[0];
         var value = args[1];
 
+        if (args.Contains("-c"))
+        {
+            parent.EnvironmentVars.Set(name, "");
+        }
+
         if (parent.EnvironmentVars.Get(name) is null)
         {
             return Error()
@@ -41,11 +46,16 @@ public class SetCommand : BaseBuiltinCommand
     public override string DocString => $@"
 This command will set an environment variable in the current processes context.
 
-USAGE: {Name} <env-name> <value>
+USAGE: {Name} <env-name> <value> [[...flags]]
+FLAGS:
+    ""-c"" -- create the environment variable before setting it. This can also be used
+              to reset its value to an empty string.
 EXAMPLES:
     set the path to the current path + /bin on windows.
        set PATH {{PATH}};/bin
     set the path to /bin on any os.
        set PATH /bin
+    create a new environment variable and set it
+       set APP_VERSION 1.0.0 -c
 ";
 }
