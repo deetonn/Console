@@ -30,6 +30,8 @@ public interface ICommandCentre
     /// <returns>All, if any, instances of <see cref="ICommand"/></returns>
     public List<ICommand> LoadBuiltinCommands();
 
+    public ICommand? GetCurrentCommand();
+
     /// <summary>
     /// Load all executables from PATH folders.
     /// </summary>
