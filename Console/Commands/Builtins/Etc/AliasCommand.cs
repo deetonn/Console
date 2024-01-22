@@ -116,7 +116,7 @@ public class AliasCommand : BaseBuiltinCommand
             {
                 return Error()
                     .WithMessage("Invalid command line arguments.")
-                    .WithNote("alias: invalid operand")
+                    .WithNote("alias: invalid argument")
                     .WithNote($"no alias with name `{identToRemove}` exists.")
                     .Build();
             }
@@ -135,8 +135,9 @@ public class AliasCommand : BaseBuiltinCommand
         {
             return Error()
                 .WithMessage("Invalid command line arguments.")
-                .WithNote("alias: invalid operand")
+                .WithNote("alias: invalid argument")
                 .WithNote("expected a `name` and a `command` separated by `=`.")
+                .WithNote("example: alias helpa=\"help --all\"")
                 .Build();
         }
         var name = split[0];
@@ -169,7 +170,7 @@ public class AliasCommand : BaseBuiltinCommand
 
             var fileContents = File.ReadAllText(path);
             Aliases = JsonConvert.DeserializeObject<List<Alias>>(fileContents)!;
-            Aliases ??= new List<Alias>();
+            Aliases ??= [];
             Logger().LogInfo(this, $"Loaded {Aliases.Count} saved aliases.");
 
             foreach (var commandAlias in Aliases)
