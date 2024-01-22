@@ -21,7 +21,7 @@ public class GenerateCommand : BaseBuiltinCommand
 
         return mode switch
         {
-            "password" => PasswordPath(args.ToArray()[1..].ToList()),
+            "password" => PasswordPath([.. args.ToArray()[1..]]),
             "integer" => RandomIntegerPath(args.Contains("--long")),
             _ => DoHelp(),
         };
