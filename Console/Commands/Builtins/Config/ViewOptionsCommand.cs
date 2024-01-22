@@ -1,5 +1,6 @@
 ﻿
 using Console.Errors;
+using Console.Utilitys.Options;
 
 namespace Console.Commands.Builtins.Config;
 
@@ -22,6 +23,11 @@ public class ViewOptionsCommand : BaseBuiltinCommand
         WriteLine($"\nAll options are saved inside the path ` {savePath} `");
 
         return 0;
+    }
+
+    public void OutputOption(ConsoleOption option)
+    {
+        WriteLine("");
     }
 
     public override string DocString => $@"
