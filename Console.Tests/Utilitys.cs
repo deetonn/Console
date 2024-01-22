@@ -68,6 +68,9 @@ public class DummyUserInterface : IUserInterface
     {
         SystemConsole.Title = message;
     }
+
+    public int BufferHeight => SystemConsole.BufferHeight;
+    public int BufferWidth => SystemConsole.BufferWidth;
 }
 
 /// <summary>
@@ -76,6 +79,8 @@ public class DummyUserInterface : IUserInterface
 /// </summary>
 public class NonfunctionalTerminal : IConsole
 {
+    public string GetExecutableLocation() => string.Empty;
+
     public string GetLastExecutedString()
         => "This does not matter in a non-functional terminal.";
 
