@@ -26,13 +26,14 @@ public class RunCommand : BaseBuiltinCommand
         {
             // FIXME: this is a hack, but it works for now.
             var process = new PathFileCommand(new FileInfo(fullPath));
-            return process.Run(arguments.ToList(), parent);
+            return process.Run([.. arguments], parent);
         }
         catch (Exception e)
         {
             return Error()
                 .WithMessage("failed to execute command")
                 .WithNote($"{e.Message}")
+                .WithNote($"This is likely because the path `{fullPath}` does not exist.")
                 .Build();
         }
     }
