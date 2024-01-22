@@ -11,8 +11,10 @@ using Console.Utilitys;
 using Console.Utilitys.Configuration;
 using Console.Utilitys.Options;
 using Spectre.Console;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -36,12 +38,28 @@ public interface IConsole
     public IEnvironmentVariables EnvironmentVars { get; }
     public ITextFormatter Formatter { get; }
 
+    /// <summary>
+    /// Get the configuration folder path.
+    /// </summary>
+    /// <returns>The path to where the configuration files live.</returns>
     public string GetConfigPath();
+
+    /// <summary>
+    /// Get the last executed command.
+    /// </summary>
+    /// <returns></returns>
     public string GetLastExecutedString();
+    /// <summary>
+    /// Get the location of the console execution. 
+    /// </summary>
+    /// <returns>The directory that contains the running instance of console.</returns>
+    public string GetExecutableLocation();
 }
 
 public partial class Terminal : IDisposable, IConsole
 {
+    public string GetExecutableLocation() => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
+
     public const string GithubLink = "https://github.com/deetonn/Console";
 
     public string WorkingDirectory { get; set; }
@@ -147,6 +165,23 @@ public partial class Terminal : IDisposable, IConsole
         EventHandler.HandleOnApplicationStart(new(this));
 
         _lastExecutedCommand = string.Empty;
+
+        // setup Ctrl+C
+        SystemConsole.CancelKeyPress += (context, args) =>
+        {
+            args.Cancel = true;
+            var command = Commands.GetCurrentCommand();
+
+            if (command is PathFileCommand pcmd)
+            {
+                var process = pcmd.GetProcess();
+                process?.Kill();
+                return;
+            }
+
+            WriteLine("\ncannot stop the currently executing command because it isn't an executable.");
+            WriteLine("the best thing you can do is restart. Sorry about this.");
+        };
     }
 
     private void EnsurePluginsDirectory()
@@ -263,12 +298,13 @@ public partial class Terminal : IDisposable, IConsole
         => Ui.DisplayLineMarkup(message);
 
     public CommandResult LastResult { get; private set; } = 0;
+    public bool exitRequested = false;
 
     internal void Run()
     {
         WriteWelcome();
 
-        while (true)
+        while (!exitRequested)
         {
             if (!LastResult.IsError() && LastResult.GetResult() == CommandReturnValues.SafeExit)
                 break;
@@ -292,7 +328,7 @@ public partial class Terminal : IDisposable, IConsole
 
             if (input.First().StartsWith("./"))
             {
-                LastResult = DoDotSlashCommand(input.ToList());
+                LastResult = DoDotSlashCommand([.. input]);
                 PanicIfIsErr();
                 continue;
             }
@@ -412,10 +448,10 @@ public partial class Terminal : IDisposable, IConsole
         return realPath;
     }
 
-    private static readonly string[] commandToNotExpand = new[]
-    {
+    private static readonly string[] commandToNotExpand =
+    [
         "alias"
-    };
+    ];
 
     static (string[]?, CommandError?) IGNORE = (null, null);
 
