@@ -38,6 +38,12 @@ public class PathFileCommand : ICommand
     public DateTime? LastRunTime { get; set; } = DateTime.Now;
 
     private IConsole? _terminal = null;
+    private Process? _process;
+
+    public Process? GetProcess()
+    {
+        return _process;
+    }
 
     public CommandResult Run(List<string> args, IConsole parent)
     {
@@ -62,7 +68,7 @@ public class PathFileCommand : ICommand
         Process? process;
         try
         {
-            process = Process.Start(startInfo);
+            process = _process = Process.Start(startInfo);
             process?.WaitForExit();
         }
         catch (Exception e)
